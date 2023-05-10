@@ -34,10 +34,14 @@ class IndividualCustomerController extends AdminController
         $grid->column('issue_date', __('Issue date'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
-        $grid->column('branch_id', __('Branch id'));
-        $grid->column('status', __('Status'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
+        $grid->actions(function ($actions) {
+            if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            }
+        });
 
         return $grid;
     }
@@ -60,6 +64,13 @@ class IndividualCustomerController extends AdminController
         $show->field('issue_date', __('Issue date'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
+        if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
+            $show->panel()
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
+        }
         return $show;
     }
 
