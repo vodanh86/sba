@@ -15,4 +15,6 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('home');
     $router->resource('branches', BranchController::class);
+    $router->resource('individual-customers', IndividualCustomerController::class);
+    $router->resource('business-customers', BusinessCustomerController::class);
 });
