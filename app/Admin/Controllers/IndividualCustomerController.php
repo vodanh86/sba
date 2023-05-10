@@ -37,6 +37,8 @@ class IndividualCustomerController extends AdminController
         $grid->column('branch_id', __('Branch id'));
         $grid->column('status', __('Status'));
 
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
+
         return $grid;
     }
 

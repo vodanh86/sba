@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Http\Models\BusinessCustomer;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -26,16 +27,16 @@ class BusinessCustomerController extends AdminController
     {
         $grid = new Grid(new BusinessCustomer());
 
-        $grid->column('id', __('Id'));
+        $grid->column('name', __('Name'));
         $grid->column('address', __('Address'));
         $grid->column('tax_number', __('Tax number'));
-        $grid->column('name', __('Name'));
         $grid->column('representative', __('Representative'));
         $grid->column('position', __('Position'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
         $grid->column('branch_id', __('Branch id'));
-        $grid->column('status', __('Status'));
+
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
 
         return $grid;
     }
@@ -73,14 +74,12 @@ class BusinessCustomerController extends AdminController
     {
         $form = new Form(new BusinessCustomer());
 
+        $form->text('name', __('Name'));
         $form->text('address', __('Address'));
         $form->text('tax_number', __('Tax number'));
-        $form->text('name', __('Name'));
         $form->text('representative', __('Representative'));
         $form->text('position', __('Position'));
-        $form->number('branch_id', __('Branch id'));
-        $form->number('status', __('Status'));
-
+        $form->hidden('branch_id')->default(Admin::user()->branch_id);
         return $form;
     }
 }
