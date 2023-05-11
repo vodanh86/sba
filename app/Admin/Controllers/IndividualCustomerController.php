@@ -36,12 +36,13 @@ class IndividualCustomerController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        $grid->actions(function ($actions) {
-            if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
+        if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
+            $grid->disableCreateButton();
+            $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 $actions->disableEdit();
-            }
-        });
+            });
+        }
 
         return $grid;
     }

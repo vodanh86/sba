@@ -29,10 +29,10 @@ class PropertyController extends AdminController
 
         $grid->column('name', __('Name'));
         $grid->column('customer_name', __('Customer name'));
-        $grid->column('property_type', __('Property type'));
-        $grid->column('address', __('Address'));
-        $grid->column('purpose', __('Purpose'));
-        $grid->column('ptvt_type', __('Ptvt type'));
+        $grid->column('property_type', __('Property type'))->using(Constant::PROPRERTY_TYPE);
+        $grid->column('address', __('Address'))->using(Constant::PROPRERTY_ADDRESS);
+        $grid->column('purpose', __('Purpose'))->using(Constant::PROPRERTY_PURPOSE);
+        $grid->column('ptvt_type', __('Ptvt type'))->using(Constant::VEHICLE_TYPE);
         $grid->column('production_year', __('Production year'));
         $grid->column('registration_number', __('Registration number'));
         $grid->column('business', __('Business'));
@@ -41,12 +41,14 @@ class PropertyController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        $grid->actions(function ($actions) {
-            if (Admin::user()->can(Constant::VIEW_PROPERTIES)) {
+        if (Admin::user()->can(Constant::VIEW_PROPERTIES)) {
+            $grid->disableCreateButton();
+            $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 $actions->disableEdit();
-            }
-        });
+            });
+        }
+
         return $grid;
     }
 
@@ -93,10 +95,10 @@ class PropertyController extends AdminController
     {
         $form = new Form(new Property());
 
-        $form->text('property_type', __('Property type'));
-        $form->text('address', __('Address'));
-        $form->text('purpose', __('Purpose'));
-        $form->text('ptvt_type', __('Ptvt type'));
+        $form->select('property_type', __('Property type'))->options(Constant::PROPRERTY_TYPE)->setWidth(5, 2);
+        $form->select('address', __('Address'))->options(Constant::PROPRERTY_ADDRESS)->setWidth(5, 2);
+        $form->select('purpose', __('Purpose'))->options(Constant::PROPRERTY_PURPOSE)->setWidth(5, 2);
+        $form->select('ptvt_type', __('Ptvt type'))->options(Constant::VEHICLE_TYPE)->setWidth(5, 2);
         $form->text('production_year', __('Production year'));
         $form->text('registration_number', __('Registration number'));
         $form->text('business', __('Business'));

@@ -18,4 +18,5 @@ Route::group([
     $router->resource('individual-customers', IndividualCustomerController::class);
     $router->resource('business-customers', BusinessCustomerController::class);
     $router->resource('properties', PropertyController::class);
+    $router->resource('invitation-letters', InvitationLetterController::class);
 });

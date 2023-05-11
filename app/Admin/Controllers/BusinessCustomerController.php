@@ -37,6 +37,14 @@ class BusinessCustomerController extends AdminController
         $grid->column('branch_id', __('Branch id'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
+        if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
+            $grid->disableCreateButton();
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
+        }
+        
 
         return $grid;
     }
