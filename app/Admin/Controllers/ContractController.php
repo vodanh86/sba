@@ -4,20 +4,21 @@ namespace App\Admin\Controllers;
 
 use App\Http\Models\InvitationLetter;
 use App\Http\Models\Property;
+use App\Http\Models\Contract;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 
-class InvitationLetterController extends AdminController
+class ContractController extends AdminController
 {
     /**
      * Title for current resource.
      *
      * @var string
      */
-    protected $title = 'Thư chào phí dịch vụ';
+    protected $title = 'Contract';
 
     /**
      * Make a grid builder.
@@ -26,9 +27,10 @@ class InvitationLetterController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new InvitationLetter());
+        $grid = new Grid(new Contract());
 
         $grid->column('code', __('Code'));
+        $grid->column('invitation_letter.code', __('Mã thư mời'));
         $grid->column('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $grid->column('individual_customer.name', __('Individual Customer'))->display(function ($customer) {
             return ($this->customer_type == 1) ? $customer : "";
@@ -76,7 +78,9 @@ class InvitationLetterController extends AdminController
     {
         $show = new Show(InvitationLetter::findOrFail($id));
 
-        $show->field('code', __('Code'));
+        $show->field('id', __('Id'));
+        $show->field('created_at', __('Created at'));
+        $show->field('updated_at', __('Updated at'));
         $show->field('customer_type', __('Customer type'));
         $show->field('customer_id', __('Customer id'));
         $show->field('purpose', __('Purpose'));
@@ -94,9 +98,6 @@ class InvitationLetterController extends AdminController
         $show->field('vat', __('Vat'));
         $show->field('branch_id', __('Branch id'));
         $show->field('status', __('Status'));
-
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
 
         if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
             $show->panel()
@@ -116,10 +117,10 @@ class InvitationLetterController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new InvitationLetter());
+        $form = new Form(new Contract());
 
-        $form->select('code', __('Code'));
-        $form->select('property_id')->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->text('code', __('Code'));
+        $form->select('invitation_letter_id', __('Thư mời'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
         $form->select('customer_id', __('Customer'))->setWidth(2, 2);
         $form->text('purpose', __('Purpose'));
@@ -135,6 +136,7 @@ class InvitationLetterController extends AdminController
         $form->select('payment_method', __('Payment method'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
         $form->number('advance_fee', __('Advance fee'));
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
+        $form->file('hspl', __('Hspl'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
         $form->select('status', __('Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1);
 

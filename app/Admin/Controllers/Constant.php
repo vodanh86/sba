@@ -10,6 +10,8 @@ abstract class Constant
     const EDIT_PROPERTIES = "edit.properties";
     const VIEW_INVITATION_LETTERS = "view.invitationletters";
     const EDIT_INVITATION_LETTERS = "edit.invitationletters";
+    const VIEW_CONTRACTS = "view.contracts";
+    const EDIT_CONTRACTS = "edit.contracts";
 
     const CUSTOMER_TYPE = array(1 => "Khác hàng cá nhân", 2 => "Khách hàng doanh nghiệp");
     const PROPRERTY_TYPE = array(1 => "Bất động sản", 2 => "Phương tiện vận tải", 3 => "Máy móc thiết bị", 4 => "Giá trị doanh nghiệp", 5 => "Khoản nợ", 6 => "Tài sản hỗn hợp");
