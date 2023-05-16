@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Http\Models\InvitationLetter;
 use App\Http\Models\Property;
 use App\Http\Models\Contract;
+use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -52,16 +53,19 @@ class ContractController extends AdminController
         $grid->column('payment_method', __('Payment method'))->using(Constant::PAYMENT_METHOD);
         $grid->column('advance_fee', __('Advance fee'));
         $grid->column('vat', __('Vat'))->using(Constant::YES_NO);
-        $grid->column('status', __('Status'))->using(Constant::INVITATION_STATUS);
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('status_detail.name', __('Status'));
 
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
+        $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "view");
+        $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "edit");
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus));
+
+        if (Admin::user()->can(Constant::VIEW_CONTRACTS) && !Admin::user()->can(Constant::EDIT_CONTRACTS)) {
             $grid->disableCreateButton();
-            $grid->actions(function ($actions) {
+            $grid->actions(function ($actions) use ($editStatus) {
                 $actions->disableDelete();
-                $actions->disableEdit();
+                if (!in_array($actions->row->status, $editStatus)){
+                    $actions->disableEdit();
+                }
             });
         }
 
@@ -99,12 +103,12 @@ class ContractController extends AdminController
         $show->field('branch_id', __('Branch id'));
         $show->field('status', __('Status'));
 
-        if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
+        if (Admin::user()->can(Constant::VIEW_CONTRACTS) && !Admin::user()->can(Constant::EDIT_CONTRACTS)) {
             $show->panel()
-            ->tools(function ($tools) {
-                $tools->disableEdit();
-                $tools->disableDelete();
-            });
+                ->tools(function ($tools) {
+                    $tools->disableEdit();
+                    $tools->disableDelete();
+                });
         }
 
         return $show;
@@ -118,7 +122,21 @@ class ContractController extends AdminController
     protected function form()
     {
         $form = new Form(new Contract());
-
+        $status = array();
+        if ($form->isEditing()) {
+            $id = request()->route()->parameter('contract');
+            $model = $form->model()->find($id);
+            $currentStatus = $model->status;
+            $nextStatuses = StatusTransition::where(["table" => Constant::CONTRACT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $status[$model->status] = $model->status_detail->name;
+            foreach($nextStatuses as $nextStatus){
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
+        } else {
+            $nextStatuses = StatusTransition::where("table", "contracts")->whereNull("status_id")->first();
+            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+        }
+        
         $form->text('code', __('Code'));
         $form->select('invitation_letter_id', __('Thư mời'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
@@ -138,7 +156,7 @@ class ContractController extends AdminController
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->file('hspl', __('Hspl'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->select('status', __('Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1);
+        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->default(1);
 
         return $form;
     }

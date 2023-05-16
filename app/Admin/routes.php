@@ -20,4 +20,6 @@ Route::group([
     $router->resource('properties', PropertyController::class);
     $router->resource('invitation-letters', InvitationLetterController::class);
     $router->resource('contracts', ContractController::class);
+    $router->resource('statuses', StatusController::class);
+    $router->resource('status-transitions', StatusTransitionController::class);
 });

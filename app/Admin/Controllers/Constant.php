@@ -22,4 +22,10 @@ abstract class Constant
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");
     const YES_NO = array(0 => "Không", 1 => "Có");
     const INVITATION_STATUS = array(1 => "Mới tạo", 2 => "Khách từ chối");
+
+    const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
+    const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
+    const TABLES = array("contracts" => "contracts");
+
+    const CONTRACT_TABLE = "contracts";
 }
