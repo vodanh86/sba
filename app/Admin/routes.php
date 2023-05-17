@@ -22,4 +22,5 @@ Route::group([
     $router->resource('contracts', ContractController::class);
     $router->resource('statuses', StatusController::class);
     $router->resource('status-transitions', StatusTransitionController::class);
+    $router->resource('task-notes', TaskNoteController::class);
 });
