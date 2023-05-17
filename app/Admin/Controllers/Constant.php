@@ -26,9 +26,13 @@ abstract class Constant
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
-    const TABLES = array("contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments");
+    const TABLES = array(
+        "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
+        "official_assessments" => "official_assessments"
+    );
 
     const CONTRACT_TABLE = "contracts";
     const TASK_NOTE_TABLE = "task_notes";
     const PRE_ASSESS_TABLE = "pre_assessments";
+    const OFFICIAL_ASSESS_TABLE = "official_assessments";
 }

@@ -24,4 +24,5 @@ Route::group([
     $router->resource('status-transitions', StatusTransitionController::class);
     $router->resource('task-notes', TaskNoteController::class);
     $router->resource('pre-assessments', PreAssessmentController::class);
+    $router->resource('official-assessments', OfficialAssessmentController::class);
 });
