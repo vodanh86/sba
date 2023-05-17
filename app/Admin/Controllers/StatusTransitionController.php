@@ -31,6 +31,8 @@ class StatusTransitionController extends AdminController
         $grid->column('nextStatus.name', __('Next status id'));
         $grid->column('viewers', __('Viewers'));
         $grid->column('editors', __('Editors'));
+        $grid->column('approvers', __('Approvers'));
+        $grid->column('approve_type', __('Approve type'))->using(Constant::APPROVE_TYPE);
         $grid->column('table', __('Table'));
 
         $grid->column('created_at', __('Created at'));
@@ -72,6 +74,8 @@ class StatusTransitionController extends AdminController
         $form->select('next_status_id')->options(Status::selectRaw("CONCAT(`table`, ' - ',`name`) AS full_name, id")->pluck('full_name', 'id'));
         $form->multipleSelect('viewers', __('Viewers'))->options(Constant::ROLES);
         $form->multipleSelect('editors', __('Editors'))->options(Constant::ROLES);
+        $form->multipleSelect('approvers', __('Approvers'))->options(Constant::ROLES);
+        $form->select('approve_type', __('Approve Type'))->options(Constant::APPROVE_TYPE)->setWidth(5, 2);
         $form->select('table', __('Table'))->options(Constant::TABLES)->setWidth(5, 2);
 
         return $form;

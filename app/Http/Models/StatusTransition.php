@@ -42,4 +42,14 @@ class StatusTransition extends Model
     {
         $this->attributes['editors'] = implode(',', $value);
     }
+
+    public function getApproversAttribute($value)
+    {
+        return explode(',', $value);
+    }
+
+    public function setApproversAttribute($value)
+    {
+        $this->attributes['approvers'] = implode(',', $value);
+    }
 }
