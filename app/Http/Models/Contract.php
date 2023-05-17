@@ -23,7 +23,7 @@ class Contract extends Model
         return $this->belongsTo(IndividualCustomer::class, 'customer_id');
     }
 
-    public function status_detail()
+    public function statusDetail()
     {
         return $this->belongsTo(Status::class, 'status');
     }

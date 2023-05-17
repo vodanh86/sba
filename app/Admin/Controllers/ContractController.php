@@ -167,7 +167,7 @@ class ContractController extends AdminController
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->file('hspl', __('Hspl'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->default(1);
+        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
 
         $form->tools(function (Form\Tools $tools) {
             //$tools->disableDelete();
