@@ -20,7 +20,7 @@ class TaskNoteController extends AdminController
      *
      * @var string
      */
-    protected $title = 'TaskNote';
+    protected $title = 'Phiếu giao việc';
 
     /**
      * Make a grid builder.
@@ -35,7 +35,7 @@ class TaskNoteController extends AdminController
         $approveStatus = Utils::getAvailbleStatus(Constant::TASK_NOTE_TABLE, Admin::user()->roles[0]->slug, "approvers");
 
         $grid = new Grid(new TaskNote());
-
+        $grid->column('id', __('Id'));
         $grid->column('contract.name', __('Contract id'));
         $grid->column('source', __('Source'));
         $grid->column('sale.name', __('Sale id'));
@@ -53,9 +53,11 @@ class TaskNoteController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        if (Utils::getCreateRole(Constant::TASK_NOTE_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
-                $grid->disableCreateButton();
                 $actions->disableDelete();
                 $actions->disableEdit();
             }

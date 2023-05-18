@@ -118,7 +118,7 @@ class InvitationLetterController extends AdminController
     {
         $form = new Form(new InvitationLetter());
 
-        $form->select('code', __('Code'));
+        $form->text('code', __('Code'));
         $form->select('property_id')->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
         $form->select('customer_id', __('Customer'))->setWidth(2, 2);
@@ -136,7 +136,7 @@ class InvitationLetterController extends AdminController
         $form->number('advance_fee', __('Advance fee'));
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->select('status', __('Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1);
+        $form->select('status', __('Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1)->required();
 
         return $form;
     }

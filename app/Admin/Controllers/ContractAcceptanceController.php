@@ -18,7 +18,7 @@ class ContractAcceptanceController extends AdminController
      *
      * @var string
      */
-    protected $title = 'ContractAcceptance';
+    protected $title = 'Hợp đồng nghiệm thu';
 
     /**
      * Make a grid builder.
@@ -31,6 +31,7 @@ class ContractAcceptanceController extends AdminController
         $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "editors");
         $approveStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "approvers");
+        
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
@@ -51,9 +52,12 @@ class ContractAcceptanceController extends AdminController
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+
+        if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
-                $grid->disableCreateButton();
                 $actions->disableDelete();
                 $actions->disableEdit();
             }

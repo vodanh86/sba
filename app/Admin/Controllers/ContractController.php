@@ -74,9 +74,11 @@ class ContractController extends AdminController
             return $this->statusDetail->name;
         });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
-                $grid->disableCreateButton();
                 $actions->disableDelete();
                 $actions->disableEdit();
             }
@@ -139,7 +141,7 @@ class ContractController extends AdminController
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
             $nextStatuses = StatusTransition::where(["table" => Constant::CONTRACT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
-            $status[$model->status] = $model->status_detail->name;
+            $status[$model->status] = $model->statusDetail->name;
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }

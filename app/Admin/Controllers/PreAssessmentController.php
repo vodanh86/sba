@@ -54,9 +54,11 @@ class PreAssessmentController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        if (Utils::getCreateRole(Constant::PRE_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
-                $grid->disableCreateButton();
                 $actions->disableDelete();
                 $actions->disableEdit();
             }

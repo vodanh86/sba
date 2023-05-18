@@ -23,7 +23,7 @@ abstract class Utils
         return $nextStatuses;
     }
 
-    public static function getEditableStatuses(){
-
+    public static function getCreateRole($table){
+        return StatusTransition::where(["table" => $table])->whereNull('status_id')->pluck('editors')->first()[0];
     }
 }
