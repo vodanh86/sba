@@ -28,11 +28,12 @@ abstract class Constant
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
     const TABLES = array(
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
-        "official_assessments" => "official_assessments"
+        "official_assessments" => "official_assessments", "score_cards" => "score_cards"
     );
 
     const CONTRACT_TABLE = "contracts";
     const TASK_NOTE_TABLE = "task_notes";
     const PRE_ASSESS_TABLE = "pre_assessments";
     const OFFICIAL_ASSESS_TABLE = "official_assessments";
+    const SCORE_CARD_TABLE = "score_cards";
 }

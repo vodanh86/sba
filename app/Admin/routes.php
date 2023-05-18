@@ -25,4 +25,5 @@ Route::group([
     $router->resource('task-notes', TaskNoteController::class);
     $router->resource('pre-assessments', PreAssessmentController::class);
     $router->resource('official-assessments', OfficialAssessmentController::class);
+    $router->resource('score-cards', ScoreCardController::class);
 });
