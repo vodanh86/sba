@@ -28,7 +28,7 @@ abstract class Constant
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
     const TABLES = array(
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
-        "official_assessments" => "official_assessments", "score_cards" => "score_cards"
+        "official_assessments" => "official_assessments", "score_cards" => "score_cards", "contract_acceptances" => "contract_acceptances"
     );
 
     const CONTRACT_TABLE = "contracts";
@@ -36,4 +36,5 @@ abstract class Constant
     const PRE_ASSESS_TABLE = "pre_assessments";
     const OFFICIAL_ASSESS_TABLE = "official_assessments";
     const SCORE_CARD_TABLE = "score_cards";
+    const CONTRACT_ACCEPTANCE_TABLE = "contract_acceptances";
 }
