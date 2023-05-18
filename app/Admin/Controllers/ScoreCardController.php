@@ -32,10 +32,12 @@ class ScoreCardController extends AdminController
         $approveStatus = Utils::getAvailbleStatus(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug, "approvers");
 
         $grid = new Grid(new ScoreCard());
-
+        $grid->column('id', __('Id'));
         $grid->column('contract.name', __('Contract id'));
         $grid->column('score', __('Score'));
-        $grid->column('document', __('Document'));
+        $grid->column('document', __('Document'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+        });
 
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));

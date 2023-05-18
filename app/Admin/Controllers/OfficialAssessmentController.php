@@ -37,7 +37,9 @@ class OfficialAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.name', __('Contract id'));
-        $grid->column('document', __('Document'));
+        $grid->column('document', __('Document'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+        });
         $grid->column('finished_date', __('Finished date'));
         $grid->column('performerDetail.name', __('Performer'));
         $grid->column('note', __('Note'));

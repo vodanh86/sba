@@ -71,7 +71,7 @@ class ContractController extends AdminController
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
-            return $this->status_detail->name;
+            return $this->statusDetail->name;
         });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->actions(function ($actions) use ($editStatus, $grid) {
