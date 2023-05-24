@@ -76,7 +76,7 @@ class StatusTransitionController extends AdminController
         $form->multipleSelect('editors', __('Editors'))->options(Constant::ROLES);
         $form->multipleSelect('approvers', __('Approvers'))->options(Constant::ROLES);
         $form->select('approve_type', __('Approve Type'))->options(Constant::APPROVE_TYPE)->setWidth(5, 2);
-        $form->select('table', __('Table'))->options(Constant::TABLES)->setWidth(5, 2);
+        $form->select('table', __('Table'))->options(Constant::TABLES)->setWidth(5, 2)->required();
 
         return $form;
     }

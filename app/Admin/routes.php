@@ -27,4 +27,5 @@ Route::group([
     $router->resource('official-assessments', OfficialAssessmentController::class);
     $router->resource('score-cards', ScoreCardController::class);
     $router->resource('contract-acceptances', ContractAcceptanceController::class);
+    $router->resource('valuation-documents', ValuationDocumentController::class);
 });
