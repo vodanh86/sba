@@ -43,12 +43,6 @@ class ValuationDocumentController extends AdminController
         $grid->column('finished_date', __('Finished date'));
         $grid->column('performerDetail.name', __('Performer'));
         $grid->column('note', __('Note'));
-        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
-            if (in_array($statusId, $approveStatus) == 1) {
-                return $column->editable('select', $nextStatuses);
-            }
-            return $this->statusDetail->name;
-        });
 
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
@@ -86,7 +80,6 @@ class ValuationDocumentController extends AdminController
         $show->field('finished_date', __('Finished date'));
         $show->field('performer', __('Performer'));
         $show->field('note', __('Note'));
-        $show->field('status', __('Status'));
 
         $show->panel()
         ->tools(function ($tools) {
@@ -105,6 +98,7 @@ class ValuationDocumentController extends AdminController
     {
         $form = new Form(new ValuationDocument());
         $status = array();
+        $defaultStatus = "";
         if ($form->isEditing()) {
             $id = request()->route()->parameter('valuation_document');
             $model = $form->model()->find($id);
@@ -117,14 +111,15 @@ class ValuationDocumentController extends AdminController
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::VALUATION_DOCUMENT_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+            $defaultStatus = $nextStatuses->next_status_id;
         }
         $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->file('document', __('Document'));
         $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
         $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Note'));
-        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
+        $form->hidden('status')->default($defaultStatus);
 
         return $form;
     }
