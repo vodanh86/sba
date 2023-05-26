@@ -16,7 +16,7 @@ class PropertyController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Property';
+    protected $title = 'Tài sản thẩm định';
 
     /**
      * Make a grid builder.
@@ -96,7 +96,7 @@ class PropertyController extends AdminController
         $form = new Form(new Property());
 
         $form->select('property_type', __('Property type'))->options(Constant::PROPRERTY_TYPE)->setWidth(5, 2);
-        $form->select('address', __('Address'))->options(Constant::PROPRERTY_ADDRESS)->setWidth(5, 2);
+        $form->text('address', __('Address'));
         $form->select('purpose', __('Purpose'))->options(Constant::PROPRERTY_PURPOSE)->setWidth(5, 2);
         $form->select('ptvt_type', __('Ptvt type'))->options(Constant::VEHICLE_TYPE)->setWidth(5, 2);
         $form->text('production_year', __('Production year'));
