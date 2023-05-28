@@ -21,7 +21,7 @@ class ContractController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Contract';
+    protected $title = 'Hợp đồng';
 
     /**
      * Make a grid builder.

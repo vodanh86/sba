@@ -16,7 +16,7 @@ class BusinessCustomerController extends AdminController
      *
      * @var string
      */
-    protected $title = 'BusinessCustomer';
+    protected $title = 'Khách hàng doanh nghiệp';
 
     /**
      * Make a grid builder.
