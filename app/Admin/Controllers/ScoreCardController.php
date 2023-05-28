@@ -69,8 +69,7 @@ class ScoreCardController extends AdminController
         $show->field('updated_at', __('Updated at'));
         $show->field('branch_id', __('Branch id'));
         $show->field('contract_id', __('Contract id'));
-        $show->field('score', __('Score'));
-        $show->field('document', __('Document'));
+        $show->document()->file();
         $show->field('status', __('Status'));
         $show->panel()
         ->tools(function ($tools) {
