@@ -77,17 +77,17 @@ class TaskNoteController extends AdminController
         $show = new Show(TaskNote::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('contract_id', __('Contract id'));
+        $show->field('contract.name', __('Contract id'));
         $show->field('source', __('Source'));
-        $show->field('sale_id', __('Sale id'));
-        $show->field('tdv', __('Tdv'));
-        $show->field('tdv_assistant', __('Tdv assistant'));
-        $show->field('controller', __('Controller'));
+        $show->field('sale.name', __('Sale id'));
+        $show->field('tdvDetail.name', __('Tdv'));
+        $show->field('tdvAssistantDetail.name', __('Tdv assistant'));
+        $show->field('controllerDetail.name', __('Controller'));
         $show->field('estimated_date', __('Estimated date'));
         $show->field('statusDetail.name', __('Status'));
 
+        $show->field('created_at', __('Created at'));
+        $show->field('updated_at', __('Updated at'));
         $show->panel()
         ->tools(function ($tools) {
             $tools->disableEdit();
