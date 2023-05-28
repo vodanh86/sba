@@ -121,7 +121,7 @@ class InvitationLetterController extends AdminController
     {
         $form = new Form(new InvitationLetter());
 
-        $form->text('code', __('Code'));
+        $form->text('code', __('Code'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
         $form->select('customer_id', __('Customer'))->setWidth(2, 2)->when(-1, function (Form $form){
             $form->text('id_number', __('Id number'))->disable();
