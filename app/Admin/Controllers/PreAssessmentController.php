@@ -78,15 +78,14 @@ class PreAssessmentController extends AdminController
         $show = new Show(PreAssessment::findOrFail($id));
 
         $show->field('id', __('Id'));
+        $show->field('contract_id', __('Contract id'));
+        $show->document()->file();
+        $show->field('finished_date', __('Finished date'));
+        $show->field('performerDetail.name', __('Performer'));
+        $show->field('note', __('Note'));
+        $show->field('statusDetail.name', __('Status'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
-        $show->field('branch_id', __('Branch id'));
-        $show->field('contract_id', __('Contract id'));
-        $show->field('document', __('Document'));
-        $show->field('finished_date', __('Finished date'));
-        $show->field('performer', __('Performer'));
-        $show->field('note', __('Note'));
-        $show->field('status', __('Status'));
 
         $show->panel()
         ->tools(function ($tools) {
