@@ -16,6 +16,9 @@ abstract class Constant
     const CUSTOMER_TYPE = array(1 => "Khác hàng cá nhân", 2 => "Khách hàng doanh nghiệp");
     const PROPRERTY_TYPE = array(1 => "Bất động sản", 2 => "Phương tiện vận tải", 3 => "Máy móc thiết bị", 4 => "Giá trị doanh nghiệp", 5 => "Khoản nợ", 6 => "Tài sản hỗn hợp");
     const PROPRERTY_ADDRESS = array(1 => "Tỉnh/thành phố", 2 => "Quận/huyện", 3 => "Xã/phường/thị trấn", 4 => "Đường");
+    const INVITATION_PURPOSE = array("Thế chấp vay vốn" => "Thế chấp vay vốn", "Xử lý nợ" => "Xử lý nợ", "Phê duyệt dự toán" => "Phê duyệt dự toán",
+                                      "Góp vốn đầu tư" => "Góp vốn đầu tư", "Mua sắm - thanh lý tài sản" => "Mua sắm - thanh lý tài sản",
+                                      "Mua bán chuyển nhượng" => "Mua bán chuyển nhượng", "Mục đích khác" => "Mục đích khác");
     const PROPRERTY_PURPOSE = array(1 => "Đất ở", 2 => "Đất nông nghiệp", 3 => "Đất TMDV", 4 => "Đất SXKD", 5 => "PNN", 6 => "Đất hỗn hợp");
     const VEHICLE_TYPE = array(1 => "Ô tô con", 2 => "Xe tải", 3 => "Xe đầu kéo", 4 => "Sơ mi rơ móc", 5 => "Xe nâng", 6 => "Tàu nội địa", 7 => "Tàu biển");
     const APPROVE_TYPE = array(0 => "Không", 1 => "Từ chối", 2 => "Đồng ý");

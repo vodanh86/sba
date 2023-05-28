@@ -20,5 +20,17 @@ class CustomerController extends Controller
     
         return BusinessCustomer::where("branch_id", $branch_id)->get(['id', 'name as text']);
     }
+
+    public function find(Request $request)
+    {
+        $id = $request->get('q');
+        $type = $request->get('type');
+
+        if ($type == 1){
+            return IndividualCustomer::find($id);
+        }
+    
+        return BusinessCustomer::find($id);
+    }
     
 }
