@@ -36,7 +36,7 @@ class ValuationDocumentController extends AdminController
         $grid = new Grid(new ValuationDocument());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.name', __('Contract id'));
+        $grid->column('contract.code', __('valuation_document.contract_id'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
@@ -72,14 +72,15 @@ class ValuationDocumentController extends AdminController
         $show = new Show(ValuationDocument::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
         $show->field('branch_id', __('Branch id'));
-        $show->field('contract_id', __('Contract id'));
+        $show->field('contract.code', __('valuation_document.contract_id'));
         $show->field('document', __('Document'));
         $show->field('finished_date', __('Finished date'));
         $show->field('performer', __('Performer'));
         $show->field('note', __('Note'));
+
+        $show->field('created_at', __('Created at'));
+        $show->field('updated_at', __('Updated at'));
 
         $show->panel()
         ->tools(function ($tools) {
@@ -113,7 +114,7 @@ class ValuationDocumentController extends AdminController
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
             $defaultStatus = $nextStatuses->next_status_id;
         }
-        $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->file('document', __('Document'));
         $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
         $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));

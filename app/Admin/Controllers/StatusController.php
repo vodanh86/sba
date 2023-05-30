@@ -27,7 +27,7 @@ class StatusController extends AdminController
         $grid = new Grid(new Status());
 
         $grid->column('id', __('Id'));
-        $grid->column('table', __('Table'));
+        $grid->column('table', __('Table'))->filter('like');
         $grid->column('status', __('Status'));
         $grid->column('name', __('Name'));
         $grid->column('created_at', __('Created at'));

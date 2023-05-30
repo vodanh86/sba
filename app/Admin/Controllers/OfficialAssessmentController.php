@@ -36,7 +36,7 @@ class OfficialAssessmentController extends AdminController
         $grid = new Grid(new OfficialAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.name', __('Contract id'));
+        $grid->column('contract.code', __('official_assessment.contract_id'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
@@ -78,7 +78,7 @@ class OfficialAssessmentController extends AdminController
         $show = new Show(OfficialAssessment::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('contract_id', __('Contract id'));
+        $show->field('contract.code', __('official_assessment.contract_id'));
         $show->document()->file();
         $show->field('finished_date', __('Finished date'));
         $show->field('performerDetail.name', __('Performer'));
@@ -118,7 +118,7 @@ class OfficialAssessmentController extends AdminController
             $nextStatuses = StatusTransition::where("table", Constant::OFFICIAL_ASSESS_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
-        $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->file('document', __('Document'));
         $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
         $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
