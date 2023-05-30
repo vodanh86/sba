@@ -32,7 +32,7 @@ class ContractController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('name', __('Name'));
-        $grid->column('invitationLetter.name', __('Invitation letter id'));
+        $grid->column('invitationLetter.name', __('contract.Invitation letter id'));
         $grid->column('invitationLetter.code', __('Code'));
         $grid->column('contact', __('Contact'));
         $grid->column('note', __('Note'));
@@ -55,7 +55,7 @@ class ContractController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('branch_id', __('Branch id'));
-        $show->field('invitation_letter_id', __('Invitation letter id'));
+        $show->field('invitation_letter_id', __('contract.Invitation letter id'));
         $show->field('contact', __('Contact'));
         $show->field('note', __('Note'));
         $show->field('statusDetail.name', __('Status'));
@@ -89,7 +89,7 @@ class ContractController extends AdminController
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
         $form->text('name', __('Name'));
-        $form->select('invitation_letter_id', __('Thư mời'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->required();
+        $form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->required();
         // invitation letter
         $form->text('code', __('Code'))->disable();
         $form->text('customer_type', __('Loại khách hàng'))->disable();
