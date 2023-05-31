@@ -4,7 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
 use App\Http\Models\InvitationLetter;
-use App\Admin\Actions\Document\AddComment;
+use App\Admin\Actions\Document\AddContractComment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
@@ -66,7 +66,7 @@ class ContractController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->column('comment')->action(AddComment::class)->width(150);
+        $grid->column('comment')->action(AddContractComment::class)->width(150);
         $grid->column('created_at', __('Created at'))->width(150);
         $grid->column('updated_at', __('Updated at'))->width(150);
         // callback after save
