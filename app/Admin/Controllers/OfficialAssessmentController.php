@@ -6,7 +6,7 @@ use App\Http\Models\OfficialAssessment;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
-use App\Http\Models\Status;
+use App\Admin\Actions\Document\AddOfficialAssessmentComment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -50,8 +50,9 @@ class OfficialAssessmentController extends AdminController
             return $this->statusDetail->name;
         });
 
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('comment')->action(AddOfficialAssessmentComment::class)->width(150);
+        $grid->column('created_at', __('Created at'))->width(150);
+        $grid->column('updated_at', __('Updated at'))->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
@@ -83,6 +84,7 @@ class OfficialAssessmentController extends AdminController
         $show->field('finished_date', __('Finished date'));
         $show->field('performerDetail.name', __('Performer'));
         $show->field('note', __('Note'));
+        $show->field('comment', __('Comment'));
         $show->field('statusDetail.name', __('Status'));
 
         $show->field('created_at', __('Created at'));
