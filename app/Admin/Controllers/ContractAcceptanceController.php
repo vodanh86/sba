@@ -6,6 +6,7 @@ use App\Http\Models\ContractAcceptance;
 use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
+use App\Admin\Actions\Document\AddContractAcceptanceComment;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -49,8 +50,9 @@ class ContractAcceptanceController extends AdminController
             }
             return $this->statusDetail->name;
         });
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('comment')->action(AddContractAcceptanceComment::class)->width(150);
+        $grid->column('created_at', __('Created at'))->width(150);
+        $grid->column('updated_at', __('Updated at'))->width(150);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
 
         if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug){
