@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
 use App\Http\Models\InvitationLetter;
+use App\Admin\Actions\Document\AddComment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
@@ -28,6 +29,17 @@ class ContractController extends AdminController
      */
     protected function grid()
     {
+        $nextStatuses = array();
+        $statuses = StatusTransition::where(["table" => Constant::CONTRACT_TABLE])->where("approvers", 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->whereIn("approve_type", [1, 2])->get();
+        foreach($statuses as $key =>$status){
+            $nextStatuses[$status->status_id] = Status::find($status->status_id)->name;
+            $nextStatuses[$status->next_status_id] = Status::find($status->next_status_id)->name;
+        }
+
+        $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "viewers");
+        $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "editors");
+        $approveStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "approvers");
+
         $grid = new Grid(new Contract());
 
         $grid->column('id', __('Id'));
@@ -38,9 +50,26 @@ class ContractController extends AdminController
         $grid->column('contact', __('Contact'));
         $grid->column('note', __('Note'));
 
-        $grid->column('statusDetail.name', __('Status'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+            if (in_array($statusId, $approveStatus) == 1) {
+                return $column->editable('select', $nextStatuses);
+            }
+            return $this->statusDetail->name;
+        });
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
+        $grid->actions(function ($actions) use ($editStatus, $grid) {
+            if (!in_array($actions->row->status, $editStatus)) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            }
+        });
+        $grid->column('comment')->action(AddComment::class)->width(150);
+        $grid->column('created_at', __('Created at'))->width(150);
+        $grid->column('updated_at', __('Updated at'))->width(150);
+        // callback after save
         return $grid;
     }
 
