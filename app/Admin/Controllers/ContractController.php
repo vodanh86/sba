@@ -44,9 +44,8 @@ class ContractController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('name', __('Name'));
-        $grid->column('code', __('Code'));
-        $grid->column('invitationLetter.name', __('contract.Invitation letter id'));
-        $grid->column('invitationLetter.code', __('Code'));
+        $grid->column('code', __('contract.Code'));
+        $grid->column('invitationLetter.code', __('contract.Invitation letter id'));
         $grid->column('contact', __('Contact'));
         $grid->column('note', __('Note'));
 
@@ -119,7 +118,7 @@ class ContractController extends AdminController
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
         $form->text('name', __('Name'));
-        $form->text('code', __('Code'));
+        $form->text('code', __('Code'))->required();
         $form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->required();
         // invitation letter
         $form->text('code', __('Code'))->disable();
