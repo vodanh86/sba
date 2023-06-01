@@ -2,9 +2,12 @@
 
 namespace App\Admin\Controllers;
 
-use App\Http\Models\BusinessCustomer;
-use App\Http\Models\IndividualCustomer;
+use App\Http\Models\Status;
+use App\Http\Models\StatusTransition;
 use App\Http\Models\InvitationLetter;
+use App\Http\Models\IndividualCustomer;
+use App\Http\Models\BusinessCustomer;
+use App\Admin\Actions\Document\AddInvitationLetterComment;
 use App\Http\Models\Property;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -28,6 +31,17 @@ class InvitationLetterController extends AdminController
      */
     protected function grid()
     {
+        $nextStatuses = array();
+        $statuses = StatusTransition::where(["table" => Constant::INVITATION_LETTER_TABLE])->where("approvers", 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->whereIn("approve_type", [1, 2])->get();
+        foreach($statuses as $key =>$status){
+            $nextStatuses[$status->status_id] = Status::find($status->status_id)->name;
+            $nextStatuses[$status->next_status_id] = Status::find($status->next_status_id)->name;
+        }
+
+        $viewStatus = Utils::getAvailbleStatus(Constant::INVITATION_LETTER_TABLE, Admin::user()->roles[0]->slug, "viewers");
+        $editStatus = Utils::getAvailbleStatus(Constant::INVITATION_LETTER_TABLE, Admin::user()->roles[0]->slug, "editors");
+        $approveStatus = Utils::getAvailbleStatus(Constant::INVITATION_LETTER_TABLE, Admin::user()->roles[0]->slug, "approvers");
+
         $grid = new Grid(new InvitationLetter());
 
         $grid->column('code', __('Code'));
@@ -52,18 +66,28 @@ class InvitationLetterController extends AdminController
         $grid->column('payment_method', __('Payment method'))->using(Constant::PAYMENT_METHOD);
         $grid->column('advance_fee', __('Advance fee'));
         $grid->column('vat', __('Vat'))->using(Constant::YES_NO);
-        $grid->column('status', __('Status'))->using(Constant::INVITATION_STATUS);
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
+        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+            if (in_array($statusId, $approveStatus) == 1) {
+                return $column->editable('select', $nextStatuses);
+            }
+            return is_null($this->statusDetail) ? "" : $this->statusDetail->name;
+        });
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        if (Utils::getCreateRole(Constant::INVITATION_LETTER_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
-            $grid->actions(function ($actions) {
+        }
+        $grid->actions(function ($actions) use ($editStatus, $grid) {
+            if (!in_array($actions->row->status, $editStatus)) {
                 $actions->disableDelete();
                 $actions->disableEdit();
-            });
-        }
+            }
+        });
+        $grid->column('comment')->action(AddInvitationLetterComment::class)->width(150);
+        $grid->column('customer status', __('Customer Status'))->using(Constant::INVITATION_STATUS);
+        $grid->column('created_at', __('Created at'))->width(150);
+        $grid->column('updated_at', __('Updated at'))->width(150);
 
         return $grid;
     }
@@ -103,10 +127,10 @@ class InvitationLetterController extends AdminController
 
         if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
             $show->panel()
-            ->tools(function ($tools) {
-                $tools->disableEdit();
-                $tools->disableDelete();
-            });
+                ->tools(function ($tools) {
+                    $tools->disableEdit();
+                    $tools->disableDelete();
+                });
         }
 
         return $show;
@@ -120,23 +144,44 @@ class InvitationLetterController extends AdminController
     protected function form()
     {
         $form = new Form(new InvitationLetter());
-
+        $status = array();
+        $customers = array();
+        if ($form->isEditing()) {
+            $id = request()->route()->parameter('invitation_letter');
+            $model = $form->model()->find($id);
+            $currentStatus = $model->status;
+            $nextStatuses = StatusTransition::where(["table" => Constant::INVITATION_LETTER_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
+            if (!is_null($model->statusDetail)) {
+                $status[$model->status] = $model->statusDetail->name;
+            }
+            if ($model->customer_type == 1){
+                $customers = IndividualCustomer::where("branch_id", Admin::user()->branch_id)->pluck('id_number', 'id');
+            } else {
+                $customers = BusinessCustomer::where("branch_id", Admin::user()->branch_id)->pluck('tax_number', 'id');
+            }
+            foreach ($nextStatuses as $nextStatus) {
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
+        } else {
+            $nextStatuses = StatusTransition::where("table", Constant::INVITATION_LETTER_TABLE)->whereNull("status_id")->first();
+            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+        }
         $form->text('code', __('Code'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
-        $form->select('customer_id', __('invitation_letter.customer_id'))->setWidth(2, 2)->when(-1, function (Form $form){
+        $form->select('customer_id', __('invitation_letter.customer_id'))->options($customers)->setWidth(2, 2)->when(-1, function (Form $form) {
             $form->text('id_number', __('Id number'))->disable();
             $form->text('name', __('Name'))->disable();
             $form->text('address', __('Address'))->disable();
             $form->text('issue_place', __('Issue place'))->disable();
             $form->date('issue_date', __('Issue date'))->default(date('Y-m-d'))->disable();
-        })->when(-2, function (Form $form){
+        })->when(-2, function (Form $form) {
             $form->text('tax_number', __('Tax number'))->disable();
             $form->text('company_name', __('Name'))->disable();
             $form->text('company_address', __('Address'))->disable();
             $form->text('representative', __('Representative'))->disable();
             $form->text('position', __('Position'))->disable();
         })->required();
-        $form->select('property_id', __('invitation_letter.Property id'))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2);
+        $form->select('property_id', __('invitation_letter.Property id'))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2)->required();
         $form->select('purpose', __('Purpose'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('extended_purpose', __('Extended Purpose'));
         $form->date('appraisal_date', __('Appraisal Date'))->default(date('d-m-Y'));
@@ -152,7 +197,8 @@ class InvitationLetterController extends AdminController
         $form->number('advance_fee', __('Advance fee'));
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->select('status', __('Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1)->required();
+        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
+        $form->select('customer_status', __('Customer Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1)->required();
 
         $url = env('APP_URL') . '/api/customer';
         // update file information
@@ -176,9 +222,9 @@ class InvitationLetterController extends AdminController
             $(".cascade-customer_id-2d3" + type).removeClass("hide");
         });
         EOT;
-        
+
         Admin::script($script);
-        
+
         return $form;
     }
 }

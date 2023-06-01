@@ -27,8 +27,8 @@ class StatusController extends AdminController
         $grid = new Grid(new Status());
 
         $grid->column('id', __('Id'));
-        $grid->column('table', __('Table'))->filter('like');
-        $grid->column('status', __('Status'));
+        $grid->column('table', __('Table'))->filter(Constant::TABLES);
+        $grid->column('status', __('Status'))->filter();
         $grid->column('name', __('Name'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
@@ -65,7 +65,7 @@ class StatusController extends AdminController
     {
         $form = new Form(new Status());
 
-        $form->text('table', __('Table'));
+        $form->select('table', ('Table'))->options(Constant::TABLES);
         $form->text('status', __('Status'));
         $form->text('name', __('Name'));
 

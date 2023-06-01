@@ -33,7 +33,7 @@ class StatusTransitionController extends AdminController
         $grid->column('editors', __('Editors'));
         $grid->column('approvers', __('Approvers'));
         $grid->column('approve_type', __('Approve type'))->using(Constant::APPROVE_TYPE);
-        $grid->column('table', __('Table'))->filter('like');
+        $grid->column('table', __('Table'))->filter(Constant::TABLES);
 
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));

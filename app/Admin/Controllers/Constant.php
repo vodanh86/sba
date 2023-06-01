@@ -25,16 +25,17 @@ abstract class Constant
 
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");
     const YES_NO = array(0 => "Không", 1 => "Có");
-    const INVITATION_STATUS = array(1 => "Mới tạo", 2 => "Khách từ chối");
+    const INVITATION_STATUS = array(1 => "Chưa gửi khách hàng", 2 => "Khách hàng đồng ý",  2 => "Khách hàng từ chối");
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
-    const TABLES = array(
+    const TABLES = array("invitation_letters" => "invitation_letters",
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
         "official_assessments" => "official_assessments", "score_cards" => "score_cards", 
         "contract_acceptances" => "contract_acceptances", "valuation_documents" => "valuation_documents"
     );
 
+    const INVITATION_LETTER_TABLE = "invitation_letters";
     const CONTRACT_TABLE = "contracts";
     const TASK_NOTE_TABLE = "task_notes";
     const PRE_ASSESS_TABLE = "pre_assessments";

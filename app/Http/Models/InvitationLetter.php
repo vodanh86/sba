@@ -23,6 +23,11 @@ class InvitationLetter extends Model
         return $this->belongsTo(BusinessCustomer::class, 'customer_id');
     }
 
+    public function statusDetail()
+    {
+        return $this->belongsTo(Status::class, 'status');
+    }
+
 	protected $hidden = [
     ];
 
