@@ -36,7 +36,7 @@ class PreAssessmentController extends AdminController
         $grid = new Grid(new PreAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.name', __('Contract ID'));
+        $grid->column('contract.code', __('Contract ID'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });

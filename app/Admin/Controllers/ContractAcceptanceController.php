@@ -36,7 +36,7 @@ class ContractAcceptanceController extends AdminController
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.name', __('Contract id'));
+        $grid->column('contract.code', __('Contract ID'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
@@ -81,7 +81,7 @@ class ContractAcceptanceController extends AdminController
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
         $show->field('branch_id', __('Branch id'));
-        $show->field('contract_id', __('Contract id'));
+        $show->field('contract_id', __('Contract ID'));
         $show->field('status', __('Status'));
         $show->field('address', __('Address'));
         $show->field('total_fee', __('Total fee'));
