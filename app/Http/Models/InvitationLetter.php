@@ -13,12 +13,12 @@ class InvitationLetter extends Model
         return $this->belongsTo(Property::class, 'property_id');
     }
 
-    public function individual_customer()
+    public function individualCustomer()
     {
         return $this->belongsTo(IndividualCustomer::class, 'customer_id');
     }
 
-    public function business_customer()
+    public function businessCustomer()
     {
         return $this->belongsTo(BusinessCustomer::class, 'customer_id');
     }

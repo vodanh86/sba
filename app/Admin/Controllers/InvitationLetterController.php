@@ -46,27 +46,20 @@ class InvitationLetterController extends AdminController
 
         $grid->column('code', __('Code'));
         $grid->column('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
-        $grid->column('individual_customer.name', __('Individual Customer'))->display(function ($customer) {
+        $grid->column('individualCustomer.name', __('Individual Customer'))->display(function ($customer) {
             return ($this->customer_type == 1) ? $customer : "";
         });
-        $grid->column('business_customer.name', __('Business Customer'))->display(function ($customer) {
+        $grid->column('businessCustomer.name', __('Business Customer'))->display(function ($customer) {
             return ($this->customer_type == 2) ? $customer : "";
         });
-
+        $grid->column('customer_id', __('invitation_letter.customer_id'))->display(function () {
+            return ($this->customer_type == 1) ? (is_null($this->individualCustomer) ? "" : $this->individualCustomer->id_number) : (is_null($this->businessCustomer) ? "" : $this->businessCustomer->tax_number);
+        });
         $grid->column('purpose', __('Purpose'));
         $grid->column('from_date', __('From date'));
         $grid->column('to_date', __('To date'));
         $grid->column('broker', __('Broker'));
-        $grid->column('name', __('Name'));
-        $grid->column('address', __('Address'));
-        $grid->column('tax_number', __('Tax number'));
-        $grid->column('bill_content', __('Bill content'));
-        $grid->column('property.name', __('invitation_letter.Property id'));
-        $grid->column('total_fee', __('Total fee'));
-        $grid->column('payment_method', __('Payment method'))->using(Constant::PAYMENT_METHOD);
-        $grid->column('advance_fee', __('Advance fee'));
-        $grid->column('vat', __('Vat'))->using(Constant::YES_NO);
-
+     
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
