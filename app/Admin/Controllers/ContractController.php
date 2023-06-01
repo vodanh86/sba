@@ -65,7 +65,7 @@ class ContractController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->column('comment')->action(AddContractComment::class)->width(150);
+        $grid->column('comment')->action(AddContractComment::class)->width(250);
         $grid->column('created_at', __('Created at'))->width(150);
         $grid->column('updated_at', __('Updated at'))->width(150);
         // callback after save
