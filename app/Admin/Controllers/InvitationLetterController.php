@@ -80,7 +80,7 @@ class InvitationLetterController extends AdminController
 
         $show->field('code', __('Code'));
         $show->field('customer_type', __('Customer type'));
-        $show->field('customer_id', __('Customer id'));
+        $show->field('customer_id', __('invitation_letter.customer_id'));
         $show->field('purpose', __('Purpose'));
         $show->field('extended_purpose', __('Extended Purpose'));
         $show->field('from_date', __('From date'));
@@ -123,7 +123,7 @@ class InvitationLetterController extends AdminController
 
         $form->text('code', __('Code'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
-        $form->select('customer_id', __('Customer'))->setWidth(2, 2)->when(-1, function (Form $form){
+        $form->select('customer_id', __('invitation_letter.customer_id'))->setWidth(2, 2)->when(-1, function (Form $form){
             $form->text('id_number', __('Id number'))->disable();
             $form->text('name', __('Name'))->disable();
             $form->text('address', __('Address'))->disable();

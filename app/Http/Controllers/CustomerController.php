@@ -15,10 +15,10 @@ class CustomerController extends Controller
         $branch_id = $request->get('branch_id');
 
         if ($type == 1){
-            return IndividualCustomer::where("branch_id", $branch_id)->get(['id', 'name as text']);
+            return IndividualCustomer::where("branch_id", $branch_id)->get(['id', 'id_number as text']);
         }
     
-        return BusinessCustomer::where("branch_id", $branch_id)->get(['id', 'name as text']);
+        return BusinessCustomer::where("branch_id", $branch_id)->get(['id', 'tax_number as text']);
     }
 
     public function find(Request $request)
