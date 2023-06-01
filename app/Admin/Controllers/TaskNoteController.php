@@ -36,7 +36,7 @@ class TaskNoteController extends AdminController
 
         $grid = new Grid(new TaskNote());
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Contract ID'));
+        $grid->column('contract.code', __('Contract Code'));
         $grid->column('source', __('Source'));
         $grid->column('sale.name', __('Sale id'));
         $grid->column('tdvDetail.name', __('Tdv'));
@@ -78,7 +78,7 @@ class TaskNoteController extends AdminController
         $show = new Show(TaskNote::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('contract.code', __('Contract ID'));
+        $show->field('contract.code', __('Contract Code'));
         $show->field('source', __('Source'));
         $show->field('sale.name', __('Sale id'));
         $show->field('tdvDetail.name', __('Tdv'));

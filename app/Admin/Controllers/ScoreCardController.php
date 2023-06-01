@@ -33,7 +33,7 @@ class ScoreCardController extends AdminController
 
         $grid = new Grid(new ScoreCard());
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Contract ID'));
+        $grid->column('contract.code', __('Contract Code'));
         $grid->column('score', __('Score'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
@@ -68,7 +68,7 @@ class ScoreCardController extends AdminController
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
         $show->field('branch_id', __('Branch id'));
-        $show->field('contract_id', __('Contract ID'));
+        $show->field('contract_id', __('Contract Code'));
         $show->document()->file();
         $show->field('status', __('Status'));
         $show->panel()

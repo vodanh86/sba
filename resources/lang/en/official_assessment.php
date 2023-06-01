@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'contract_id'   => "Contract ID"
+    'contract_id'   => "Contract Code"
 ];

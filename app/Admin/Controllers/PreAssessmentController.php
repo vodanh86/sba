@@ -36,7 +36,7 @@ class PreAssessmentController extends AdminController
         $grid = new Grid(new PreAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Contract ID'));
+        $grid->column('contract.code', __('Contract Code'));
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
@@ -79,7 +79,7 @@ class PreAssessmentController extends AdminController
         $show = new Show(PreAssessment::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('contract_id', __('Contract ID'));
+        $show->field('contract_id', __('Contract Code'));
         $show->document()->file();
         $show->field('finished_date', __('Finished date'));
         $show->field('performerDetail.name', __('Performer'));
@@ -118,7 +118,7 @@ class PreAssessmentController extends AdminController
             $nextStatuses = StatusTransition::where("table", Constant::PRE_ASSESS_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
-        $form->select('contract_id', __('Contract ID'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('contract_id', __('Contract Code'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->file('document', __('Document'));
         $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
         $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
