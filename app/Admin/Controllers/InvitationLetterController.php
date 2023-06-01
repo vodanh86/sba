@@ -47,7 +47,7 @@ class InvitationLetterController extends AdminController
         $grid->column('address', __('Address'));
         $grid->column('tax_number', __('Tax number'));
         $grid->column('bill_content', __('Bill content'));
-        $grid->column('property.name', __('Property id'));
+        $grid->column('property.name', __('invitation_letter.Property id'));
         $grid->column('total_fee', __('Total fee'));
         $grid->column('payment_method', __('Payment method'))->using(Constant::PAYMENT_METHOD);
         $grid->column('advance_fee', __('Advance fee'));
@@ -90,7 +90,7 @@ class InvitationLetterController extends AdminController
         $show->field('address', __('Address'));
         $show->field('tax_number', __('Tax number'));
         $show->field('bill_content', __('Bill content'));
-        $show->field('property_id', __('Property id'));
+        $show->field('property_id', __('invitation_letter.Property id'));
         $show->field('total_fee', __('Total fee'));
         $show->field('payment_method', __('Payment method'));
         $show->field('advance_fee', __('Advance fee'));
@@ -136,6 +136,7 @@ class InvitationLetterController extends AdminController
             $form->text('representative', __('Representative'))->disable();
             $form->text('position', __('Position'))->disable();
         })->required();
+        $form->select('property_id', __('invitation_letter.Property id'))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2);
         $form->select('purpose', __('Purpose'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('extended_purpose', __('Extended Purpose'));
         $form->date('appraisal_date', __('Appraisal Date'))->default(date('d-m-Y'));

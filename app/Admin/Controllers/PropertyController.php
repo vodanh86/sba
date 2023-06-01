@@ -102,7 +102,7 @@ class PropertyController extends AdminController
         $form->text('production_year', __('Production year'));
         $form->text('registration_number', __('Registration number'));
         $form->text('business', __('Business'));
-        $form->text('name', __('Name'));
+        $form->text('name', __('Name'))->required();
         $form->text('customer_name', __('Customer name'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
