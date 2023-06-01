@@ -121,7 +121,7 @@ class ContractController extends AdminController
         $form->text('code', __('Code'))->required();
         $form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->required();
         // invitation letter
-        $form->text('code', __('Code'))->disable();
+        $form->text('invitation_code', __('Invitation Code'))->disable();
         $form->text('customer_type', __('Loại khách hàng'))->disable();
         $form->text('customer_id', __('Customer'))->disable();
         $form->text('purpose', __('Purpose'))->disable();
@@ -149,7 +149,7 @@ class ContractController extends AdminController
         $script = <<<EOT
         $(document).on('change', ".invitation_letter_id", function () {
             $.get("$url",{q : this.value}, function (data) {
-                $("#code").val(data.code);
+                $("#invitation_code").val(data.code);
                 $("#customer_type").val(data.customer_type);
                 $("#customer_id").val(data.customer_id);
                 $("#purpose").val(data.purpose);
