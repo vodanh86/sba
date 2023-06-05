@@ -249,7 +249,7 @@ return [
     | Set a default avatar for newly created users.
     |
     */
-    'default_avatar' => 'https://sba.net.vn/wp-content/uploads//2020/09/LOGO-SBA-SVG-01.svg',
+    'default_avatar' => 'https://sba.net.vn/wp-content/uploads/2020/09/LOGO-SBA-SVG-02.svg',
 
     /*
     |--------------------------------------------------------------------------

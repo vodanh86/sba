@@ -20,4 +20,5 @@
 Use Encore\Admin\Admin;
 
 Encore\Admin\Form::forget(['map', 'editor']);
-Admin::css('/css/main.css');
+Admin::css(env('APP_URL').'/css/main.css');
+Admin::favicon(env('APP_URL').'/favicon.ico');
