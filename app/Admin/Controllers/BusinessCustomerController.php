@@ -32,9 +32,9 @@ class BusinessCustomerController extends AdminController
         $grid->column('tax_number', __('Tax number'));
         $grid->column('representative', __('Representative'));
         $grid->column('position', __('Position'));
+        $grid->column('branch.branch_name', __('Branch'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
-        $grid->column('branch_id', __('Branch id'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {

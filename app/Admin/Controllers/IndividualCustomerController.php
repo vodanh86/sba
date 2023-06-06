@@ -32,6 +32,7 @@ class IndividualCustomerController extends AdminController
         $grid->column('id_number', __('Id number'));
         $grid->column('issue_place', __('Issue place'));
         $grid->column('issue_date', __('Issue date'));
+        $grid->column('branch.branch_name', __('Branch'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
 

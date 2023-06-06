@@ -36,7 +36,7 @@ class PropertyController extends AdminController
         $grid->column('production_year', __('Production year'));
         $grid->column('registration_number', __('Registration number'));
         $grid->column('business', __('Business'));
-        $grid->column('branch_id', __('Branch id'));
+        $grid->column('branch.branch_name', __('Branch'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
 

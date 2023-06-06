@@ -8,6 +8,11 @@ class Property extends Model
 {
     protected $table = 'properties';
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+    
 	protected $hidden = [
     ];
 
