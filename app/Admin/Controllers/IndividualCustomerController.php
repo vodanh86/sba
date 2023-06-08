@@ -35,7 +35,7 @@ class IndividualCustomerController extends AdminController
         $grid->column('branch.branch_name', __('Branch'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
-
+        $grid->model()->orderBy('id', 'desc');
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
             $grid->disableCreateButton();

@@ -32,7 +32,7 @@ class StatusController extends AdminController
         $grid->column('name', __('Name'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
-
+        $grid->model()->orderBy('id', 'desc');
         return $grid;
     }
 

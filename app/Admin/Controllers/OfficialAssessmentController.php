@@ -55,6 +55,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('updated_at', __('Updated at'))->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }

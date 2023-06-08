@@ -37,6 +37,7 @@ class BusinessCustomerController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
+        $grid->model()->orderBy('id', 'desc');
         if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {

@@ -43,6 +43,7 @@ class ScoreCardController extends AdminController
         $grid->column('updated_at', __('Updated at'));
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->orderBy('id', 'desc');
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
                 $grid->disableCreateButton();

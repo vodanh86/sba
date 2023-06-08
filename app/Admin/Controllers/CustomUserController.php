@@ -36,7 +36,7 @@ class CustomUserController extends UserController
         $grid->column('branch.branch_name', "Branch");
         $grid->column('created_at', trans('admin.created_at'));
         $grid->column('updated_at', trans('admin.updated_at'));
-
+        $grid->model()->orderBy('id', 'desc');
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             if ($actions->getKey() == 1) {
                 $actions->disableDelete();

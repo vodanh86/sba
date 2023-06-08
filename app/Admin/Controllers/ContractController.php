@@ -56,6 +56,7 @@ class ContractController extends AdminController
             return $this->statusDetail->name;
         });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }

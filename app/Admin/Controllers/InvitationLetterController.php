@@ -68,6 +68,7 @@ class InvitationLetterController extends AdminController
             return is_null($this->statusDetail) ? "" : $this->statusDetail->name;
         });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::INVITATION_LETTER_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }
