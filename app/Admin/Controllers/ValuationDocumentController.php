@@ -114,7 +114,6 @@ class ValuationDocumentController extends AdminController
     {
         $form = new Form(new ValuationDocument());
         $status = array();
-        $defaultStatus = "";
         if ($form->isEditing()) {
             $id = request()->route()->parameter('valuation_document');
             $model = $form->model()->find($id);
@@ -127,7 +126,6 @@ class ValuationDocumentController extends AdminController
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::VALUATION_DOCUMENT_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
-            $defaultStatus = $nextStatuses->next_status_id;
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->file('document', __('Tài liệu'));

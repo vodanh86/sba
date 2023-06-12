@@ -58,9 +58,11 @@ class ScoreCardController extends AdminController
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
+        if (Utils::getCreateRole(Constant::SCORE_CARD_TABLE) != Admin::user()->roles[0]->slug){
+            $grid->disableCreateButton();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
-                $grid->disableCreateButton();
                 $actions->disableDelete();
                 $actions->disableEdit();
             }
@@ -101,14 +103,26 @@ class ScoreCardController extends AdminController
      */
     protected function form()
     {
-        $nextStatuses = StatusTransition::where("table", Constant::SCORE_CARD_TABLE)->whereNull("status_id")->first();
         $form = new Form(new ScoreCard());
-
+        $status = array();
+        if ($form->isEditing()) {
+            $id = request()->route()->parameter('score_card');
+            $model = $form->model()->find($id);
+            $currentStatus = $model->status;
+            $nextStatuses = StatusTransition::where(["table" => Constant::SCORE_CARD_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $status[$model->status] = $model->statusDetail->name;
+            foreach($nextStatuses as $nextStatus){
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
+        } else {
+            $nextStatuses = StatusTransition::where("table", Constant::SCORE_CARD_TABLE)->whereNull("status_id")->first();
+            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+        }
         $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->number('score', __('Nguồn'));
         $form->file('document', __('Tài liệu'));
+        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->hidden('status')->default($nextStatuses->next_status_id);
 
         return $form;
     }
