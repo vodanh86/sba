@@ -80,7 +80,6 @@ class InvitationLetterController extends AdminController
             }
         });
         $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(150);
-        $grid->column('customer status', __('Bình luận của khách'))->using(Constant::INVITATION_STATUS)->width(150);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y H:i:s');
@@ -194,7 +193,7 @@ class InvitationLetterController extends AdminController
         $form->text('bill_content', __('Nội dung thanh toán'));
         $form->number('total_fee', __('Tổng phí'));
         $form->select('payment_method', __('Hình thức thanh toán'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
-        $form->number('advance_fee', __('Phí tư vấn'));
+        $form->number('advance_fee', __('Tạm ứng'));
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
