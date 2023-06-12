@@ -134,8 +134,8 @@ class ValuationDocumentController extends AdminController
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
+        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->hidden('status')->default($defaultStatus);
 
         return $form;
     }
