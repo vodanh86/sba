@@ -8,6 +8,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class IndividualCustomerController extends AdminController
 {
@@ -27,14 +28,20 @@ class IndividualCustomerController extends AdminController
     {
         $grid = new Grid(new IndividualCustomer());
 
-        $grid->column('name', __('Name'));
-        $grid->column('address', __('Address'));
-        $grid->column('id_number', __('Id number'));
-        $grid->column('issue_place', __('Issue place'));
-        $grid->column('issue_date', __('Issue date'));
-        $grid->column('branch.branch_name', __('Branch'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('name', __('Họ và tên bên thuê dịch vụ'));
+        $grid->column('address', __('Địa chỉ'));
+        $grid->column('id_number', __('Số CMND/CCCD'))->width(150);
+        $grid->column('issue_place', __('Nơi cấp'));
+        $grid->column('issue_date', __('Ngày cấp'));
+        $grid->column('branch.branch_name', __('Chi nhánh'));
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y - H:i:s');
+        })->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        })->width(150);
         $grid->model()->orderBy('id', 'desc');
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
@@ -59,13 +66,14 @@ class IndividualCustomerController extends AdminController
         $show = new Show(IndividualCustomer::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('address', __('Address'));
-        $show->field('id_number', __('Id number'));
-        $show->field('name', __('Name'));
-        $show->field('issue_place', __('Issue place'));
-        $show->field('issue_date', __('Issue date'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
+        $show->field('name', __('Họ và tên bên thuê dịch vụ'));
+        $show->field('address', __('Địa chỉ'));
+        $show->field('id_number', __('Số CMND/CCCD'));
+        $show->field('issue_place', __('Nơi cấp'));
+        $show->field('issue_date', __('Ngày cấp'));
+        $show->field('branch.branch_name', __('Chi nhánh'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
         if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
             $show->panel()
             ->tools(function ($tools) {
@@ -85,12 +93,12 @@ class IndividualCustomerController extends AdminController
     {
         $form = new Form(new IndividualCustomer());
 
-        $form->text('name', __('Name'));
-        $form->text('address', __('Address'));
-        $form->text('id_number', __('Id number'));
-        $form->text('issue_place', __('Issue place'));
+        $form->text('name', __('Họ và tên bên thuê dịch vụ'));
+        $form->text('address', __('Địa chỉ'));
+        $form->text('id_number', __('Số CMND/CCCD'));
+        $form->text('issue_place', __('Nơi cấp'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->date('issue_date', __('Issue date'))->default(date('Y-m-d'));
+        $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'));
 
         return $form;
     }

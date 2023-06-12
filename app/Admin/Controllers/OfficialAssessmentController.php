@@ -12,6 +12,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class OfficialAssessmentController extends AdminController
 {
@@ -40,19 +41,25 @@ class OfficialAssessmentController extends AdminController
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
-        $grid->column('finished_date', __('Finished date'));
-        $grid->column('performerDetail.name', __('Performer'));
-        $grid->column('note', __('Note'));
-        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('finished_date', __('Ngày hoàn thành'));
+        $grid->column('performerDetail.name', __('Người thực hiện'));
+        $grid->column('note', __('Chú ý'));
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
         });
 
-        $grid->column('comment')->action(AddOfficialAssessmentComment::class)->width(150);
-        $grid->column('created_at', __('Created at'))->width(150);
-        $grid->column('updated_at', __('Updated at'))->width(150);
+        $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y - H:i:s');
+        })->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        })->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -82,14 +89,14 @@ class OfficialAssessmentController extends AdminController
         $show->field('id', __('Id'));
         $show->field('contract.code', __('official_assessment.contract_id'));
         $show->document()->file();
-        $show->field('finished_date', __('Finished date'));
-        $show->field('performerDetail.name', __('Performer'));
-        $show->field('note', __('Note'));
-        $show->field('comment', __('Comment'));
-        $show->field('statusDetail.name', __('Status'));
+        $show->field('finished_date', __('Ngày hoàn thành'));
+        $show->field('performerDetail.name', __('Người thực hiện'));
+        $show->field('note', __('Chú ý'));
+        $show->field('comment', __('Bình luận'));
+        $show->field('statusDetail.name', __('Trạng thái'));
 
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
 
         $show->panel()
         ->tools(function ($tools) {
@@ -122,11 +129,11 @@ class OfficialAssessmentController extends AdminController
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
         $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
-        $form->file('document', __('Document'));
-        $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
-        $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->text('note', __('Note'));
-        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
+        $form->file('document', __('Tài liệu'));
+        $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+        $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->text('note', __('Chú ý'));
+        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;

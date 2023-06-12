@@ -12,6 +12,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class TaskNoteController extends AdminController
 {
@@ -36,13 +37,13 @@ class TaskNoteController extends AdminController
 
         $grid = new Grid(new TaskNote());
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Contract Code'));
-        $grid->column('source', __('Source'));
-        $grid->column('sale.name', __('Sale id'));
+        $grid->column('contract.code', __('Mã hợp đồng'));
+        $grid->column('source', __('Nguồn'));
+        $grid->column('sale.name', __('Id Sale'));
         $grid->column('tdvDetail.name', __('Tdv'));
-        $grid->column('tdvAssistantDetail.name', __('Tdv assistant'));
-        $grid->column('controllerDetail.name', __('Controller'));
-        $grid->column('estimated_date', __('Estimated date'));
+        $grid->column('tdvAssistantDetail.name', __('Trợ lý Tdv'));
+        $grid->column('controllerDetail.name', __('Kiểm soát'));
+        $grid->column('estimated_date', __('Dự kiến hoàn thành'));
         $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
@@ -50,8 +51,14 @@ class TaskNoteController extends AdminController
             return $this->statusDetail->name;
         });
         $grid->column('comment')->action(AddTaskNoteComment::class)->width(150);
-        $grid->column('created_at', __('Created at'))->width(150);
-        $grid->column('updated_at', __('Updated at'))->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y H:i:s');
+        })->width(100);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y H:i:s');
+        })->width(100);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -79,17 +86,17 @@ class TaskNoteController extends AdminController
         $show = new Show(TaskNote::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('contract.code', __('Contract Code'));
-        $show->field('source', __('Source'));
-        $show->field('sale.name', __('Sale id'));
+        $show->field('contract.code', __('Mã hợp đồng'));
+        $show->field('source', __('Nguồn'));
+        $show->field('sale.name', __('Id Sale'));
         $show->field('tdvDetail.name', __('Tdv'));
-        $show->field('tdvAssistantDetail.name', __('Tdv assistant'));
-        $show->field('controllerDetail.name', __('Controller'));
-        $show->field('estimated_date', __('Estimated date'));
-        $show->field('statusDetail.name', __('Status'));
+        $show->field('tdvAssistantDetail.name', __('Trợ lý Tdv'));
+        $show->field('controllerDetail.name', __('Kiểm soát'));
+        $show->field('estimated_date', __('Dự kiến hoàn thành'));
+        $show->field('statusDetail.name', __('Trạng thái'));
 
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
         $show->panel()
         ->tools(function ($tools) {
             $tools->disableEdit();
@@ -122,13 +129,13 @@ class TaskNoteController extends AdminController
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
         $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->text('source', __('Source'));
+        $form->text('source', __('Nguồn'));
         $form->select('sale_id')->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->select('tdv', __('Tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->select('tdv_assistant', __('Tdv assistant'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->select('controller', __('Controller'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->date('estimated_date', __('Estimated date'))->default(date('Y-m-d'));
-        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
+        $form->select('tdv_assistant', __('Trợ lý Tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('controller', __('Kiểm soát'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->date('estimated_date', __('Dự kiến hoàn thành'))->default(date('Y-m-d'));
+        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;

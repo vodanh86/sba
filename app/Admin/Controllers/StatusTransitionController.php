@@ -27,16 +27,16 @@ class StatusTransitionController extends AdminController
     {
         $grid = new Grid(new StatusTransition());
 
-        $grid->column('status.name', __('Status id'));
-        $grid->column('nextStatus.name', __('Next status id'));
-        $grid->column('viewers', __('Viewers'));
-        $grid->column('editors', __('Editors'));
-        $grid->column('approvers', __('Approvers'));
-        $grid->column('approve_type', __('Approve type'))->using(Constant::APPROVE_TYPE);
-        $grid->column('table', __('Table'))->filter(Constant::TABLES);
+        $grid->column('status.name', __('Id trạng thái'));
+        $grid->column('nextStatus.name', __('Id trạng thái tiếp'));
+        $grid->column('viewers', __('Những người xem'));
+        $grid->column('editors', __('Những người chỉnh sửa'));
+        $grid->column('approvers', __('Những người duyệt'));
+        $grid->column('approve_type', __('Loại hình duyệt'))->using(Constant::APPROVE_TYPE);
+        $grid->column('table', __('Bảng'))->filter(Constant::TABLES);
 
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('created_at', __('Ngày tạo'));
+        $grid->column('updated_at', __('Ngày cập nhật'));
         $grid->model()->orderBy('id', 'desc');
         return $grid;
     }
@@ -52,13 +52,13 @@ class StatusTransitionController extends AdminController
         $show = new Show(StatusTransition::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('status_id', __('Status id'));
-        $show->field('next_status_id', __('Next status id'));
-        $show->field('viewers', __('Viewers'));
-        $show->field('editors', __('Editors'));
-        $show->field('table', __('Table'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
+        $show->field('status_id', __('Id trạng thái'));
+        $show->field('next_status_id', __('Id trạng thái tiếp'));
+        $show->field('viewers', __('Những người xem'));
+        $show->field('editors', __('Những người chỉnh sửa'));
+        $show->field('table', __('Bảng'));
 
         return $show;
     }
@@ -73,11 +73,11 @@ class StatusTransitionController extends AdminController
         $form = new Form(new StatusTransition());
         $form->select('status_id')->options(Status::selectRaw("CONCAT(`table`, ' - ',`name`) AS full_name, id")->pluck('full_name', 'id'));
         $form->select('next_status_id')->options(Status::selectRaw("CONCAT(`table`, ' - ',`name`) AS full_name, id")->pluck('full_name', 'id'));
-        $form->multipleSelect('viewers', __('Viewers'))->options(Constant::ROLES);
-        $form->multipleSelect('editors', __('Editors'))->options(Constant::ROLES);
-        $form->multipleSelect('approvers', __('Approvers'))->options(Constant::ROLES);
-        $form->select('approve_type', __('Approve Type'))->options(Constant::APPROVE_TYPE)->setWidth(5, 2);
-        $form->select('table', __('Table'))->options(Constant::TABLES)->setWidth(5, 2)->required();
+        $form->multipleSelect('viewers', __('Những người xem'))->options(Constant::ROLES);
+        $form->multipleSelect('editors', __('Những người chỉnh sửa'))->options(Constant::ROLES);
+        $form->multipleSelect('approvers', __('Những người duyệt'))->options(Constant::ROLES);
+        $form->select('approve_type', __('Loại hình duyệt'))->options(Constant::APPROVE_TYPE)->setWidth(5, 2);
+        $form->select('table', __('Bảng'))->options(Constant::TABLES)->setWidth(5, 2)->required();
 
         return $form;
     }

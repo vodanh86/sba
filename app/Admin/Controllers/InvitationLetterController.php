@@ -14,6 +14,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class InvitationLetterController extends AdminController
 {
@@ -44,30 +45,30 @@ class InvitationLetterController extends AdminController
 
         $grid = new Grid(new InvitationLetter());
 
-        $grid->column('code', __('Code'));
-        $grid->column('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
-        $grid->column('individualCustomer.name', __('Individual Customer'))->display(function ($customer) {
+        $grid->column('code', __('Mã thư chào'));
+        $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
+        $grid->column('individualCustomer.name', __('Cá nhân'))->display(function ($customer) {
             return ($this->customer_type == 1) ? $customer : "";
         });
-        $grid->column('businessCustomer.name', __('Business Customer'))->display(function ($customer) {
+        $grid->column('businessCustomer.name', __('Doanh nghiệp'))->display(function ($customer) {
             return ($this->customer_type == 2) ? $customer : "";
         });
         $grid->column('customer_id', __('invitation_letter.customer_id'))->display(function () {
             return ($this->customer_type == 1) ? (is_null($this->individualCustomer) ? "" : $this->individualCustomer->id_number) : (is_null($this->businessCustomer) ? "" : $this->businessCustomer->tax_number);
         });
-        $grid->column('purpose', __('Purpose'));
-        $grid->column('from_date', __('From date'));
-        $grid->column('to_date', __('To date'));
-        $grid->column('broker', __('Broker'));
+        $grid->column('purpose', __('Mục đích'));
+        $grid->column('from_date', __('Từ ngày'));
+        $grid->column('to_date', __('Đến ngày'));
+        $grid->column('broker', __('Người môi giới'));
      
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return is_null($this->statusDetail) ? "" : $this->statusDetail->name;
         });
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status',array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::INVITATION_LETTER_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
@@ -78,11 +79,16 @@ class InvitationLetterController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->column('comment')->action(AddInvitationLetterComment::class)->width(150);
-        $grid->column('customer status', __('Customer Status'))->using(Constant::INVITATION_STATUS);
-        $grid->column('created_at', __('Created at'))->width(150);
-        $grid->column('updated_at', __('Updated at'))->width(150);
-
+        $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(150);
+        $grid->column('customer status', __('Bình luận của khách'))->using(Constant::INVITATION_STATUS)->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y H:i:s');
+        })->width(100);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y H:i:s');
+        })->width(100);
         return $grid;
     }
 
@@ -96,28 +102,28 @@ class InvitationLetterController extends AdminController
     {
         $show = new Show(InvitationLetter::findOrFail($id));
 
-        $show->field('code', __('Code'));
-        $show->field('customer_type', __('Customer type'));
+        $show->field('code', __('Mã thư chào'));
+        $show->field('customer_type', __('Loại khách hàng'));
         $show->field('customer_id', __('invitation_letter.customer_id'));
-        $show->field('purpose', __('Purpose'));
-        $show->field('extended_purpose', __('Extended Purpose'));
-        $show->field('from_date', __('From date'));
-        $show->field('to_date', __('To date'));
-        $show->field('broker', __('Broker'));
-        $show->field('name', __('Name'));
-        $show->field('address', __('Address'));
-        $show->field('tax_number', __('Tax number'));
-        $show->field('bill_content', __('Bill content'));
+        $show->field('purpose', __('Mục đích'));
+        $show->field('extended_purpose', __('Mục đích mở rộng'));
+        $show->field('from_date', __('Từ ngày'));
+        $show->field('to_date', __('Đến ngày'));
+        $show->field('broker', __('Người môi giới'));
+        $show->field('name', __('Tên tài sản'));
+        $show->field('address', __('Địa chỉ'));
+        $show->field('tax_number', __('Mã số thuế'));
+        $show->field('bill_content', __('Nội dung thanh toán'));
         $show->field('property_id', __('invitation_letter.Property id'));
-        $show->field('total_fee', __('Total fee'));
-        $show->field('payment_method', __('Payment method'));
-        $show->field('advance_fee', __('Advance fee'));
+        $show->field('total_fee', __('Tổng phí'));
+        $show->field('payment_method', __('Hình thức thanh toán'));
+        $show->field('advance_fee', __('Phí tư vấn'));
         $show->field('vat', __('Vat'));
-        $show->field('branch_id', __('Branch id'));
-        $show->field('status', __('Status'));
+        $show->field('branch_id', __('Id Chi nhánh'));
+        $show->field('status', __('Trạng thái'));
 
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
 
         if (Admin::user()->can(Constant::VIEW_INVITATION_LETTERS)) {
             $show->panel()
@@ -160,39 +166,39 @@ class InvitationLetterController extends AdminController
             $nextStatuses = StatusTransition::where("table", Constant::INVITATION_LETTER_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
-        $form->text('code', __('Code'))->required();
+        $form->text('code', __('Mã thư chào'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
         $form->select('customer_id', __('invitation_letter.customer_id'))->options($customers)->setWidth(2, 2)->when(-1, function (Form $form) {
             $form->text('id_number', __('Id number'))->disable();
-            $form->text('name', __('Name'))->disable();
-            $form->text('address', __('Address'))->disable();
-            $form->text('issue_place', __('Issue place'))->disable();
-            $form->date('issue_date', __('Issue date'))->default(date('Y-m-d'))->disable();
+            $form->text('name', __('Tên tài sản'))->disable();
+            $form->text('address', __('Địa chỉ'))->disable();
+            $form->text('issue_place', __('Địa điểm tài sản'))->disable();
+            $form->date('issue_date', __('Ngày phát hành'))->default(date('Y-m-d'))->disable();
         })->when(-2, function (Form $form) {
-            $form->text('tax_number', __('Tax number'))->disable();
-            $form->text('company_name', __('Name'))->disable();
-            $form->text('company_address', __('Address'))->disable();
-            $form->text('representative', __('Representative'))->disable();
-            $form->text('position', __('Position'))->disable();
+            $form->text('tax_number', __('Mã số thuế'))->disable();
+            $form->text('company_name', __('Tên doanh nghiệp'))->disable();
+            $form->text('company_address', __('Địa chỉ'))->disable();
+            $form->text('representative', __('Người đại diện'))->disable();
+            $form->text('position', __('Chức vụ'))->disable();
         })->required();
         $form->select('property_id', __('invitation_letter.Property id'))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2)->required();
-        $form->select('purpose', __('Purpose'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
-        $form->text('extended_purpose', __('Extended Purpose'));
-        $form->date('appraisal_date', __('Appraisal Date'))->default(date('d-m-Y'));
-        $form->date('from_date', __('From date'))->default(date('Y-m-d'));
-        $form->date('to_date', __('To date'))->default(date('Y-m-d'));
-        $form->text('broker', __('Broker'));
-        $form->text('name', __('Name'));
-        $form->text('address', __('Address'));
-        $form->text('tax_number', __('Tax number'));
-        $form->text('bill_content', __('Bill content'));
-        $form->number('total_fee', __('Total fee'));
-        $form->select('payment_method', __('Payment method'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
-        $form->number('advance_fee', __('Advance fee'));
+        $form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
+        $form->text('extended_purpose', __('Mục đích mở rộng'));
+        $form->date('appraisal_date', __('Ngày thẩm định'))->default(date('d-m-Y'));
+        $form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));
+        $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'));
+        $form->text('broker', __('Người môi giới'));
+        $form->text('name', __('Tên tài sản'));
+        $form->text('address', __('Địa chỉ'));
+        $form->text('tax_number', __('Mã số thuế'));
+        $form->text('bill_content', __('Nội dung thanh toán'));
+        $form->number('total_fee', __('Tổng phí'));
+        $form->select('payment_method', __('Hình thức thanh toán'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
+        $form->number('advance_fee', __('Phí tư vấn'));
         $form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->select('status', __('Status'))->options($status)->setWidth(5, 2)->required();
-        $form->select('customer_status', __('Customer Status'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1)->required();
+        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        $form->select('customer_status', __('Trạng thái khách hàng'))->options(Constant::INVITATION_STATUS)->setWidth(5, 2)->default(1)->required();
 
         $url = env('APP_URL') . '/api/customer';
         // update file information
