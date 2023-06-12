@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'Sba',
+    'name' => 'SBA',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>Sba</b> admin',
+    'logo' => '<img width="150" height="50" src="https://sba.net.vn/wp-content/themes/indutri/images/logo-mobile.png" alt="SBA Logo" style="padding: 5px 0;"/>',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +34,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>Sba</b>',
+    'logo-mini' => '<b>SBA</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -405,6 +405,16 @@ return [
     |
     */
     'extensions' => [
-
+    ],
+    
+    'model_button_styles' => [
+        'view'    => 'btn btn-outline-primary',
+        'edit'    => 'btn btn-outline-primary',
+        'delete'  => 'btn btn-outline-primary',
+        'export'  => 'btn btn-outline-primary',
+        'create'  => 'btn btn-outline-primary',
+        'cancel'  => 'btn btn-secondary',
+        'filter'  => 'btn btn-secondary',
+        'refresh' => 'btn btn-secondary',
     ],
 ];

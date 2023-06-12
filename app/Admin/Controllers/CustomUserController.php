@@ -33,7 +33,7 @@ class CustomUserController extends UserController
         $grid->column('username', trans('admin.username'));
         $grid->column('name', trans('admin.name'));
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
-        $grid->column('branch.branch_name', "Branch");
+        $grid->column('branch.branch_name', "Chi nhánh");
         $grid->column('created_at', trans('admin.created_at'));
         $grid->column('updated_at', trans('admin.updated_at'));
         $grid->model()->orderBy('id', 'desc');
@@ -109,7 +109,7 @@ class CustomUserController extends UserController
         $form->ignore(['password_confirmation']);
 
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
-        $form->select('branch_id', "Branch")->options(Branch::all()->pluck('branch_name', 'id'))->default(3);
+        $form->select('branch_id', "Chi nhánh")->options(Branch::all()->pluck('branch_name', 'id'))->default(3);
         $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
 
         $form->display('created_at', trans('admin.created_at'));

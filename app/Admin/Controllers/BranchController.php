@@ -27,10 +27,10 @@ class BranchController extends AdminController
         $grid = new Grid(new Branch());
 
         $grid->column('id', __('Id'));
-        $grid->column('branch_name', __('Branch name'));
-        $grid->column('address', __('Address'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('branch_name', __('Tên chi nhánh'));
+        $grid->column('address', __('Địa chỉ'));
+        $grid->column('created_at', __('Ngày tạo'));
+        $grid->column('updated_at', __('Ngày cập nhật'));
         $grid->model()->orderBy('id', 'desc');
         return $grid;
     }
@@ -46,10 +46,10 @@ class BranchController extends AdminController
         $show = new Show(Branch::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('branch_name', __('Branch name'));
-        $show->field('address', __('Address'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
+        $show->field('branch_name', __('Tên chi nhánh'));
+        $show->field('address', __('Địa chỉ'));
 
         return $show;
     }
@@ -63,8 +63,8 @@ class BranchController extends AdminController
     {
         $form = new Form(new Branch());
 
-        $form->text('branch_name', __('Branch name'));
-        $form->text('address', __('Address'));
+        $form->text('branch_name', __('Tên chi nhánh'));
+        $form->text('address', __('Địa chỉ'));
 
         return $form;
     }

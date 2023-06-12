@@ -27,11 +27,11 @@ class StatusController extends AdminController
         $grid = new Grid(new Status());
 
         $grid->column('id', __('Id'));
-        $grid->column('table', __('Table'))->filter(Constant::TABLES);
-        $grid->column('status', __('Status'))->filter();
-        $grid->column('name', __('Name'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('table', __('Bảng'))->filter(Constant::TABLES);
+        $grid->column('status', __('Trạng thái'))->filter();
+        $grid->column('name', __('Tên'));
+        $grid->column('created_at', __('Ngày tạo'));
+        $grid->column('updated_at', __('Ngày cập nhật'));
         $grid->model()->orderBy('id', 'desc');
         return $grid;
     }
@@ -47,11 +47,11 @@ class StatusController extends AdminController
         $show = new Show(Status::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('table', __('Table'));
-        $show->field('status', __('Status'));
-        $show->field('name', __('Name'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
+        $show->field('table', __('Bảng'));
+        $show->field('status', __('Trạng thái'));
+        $show->field('name', __('Tên'));
 
         return $show;
     }
@@ -65,9 +65,9 @@ class StatusController extends AdminController
     {
         $form = new Form(new Status());
 
-        $form->select('table', ('Table'))->options(Constant::TABLES);
-        $form->text('status', __('Status'));
-        $form->text('name', __('Name'));
+        $form->select('table', ('Bảng'))->options(Constant::TABLES);
+        $form->text('status', __('Trạng thái'));
+        $form->text('name', __('Tên'));
 
         return $form;
     }

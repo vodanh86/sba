@@ -12,6 +12,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class ValuationDocumentController extends AdminController
 {
@@ -37,15 +38,28 @@ class ValuationDocumentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('valuation_document.contract_id'));
-        $grid->column('document', __('Document'))->display(function ($url) {
+        $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
         });
-        $grid->column('finished_date', __('Finished date'));
-        $grid->column('performerDetail.name', __('Performer'));
-        $grid->column('note', __('Note'));
+        $grid->column('finished_date', __('Ngày hoàn thành'));
+        $grid->column('performerDetail.name', __('Người thực hiện'));
+        $grid->column('note', __('Chú ý'));
+        
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+            if (in_array($statusId, $approveStatus) == 1) {
+                return $column->editable('select', $nextStatuses);
+            }
+            return $this->statusDetail->name;
+        });
 
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y H:i:s');
+        })->width(100);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y H:i:s');
+        })->width(100);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -73,15 +87,15 @@ class ValuationDocumentController extends AdminController
         $show = new Show(ValuationDocument::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('branch_id', __('Branch id'));
+        $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract.code', __('valuation_document.contract_id'));
-        $show->field('document', __('Document'));
-        $show->field('finished_date', __('Finished date'));
-        $show->field('performer', __('Performer'));
-        $show->field('note', __('Note'));
+        $show->field('document', __('Tài liệu'));
+        $show->field('finished_date', __('Ngày hoàn thành'));
+        $show->field('performer', __('Người thực hiện'));
+        $show->field('note', __('Chú ý'));
 
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
 
         $show->panel()
         ->tools(function ($tools) {
@@ -116,10 +130,10 @@ class ValuationDocumentController extends AdminController
             $defaultStatus = $nextStatuses->next_status_id;
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
-        $form->file('document', __('Document'));
-        $form->date('finished_date', __('Finished date'))->default(date('Y-m-d'));
-        $form->select('performer', __('Performer'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->text('note', __('Note'));
+        $form->file('document', __('Tài liệu'));
+        $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+        $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->text('note', __('Chú ý'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
         $form->hidden('status')->default($defaultStatus);
 

@@ -8,6 +8,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Carbon\Carbon;
 
 class BusinessCustomerController extends AdminController
 {
@@ -27,14 +28,20 @@ class BusinessCustomerController extends AdminController
     {
         $grid = new Grid(new BusinessCustomer());
 
-        $grid->column('name', __('Name'));
-        $grid->column('address', __('Address'));
-        $grid->column('tax_number', __('Tax number'));
-        $grid->column('representative', __('Representative'));
-        $grid->column('position', __('Position'));
-        $grid->column('branch.branch_name', __('Branch'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('name', __('Tên doanh nghiệp'));
+        $grid->column('address', __('Địa chỉ'));
+        $grid->column('tax_number', __('Mã số thuế'))->width(100);
+        $grid->column('representative', __('Người đại diện'));
+        $grid->column('position', __('Chức vụ'));
+        $grid->column('branch.branch_name', __('Chi nhánh'));
+        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
+            $carbonCreateAt = Carbon::parse($createAt);
+            return $carbonCreateAt->format('d/m/Y - H:i:s');
+        })->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        })->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         $grid->model()->orderBy('id', 'desc');
@@ -61,15 +68,15 @@ class BusinessCustomerController extends AdminController
         $show = new Show(BusinessCustomer::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('address', __('Address'));
-        $show->field('tax_number', __('Tax number'));
-        $show->field('name', __('Name'));
-        $show->field('representative', __('Representative'));
-        $show->field('position', __('Position'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('branch_id', __('Branch id'));
-        $show->field('status', __('Status'));
+        $show->field('branch_id', __('Id Chi nhánh'));
+        $show->field('name', __('Tên doanh nghiệp'));
+        $show->field('address', __('Địa chỉ'));
+        $show->field('tax_number', __('Mã số thuế'));
+        $show->field('representative', __('Người đại diện'));
+        $show->field('position', __('Chức vụ'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
+        $show->field('status', __('Trạng thái'));
 
         return $show;
     }
@@ -83,11 +90,11 @@ class BusinessCustomerController extends AdminController
     {
         $form = new Form(new BusinessCustomer());
 
-        $form->text('name', __('Name'));
-        $form->text('address', __('Address'));
-        $form->text('tax_number', __('Tax number'));
-        $form->text('representative', __('Representative'));
-        $form->text('position', __('Position'));
+        $form->text('name', __('Tên doanh nghiệp'));
+        $form->text('address', __('Địa chỉ'));
+        $form->text('tax_number', __('Mã số thuế'));
+        $form->text('representative', __('Người đại diện'));
+        $form->text('position', __('Chức vụ'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
         return $form;
     }
