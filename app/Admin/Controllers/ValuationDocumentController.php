@@ -51,7 +51,7 @@ class ValuationDocumentController extends AdminController
             }
             return $this->statusDetail->name;
         });
-
+        $grid->column('comment', __('Bình luận'))->action(AddValuationDocumentComment::class)->width(100);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y H:i:s');
@@ -60,7 +60,6 @@ class ValuationDocumentController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y H:i:s');
         })->width(100);
-
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::VALUATION_DOCUMENT_TABLE) != Admin::user()->roles[0]->slug){
@@ -72,7 +71,10 @@ class ValuationDocumentController extends AdminController
                 $actions->disableEdit();
             }
         });
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('contract.code', __('Mã hợp đồng'));
+        });
         return $grid;
     }
 

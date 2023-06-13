@@ -51,7 +51,11 @@ class IndividualCustomerController extends AdminController
                 $actions->disableEdit();
             });
         }
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('name', __('Họ và tên bên thuê dịch vụ'));
+            $filter->like('id_number', __('Số CMND/CCCD'));
+        });
         return $grid;
     }
 

@@ -72,7 +72,10 @@ class OfficialAssessmentController extends AdminController
                 $actions->disableEdit();
             }
         });
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('contract.code', __('Mã hợp đồng'));
+        });
         return $grid;
     }
 

@@ -44,13 +44,13 @@ class TaskNoteController extends AdminController
         $grid->column('tdvAssistantDetail.name', __('Trợ lý Tdv'));
         $grid->column('controllerDetail.name', __('Kiểm soát'));
         $grid->column('estimated_date', __('Dự kiến hoàn thành'));
-        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
         });
-        $grid->column('comment')->action(AddTaskNoteComment::class)->width(150);
+        $grid->column('comment', __('Bình luận'))->action(AddTaskNoteComment::class)->width(150);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y H:i:s');
@@ -71,7 +71,10 @@ class TaskNoteController extends AdminController
                 $actions->disableEdit();
             }
         });
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('contract.code', __('Mã hợp đồng'));
+        });
         return $grid;
     }
 
@@ -128,7 +131,7 @@ class TaskNoteController extends AdminController
             $nextStatuses = StatusTransition::where("table", Constant::TASK_NOTE_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
-        $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->text('source', __('Nguồn'));
         $form->select('sale_id')->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->select('tdv', __('Tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));

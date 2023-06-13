@@ -53,6 +53,11 @@ class BusinessCustomerController extends AdminController
             });
         }
         
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('name', __('Tên doanh nghiệp'));
+            $filter->like('tax_number', __('Mã số thuế'));
+        });
 
         return $grid;
     }
