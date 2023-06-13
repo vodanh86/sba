@@ -179,26 +179,23 @@ class InvitationLetterController extends AdminController
         $form->text('code', __('Mã thư chào'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);
         $form->select('customer_id', __('invitation_letter.customer_id'))->options($customers)->setWidth(2, 2)->when(-1, function (Form $form) {
-            $form->text('id_number', __('Id number'))->disable();
-            $form->text('name', __('Tên tài sản'))->disable();
+            $form->text('name', __('Tên khách hàng'))->disable();
             $form->text('address', __('Địa chỉ'))->disable();
-            $form->text('issue_place', __('Địa điểm tài sản'))->disable();
-            $form->date('issue_date', __('Ngày phát hành'))->default(date('Y-m-d'))->disable();
+            $form->text('issue_place', __('Nơi cấp'))->disable();
+            $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'))->disable();
         })->when(-2, function (Form $form) {
-            $form->text('tax_number', __('Mã số thuế'))->disable();
             $form->text('company_name', __('Tên doanh nghiệp'))->disable();
             $form->text('company_address', __('Địa chỉ'))->disable();
             $form->text('representative', __('Người đại diện'))->disable();
             $form->text('position', __('Chức vụ'))->disable();
         })->required();
-        $form->select('property_id', __('invitation_letter.Property id'))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2)->required();
+        $form->select('property_id', __("Tên tài sản"))->options(Property::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->setWidth(5, 2)->required();
         $form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('extended_purpose', __('Mục đích mở rộng'));
         $form->date('appraisal_date', __('Ngày thẩm định'))->default(date('d-m-Y'));
         $form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'));
         $form->text('broker', __('Người môi giới'));
-        $form->text('name', __('Tên tài sản'));
         $form->text('address', __('Địa chỉ'));
         $form->text('tax_number', __('Mã số thuế'));
         $form->text('bill_content', __('Nội dung thanh toán'));
