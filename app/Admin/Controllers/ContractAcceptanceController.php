@@ -45,7 +45,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('total_fee', __('Tổng phí'));
         $grid->column('delivery', __('Người chuyển'));
         $grid->column('recipient', __('Người nhận'));
-        $grid->column('status')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
@@ -126,7 +126,7 @@ class ContractAcceptanceController extends AdminController
             $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_ACCEPTANCE_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
         }
-        $form->select('contract_id')->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->text('address', __('Địa chỉ'));
         $form->number('total_fee', __('Tổng phí'));
         $form->text('delivery', __('Người chuyển'));
