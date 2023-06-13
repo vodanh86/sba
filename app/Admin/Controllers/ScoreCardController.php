@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Document\AddScoreCardComment;
 use App\Http\Models\ScoreCard;
 use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
@@ -47,6 +48,7 @@ class ScoreCardController extends AdminController
             return $this->statusDetail->name;
         });
 
+        $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
@@ -67,7 +69,10 @@ class ScoreCardController extends AdminController
                 $actions->disableEdit();
             }
         });
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('contract.code', __('Mã hợp đồng'));
+        });
         return $grid;
     }
 

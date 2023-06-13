@@ -44,7 +44,7 @@ class PreAssessmentController extends AdminController
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('note', __('Chú ý'));
-        $grid->column('Trạng thái')->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
@@ -72,7 +72,10 @@ class PreAssessmentController extends AdminController
                 $actions->disableEdit();
             }
         });
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('contract.code', __('Mã hợp đồng'));
+        });
         return $grid;
     }
 

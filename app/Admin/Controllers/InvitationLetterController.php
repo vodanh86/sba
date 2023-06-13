@@ -88,6 +88,11 @@ class InvitationLetterController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y H:i:s');
         })->width(100);
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('customer_id',  __('invitation_letter.customer_id'));
+            $filter->like('code', 'Mã thư chào');
+        });
         return $grid;
     }
 

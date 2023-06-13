@@ -77,6 +77,11 @@ class ContractController extends AdminController
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
         // callback after save
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('code', 'Mã hợp đồng');
+            $filter->like('invitationLetter.code', __('contract.Invitation letter id'));
+        });
         return $grid;
     }
 

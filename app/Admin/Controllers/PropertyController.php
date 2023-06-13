@@ -56,7 +56,11 @@ class PropertyController extends AdminController
                 $actions->disableEdit();
             });
         }
-
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('customer_name', __('Tên khách/doanh nghiệp'));
+            $filter->like('name', __('Tên tài sản'));
+        });
         return $grid;
     }
 
