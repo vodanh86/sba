@@ -90,7 +90,13 @@ class InvitationLetterController extends AdminController
         })->width(100);
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('customer_id',  __('invitation_letter.customer_id'));
+            $filter->where(function ($query) {
+                $query->whereHas('individualCustomer', function ($query) {
+                    $query->where('id_number', 'like', "%{$this->input}%");
+                })->orWhereHas('businessCustomer', function ($query) {
+                    $query->where('tax_number', 'like', "%{$this->input}%");
+                });
+            }, __('CMTND/CCCD/MST'));
             $filter->like('code', 'Mã thư chào');
         });
         return $grid;
