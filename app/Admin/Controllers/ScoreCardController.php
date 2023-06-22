@@ -120,8 +120,10 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
-            $nextStatuses = StatusTransition::where("table", Constant::SCORE_CARD_TABLE)->whereNull("status_id")->first();
-            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+            $nextStatuses = StatusTransition::where("table", Constant::SCORE_CARD_TABLE)->whereNull("status_id")->get();
+            foreach ($nextStatuses as $nextStatus) {
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->number('score', __('Điểm'));

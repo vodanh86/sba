@@ -173,8 +173,10 @@ class InvitationLetterController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
-            $nextStatuses = StatusTransition::where("table", Constant::INVITATION_LETTER_TABLE)->whereNull("status_id")->first();
-            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+            $nextStatuses = StatusTransition::where("table", Constant::INVITATION_LETTER_TABLE)->whereNull("status_id")->get();
+            foreach ($nextStatuses as $nextStatus) {
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
         }
         $form->text('code', __('Mã thư chào'))->required();
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->load('customer_id', env('APP_URL') . '/api/customers?branch_id=' . Admin::user()->branch_id);

@@ -136,8 +136,10 @@ class ContractController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
-            $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->first();
-            $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+            $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
+            foreach ($nextStatuses as $nextStatus) {
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
             $form->hidden('code')->default(Utils::generateCode("contracts", Admin::user()->branch_id));
         }
         $form->text('name', __('Tên tài sản'));
