@@ -68,6 +68,7 @@ class StatusController extends AdminController
         $form->select('table', ('Bảng'))->options(Constant::TABLES);
         $form->text('status', __('Trạng thái'));
         $form->text('name', __('Tên'));
+        $form->radio('done', "Hoàn thiện")->options([0 => 'Không', 1 => 'có'])->default(0);
 
         return $form;
     }

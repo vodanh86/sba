@@ -40,6 +40,11 @@ class ContractController extends AdminController
         $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "editors");
         $approveStatus = Utils::getAvailbleStatus(Constant::CONTRACT_TABLE, Admin::user()->roles[0]->slug, "approvers");
+        $doneStatus = Status::where("table", "contracts")->where("done", 1)->first();
+        $listStatus = array_merge($viewStatus, $editStatus, $approveStatus);
+        if (($key = array_search($doneStatus->id, $listStatus)) !== false) {
+            unset($listStatus[$key]);
+        }
 
         $grid = new Grid(new Contract());
 
@@ -55,8 +60,8 @@ class ContractController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        });
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        })->width(100);
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $listStatus);
         $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
@@ -104,7 +109,11 @@ class ContractController extends AdminController
         $show->field('statusDetail.name', __('Trạng thái'));
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
-
+        $show->panel()
+        ->tools(function ($tools) {
+            $tools->disableEdit();
+            $tools->disableDelete();
+        });
         return $show;
     }
 
