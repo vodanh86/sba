@@ -28,6 +28,7 @@ class BranchController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('branch_name', __('Tên chi nhánh'));
+        $grid->column('code', __('Mã chi nhánh'));
         $grid->column('address', __('Địa chỉ'));
         $grid->column('created_at', __('Ngày tạo'));
         $grid->column('updated_at', __('Ngày cập nhật'));
@@ -46,11 +47,11 @@ class BranchController extends AdminController
         $show = new Show(Branch::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Ngày tạo'));
-        $show->field('updated_at', __('Ngày cập nhật'));
         $show->field('branch_name', __('Tên chi nhánh'));
         $show->field('address', __('Địa chỉ'));
-
+        $show->field('code', __('Mã chi nhánh'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
         return $show;
     }
 
@@ -63,7 +64,8 @@ class BranchController extends AdminController
     {
         $form = new Form(new Branch());
 
-        $form->text('branch_name', __('Tên chi nhánh'));
+        $form->text('branch_name', __('Tên chi nhánh'))->required();
+        $form->text('code', __('Mã chi nhánh'))->required();
         $form->text('address', __('Địa chỉ'));
 
         return $form;

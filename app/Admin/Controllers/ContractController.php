@@ -129,9 +129,9 @@ class ContractController extends AdminController
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->first();
             $status[$nextStatuses->next_status_id] = $nextStatuses->nextStatus->name;
+            $form->hidden('code')->default(Utils::generateCode("contracts", Admin::user()->branch_id));
         }
         $form->text('name', __('Tên tài sản'));
-        $form->text('code', __('Mã hợp đồng'))->required();
         $form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->required();
         // invitation letter
         $form->text('customer_type', __('Loại khách hàng'))->disable();
