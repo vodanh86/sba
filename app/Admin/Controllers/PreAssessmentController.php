@@ -38,9 +38,6 @@ class PreAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
-        });
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('note', __('Chú ý'));
@@ -51,7 +48,10 @@ class PreAssessmentController extends AdminController
             return $this->statusDetail->name;
         });
 
-        $grid->column('comment',__('Bình luận'))->action(AddPreAssessmentComment::class)->width(150);
+        $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
+        $grid->column('document', __('Tài liệu'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+        });
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
