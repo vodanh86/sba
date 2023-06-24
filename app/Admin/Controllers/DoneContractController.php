@@ -33,7 +33,7 @@ class DoneContractController extends AdminController
         $grid->column('name', __('Sale phụ trách'))->filter('like');
         $grid->column('code', __('Code'))->filter('like');
         $grid->column('comment', __('Bình luận'))->action(AddContractComment::class)->width(250);
-        $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
+        $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
         $grid->column('business_name', __('Tên doanh nghiệp'))->filter('like');
         $grid->column('representative', __('Người đại diện'))->filter('like');
@@ -47,22 +47,22 @@ class DoneContractController extends AdminController
         $grid->column('buyer_address', __('Địa chỉ'))->filter('like');
         $grid->column('buyer_tax_number', __('Mã số thuế'))->filter('like');
         $grid->column('bill_content', __('Nội dung hoá đơn'))->filter('like');
-        $grid->column('property_type', __('Loại tài sản'))->using(Constant::PROPRERTY_TYPE);
+        $grid->column('property_type', __('Loại tài sản'))->using(Constant::PROPRERTY_TYPE)->filter(Constant::PROPRERTY_TYPE);
         $grid->column('property_address', __('Địa điểm tài sản'))->filter('like');
-        $grid->column('property_purpose', __('Mục đích sử dụng đất'))->using(Constant::PROPRERTY_PURPOSE);
-        $grid->column('vehicle_type', __('Loại phương tiện vận tải'))->using(Constant::VEHICLE_TYPE);
+        $grid->column('property_purpose', __('Mục đích sử dụng đất'))->using(Constant::PROPRERTY_PURPOSE)->filter(Constant::PROPRERTY_TYPE);
+        $grid->column('vehicle_type', __('Loại phương tiện vận tải'))->using(Constant::VEHICLE_TYPE)->filter(Constant::VEHICLE_TYPE);
         $grid->column('production_year', __('Năm sản xuất'))->filter('like');
         $grid->column('registration_number', __('Biển kiểm soát/Số đăng ký'))->filter('like');
         $grid->column('company_name', __('Tên doanh nghiệp'))->filter('like');
         $grid->column('borrower', __('Tên khách nợ'))->filter('like');
-        $grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE);
+        $grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE)->filter(Constant::INVITATION_PURPOSE);
         $grid->column('extended_purpose', __('Mục đích mở rộng'))->filter('like');
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
         $grid->column('from_date', __('Từ ngày'))->filter('like');
         $grid->column('to_date', __('Đến ngày'))->filter('like');
         $grid->column('total_fee', __('Tổng phí'))->filter('like');
         $grid->column('advance_fee', __('Tạm ứng'))->filter('like');
-        $grid->column('payment_method', __('Hình thức thanh toán'))->using(Constant::PAYMENT_METHOD);
+        $grid->column('payment_method', __('Hình thức thanh toán'))->using(Constant::PAYMENT_METHOD)->filter(Constant::PAYMENT_METHOD);
         $grid->column('vat', __('Vat'))->using(Constant::YES_NO);
         $grid->column('broker', __('Người môi giới'))->filter('like');
 
