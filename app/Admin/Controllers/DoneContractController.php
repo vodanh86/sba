@@ -42,7 +42,7 @@ class DoneContractController extends AdminController
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('personal_name', __('Họ và tên bên thuê dịch vụ'))->filter('like');
         $grid->column('issue_place', __('Nơi cấp'))->filter('like');
-        $grid->column('issue_date', __('Ngày cấp'))->filter('like');
+        $grid->column('issue_date', __('Ngày cấp'))->filter('range', 'date');
         $grid->column('buyer_name', __('Đơn vị mua'))->filter('like');
         $grid->column('buyer_address', __('Địa chỉ'))->filter('like');
         $grid->column('buyer_tax_number', __('Mã số thuế'))->filter('like');
@@ -51,7 +51,7 @@ class DoneContractController extends AdminController
         $grid->column('property_address', __('Địa điểm tài sản'))->filter('like');
         $grid->column('property_purpose', __('Mục đích sử dụng đất'))->using(Constant::PROPRERTY_PURPOSE)->filter(Constant::PROPRERTY_TYPE);
         $grid->column('vehicle_type', __('Loại phương tiện vận tải'))->using(Constant::VEHICLE_TYPE)->filter(Constant::VEHICLE_TYPE);
-        $grid->column('production_year', __('Năm sản xuất'))->filter('like');
+        $grid->column('production_year', __('Năm sản xuất'))->filter('range', 'date');
         $grid->column('registration_number', __('Biển kiểm soát/Số đăng ký'))->filter('like');
         $grid->column('company_name', __('Tên doanh nghiệp'))->filter('like');
         $grid->column('borrower', __('Tên khách nợ'))->filter('like');

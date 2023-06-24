@@ -2,7 +2,6 @@
 
 namespace App\Admin\Controllers;
 
-use App\Http\Models\Property;
 use App\Http\Models\Contract;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -40,7 +39,7 @@ class PropertyController extends AdminController
         
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->orderBy('id', 'desc');
         $grid->model()->whereNotNull(["property_type", "property_address", "property_purpose", "vehicle_type", "production_year", "registration_number", "company_name", "borrower"]);
-        //$grid->model()
+
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableDelete();
