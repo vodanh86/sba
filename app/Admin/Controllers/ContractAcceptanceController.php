@@ -38,6 +38,11 @@ class ContractAcceptanceController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
+        $grid->column('contract.name', __('Tên hợp đồng'))->width(150);
+        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        })->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -93,6 +98,10 @@ class ContractAcceptanceController extends AdminController
         $show->field('updated_at', __('Ngày cập nhật'));
         $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract_id', __('Mã hợp đồng'));
+        $show->field('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        });
         $show->field('status', __('Trạng thái'));
         $show->field('address', __('Địa chỉ'));
         $show->field('total_fee', __('Tổng phí'));
@@ -133,6 +142,7 @@ class ContractAcceptanceController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->date('date_acceptance', __('Ngày nghiệm thu'));
         $form->text('address', __('Địa chỉ'));
         $form->number('total_fee', __('Tổng phí'));
         $form->text('delivery', __('Người chuyển'));
