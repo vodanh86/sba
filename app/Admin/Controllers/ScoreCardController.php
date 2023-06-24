@@ -39,7 +39,7 @@ class ScoreCardController extends AdminController
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('score', __('Nguồn'));
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {

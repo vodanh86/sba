@@ -28,6 +28,14 @@ class DoneContractController extends AdminController
     protected function grid()
     {
         $doneStatus = Status::where("table", "contracts")->where("done", 1)->first();
+        $extractDocument = function ($documents){
+            $url = "";
+            foreach($documents as $x => $document){
+                $url .= "<a href='".env('APP_URL').'/../storage/app/'.$document["document"]."' target='_blank'>".basename($document["document"])."</a><br/>";
+            }
+            return $url;
+        };
+
         $grid = new Grid(new Contract());
 
         $grid->column('name', __('Sale phụ trách'))->filter('like');
@@ -65,7 +73,10 @@ class DoneContractController extends AdminController
         $grid->column('payment_method', __('Hình thức thanh toán'))->using(Constant::PAYMENT_METHOD)->filter(Constant::PAYMENT_METHOD);
         $grid->column('vat', __('Vat'))->using(Constant::YES_NO);
         $grid->column('broker', __('Người môi giới'))->filter('like');
-
+        $grid->column('officialAssessments',__('Kết quả thẩm định chính thức'))->display($extractDocument);
+        $grid->column('valuationDocuments',__('Hồ sơ thẩm định giá'))->display($extractDocument);
+        $grid->column('scoreCards',__('Phiếu chấm điểm'))->display($extractDocument);
+        $grid->column('contractAcceptances',__('Hợp đồng nghiệm thu'))->display($extractDocument);
         $grid->column('statusDetail.name',__('Trạng thái'))->width(100);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', $doneStatus->id);
         $grid->model()->orderBy('id', 'desc');

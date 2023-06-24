@@ -39,7 +39,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
         $grid->column('document', __('Document'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));

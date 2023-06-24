@@ -50,7 +50,7 @@ class PreAssessmentController extends AdminController
 
         $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);

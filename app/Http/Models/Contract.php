@@ -18,6 +18,26 @@ class Contract extends Model
         return $this->belongsTo(Status::class, 'status');
     }
 
+    public function officialAssessments()
+    {
+        return $this->hasMany(OfficialAssessment::class);
+    }
+
+    public function valuationDocuments()
+    {
+        return $this->hasMany(ValuationDocument::class);
+    }
+
+    public function scoreCards()
+    {
+        return $this->hasMany(ScoreCard::class);
+    }
+
+    public function contractAcceptances()
+    {
+        return $this->hasMany(ContractAcceptance::class);
+    }
+
 	protected $hidden = [
     ];
 

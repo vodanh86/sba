@@ -39,7 +39,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('address', __('Địa chỉ'));
         $grid->column('total_fee', __('Tổng phí'));
