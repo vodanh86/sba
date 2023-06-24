@@ -44,6 +44,7 @@ class InvitationLetterController extends AdminController
         $grid = new Grid(new InvitationLetter());
 
         $grid->column('id', __('Id'));
+        $grid->column('code', __('Mã thư chào'));
         $grid->column('customer_type', __('Loại khách hàng'))->using(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'));
         $grid->column('business_name', __('Tên doanh nghiệp'));
@@ -110,7 +111,7 @@ class InvitationLetterController extends AdminController
         // callback after save
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('code', 'Mã hợp đồng');
+            $filter->like('code', 'Mã thư chào');
         });
         return $grid;
     }
