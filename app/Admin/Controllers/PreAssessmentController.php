@@ -38,16 +38,20 @@ class PreAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('finished_date', __('Ngày hoàn thành'));
-        $grid->column('performerDetail.name', __('Người thực hiện'));
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y');
+        })->width(150);
+        $grid->column('contract.name', __('Tài sản thẩm định'))->width(150);
+        $grid->column('performerDetail.name', __('Người thực hiện'))->width(150);
         $grid->column('note', __('Chú ý'));
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        });
-
+        })->width(150);
+        $grid->column('pre_value', __('Giá trị sơ bộ'))->width(150);
         $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</span>";
