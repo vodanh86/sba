@@ -42,4 +42,17 @@ abstract class Utils
         }
         return "S".date('ym')."001.$branchCode";
     }
+
+    public static function generateInvitationCode($table){
+        $code = DB::table($table)
+        ->select(DB::raw('code'))
+        ->where('code', 'like', '%'.date('ym').'%')
+        ->orderByDesc('id')
+        ->first();
+        if ($code){
+            $currentIndex = substr($code->code, 1, 7);
+            return "A".($currentIndex + 1);
+        }
+        return "A".date('ym')."001";
+    }
 }
