@@ -30,6 +30,7 @@ class StatusController extends AdminController
         $grid->column('table', __('Bảng'))->filter(Constant::TABLES);
         $grid->column('status', __('Trạng thái'))->filter();
         $grid->column('name', __('Tên'));
+        $grid->column('done', __('Hoàn thiện'));
         $grid->column('created_at', __('Ngày tạo'));
         $grid->column('updated_at', __('Ngày cập nhật'));
         $grid->model()->orderBy('id', 'desc');
