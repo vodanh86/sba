@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Http\Models\BusinessCustomer;
+use App\Http\Models\Contract;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -26,14 +26,21 @@ class BusinessCustomerController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new BusinessCustomer());
+        $grid = new Grid(new Contract());
 
-        $grid->column('name', __('Tên doanh nghiệp'));
-        $grid->column('address', __('Địa chỉ'));
-        $grid->column('tax_number', __('Mã số thuế'))->width(100);
-        $grid->column('representative', __('Người đại diện'));
-        $grid->column('position', __('Chức vụ'));
-        $grid->column('branch.branch_name', __('Chi nhánh'));
+        $grid->column('tax_number', __('Mã số thuế'))->filter('like');
+        $grid->column('business_name', __('Tên doanh nghiệp'))->filter('like');
+        $grid->column('business_address', __('Địa chỉ'))->filter('like');
+        $grid->column('representative', __('Người đại diện'))->filter('like');
+        $grid->column('position', __('Chức vụ'))->filter('like');
+   
+        $grid->model()->whereNotNull(["tax_number", "business_name", "business_address", "representative", "position"]);
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where("customer_type", "=", "2")->orderBy('id', 'desc');
+        $grid->disableCreateButton();
+        $grid->actions(function ($actions) {
+            $actions->disableDelete();
+            $actions->disableEdit();
+        });
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
@@ -42,23 +49,12 @@ class BusinessCustomerController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
-
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
-        $grid->model()->orderBy('id', 'desc');
-        if (Admin::user()->can(Constant::VIEW_CUSTOMERS)) {
-            $grid->disableCreateButton();
-            $grid->actions(function ($actions) {
-                $actions->disableDelete();
-                $actions->disableEdit();
-            });
-        }
-        
+        // callback after save
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('name', __('Tên doanh nghiệp'));
+            $filter->like('business_name', __('Tên doanh nghiệp'));
             $filter->like('tax_number', __('Mã số thuế'));
         });
-
         return $grid;
     }
 
@@ -70,37 +66,20 @@ class BusinessCustomerController extends AdminController
      */
     protected function detail($id)
     {
-        $show = new Show(BusinessCustomer::findOrFail($id));
+        $show = new Show(Contract::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('branch_id', __('Id Chi nhánh'));
-        $show->field('name', __('Tên doanh nghiệp'));
-        $show->field('address', __('Địa chỉ'));
+    
         $show->field('tax_number', __('Mã số thuế'));
+        $show->field('business_name', __('Tên doanh nghiệp'));
+        $show->field('business_address', __('Địa chỉ'));
         $show->field('representative', __('Người đại diện'));
         $show->field('position', __('Chức vụ'));
-        $show->field('created_at', __('Ngày tạo'));
-        $show->field('updated_at', __('Ngày cập nhật'));
-        $show->field('status', __('Trạng thái'));
-
+        $show->panel()
+        ->tools(function ($tools) {
+            $tools->disableEdit();
+            $tools->disableDelete();
+        });
         return $show;
-    }
-
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function form()
-    {
-        $form = new Form(new BusinessCustomer());
-
-        $form->text('name', __('Tên doanh nghiệp'));
-        $form->text('address', __('Địa chỉ'));
-        $form->text('tax_number', __('Mã số thuế'));
-        $form->text('representative', __('Người đại diện'));
-        $form->text('position', __('Chức vụ'));
-        $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        return $form;
     }
 }
