@@ -38,10 +38,11 @@ class OfficialAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
-        $grid->column('document', __('Document'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
-        $grid->column('finished_date', __('Ngày hoàn thành'));
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display(function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y');
+        })->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('note', __('Chú ý'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
@@ -50,8 +51,13 @@ class OfficialAssessmentController extends AdminController
             }
             return $this->statusDetail->name;
         });
-
-        $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150);
+        $grid->column('official_value', __('Giá trị chính thức'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
+        $grid->column('comment', __('Ghi chú'))->action(AddOfficialAssessmentComment::class)->width(150);
+        $grid->column('document', __('Document'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+        });
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
@@ -91,13 +97,19 @@ class OfficialAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('official_assessment.contract_id'));
-        $show->document()->file();
+       
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
-        $show->field('comment', __('Bình luận'));
         $show->field('statusDetail.name', __('Trạng thái'));
 
+        $show->field('official_value', __('Giá trị chính thức'))->as(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        });
+        $show->field('comment', __('Ghi chú'));
+        $show->field('document', __('Tài liệu'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+        });
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
 
@@ -134,11 +146,16 @@ class OfficialAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
-        $form->file('document', __('Tài liệu'));
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        
+        $form->number('official_value', __('Giá trị chính thức'));
+        $form->text('comment', __('Ghi chú'));
+        $form->file('document', __('Tài liệu'));
+
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;
