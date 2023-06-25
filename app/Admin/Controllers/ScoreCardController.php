@@ -37,10 +37,13 @@ class ScoreCardController extends AdminController
         $grid = new Grid(new ScoreCard());
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('score', __('Nguồn'));
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
+        $grid->column('score', __('Điểm'));
+        $grid->column('error_score', __('Lỗi điểm'));
+        $grid->column('document', __('Tệp đính kèm'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
+        $grid->column('note', __('Ghi chú'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
@@ -87,12 +90,18 @@ class ScoreCardController extends AdminController
         $show = new Show(ScoreCard::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Ngày tạo'));
-        $show->field('updated_at', __('Ngày cập nhật'));
         $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract_id', __('Mã hợp đồng'));
-        $show->document()->file();
+        $show->field('contract.property', __('Tài sản thẩm định giá'));
+        $show->field('score', __('Điểm'));
+        $show->field('error_score', __('Lỗi điểm'));
+        $show->field('document', __('Tệp đính kèm'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+        });
+        $show->field('note', __('Ghi chú'));
         $show->field('status', __('Trạng thái'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
         $show->panel()
         ->tools(function ($tools) {
             $tools->disableEdit();
@@ -127,7 +136,9 @@ class ScoreCardController extends AdminController
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->number('score', __('Điểm'));
+        $form->text('error_score', __('Lỗi điểm'));
         $form->file('document', __('Tài liệu'));
+        $form->text('note', __('Ghi chú'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
