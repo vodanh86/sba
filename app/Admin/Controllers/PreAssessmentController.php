@@ -43,11 +43,11 @@ class PreAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('finished_date', __('Ngày hoàn thành'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y');
         })->width(150);
-        $grid->column('contract.name', __('Tài sản thẩm định'))->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'))->width(150);
         $grid->column('note', __('Chú ý'));
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
@@ -55,8 +55,10 @@ class PreAssessmentController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
+        })->width(200);
+        $grid->column('pre_value', __('Giá trị sơ bộ'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $grid->column('pre_value', __('Giá trị sơ bộ'))->width(150);
         $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
@@ -94,11 +96,19 @@ class PreAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract_id', __('Mã hợp đồng'));
-        $show->document()->file();
+       
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
         $show->field('statusDetail.name', __('Trạng thái'));
+
+        $show->field('pre_value', __('Giá trị sơ bộ'))->as(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        });
+        $show->field('comment', __('Ghi chú'));
+        $show->field('document', __('Tài liệu'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+        });
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
 
@@ -135,11 +145,15 @@ class PreAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
-        $form->file('document', __('Tài liệu'));
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+
+        $form->number('pre_value', __('Giá trị sơ bộ'));
+        $form->text('comment', __('Ghi chú'));
+        $form->file('document', __('Tài liệu'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;

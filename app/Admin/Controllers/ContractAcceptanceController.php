@@ -38,25 +38,48 @@ class ContractAcceptanceController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('contract.name', __('Tên hợp đồng'))->width(150);
+        $grid->column('contract.property', __('Tài sản thẩm định giá'));
         $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
+       
+    
+        $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
+        $grid->column('contract.tax_number', __('Mã số thuế'));
+        $grid->column('contract.business_name', __('Tên doanh nghiệp'));
+        $grid->column('contract.personal_address', __('Địa chỉ'));
+        $grid->column('contract.representative', __('Người đại diện'));
+        $grid->column('contract.position', __('Chức vụ'));
+        $grid->column('contract.personal_name', __('Họ và tên'));
+        $grid->column('contract.id_number', __('Số CMND/CCCD'));
+        $grid->column('contract.issue_place', __('Nơi cấp'));
+        $grid->column('contract.issue_date', __('Ngày cấp'));
+
+        $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
+            return $value == 0 ? 'Không' : 'Có';
+        });        
+        $grid->column('buyer_name', __('Đơn vị mua'));
+        $grid->column('buyer_address', __('Địa chỉ'));
+        $grid->column('buyer_tax_number', __('Mã số thuế'));
+        $grid->column('bill_content', __('Nội dung hoá đơn'));
+
+        $grid->column('total_fee', __('Tổng phí dịch vụ'));
+        $grid->column('delivery', __('Người chuyển'));
+        $grid->column('recipient', __('Người nhận'));
+        $grid->column('advance_fee', __('Đã tạm ứng'));
+        $grid->column('official_fee', __('Còn phải thanh toán'));
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
-        $grid->column('address', __('Địa chỉ'));
-        $grid->column('total_fee', __('Tổng phí'));
-        $grid->column('delivery', __('Người chuyển'));
-        $grid->column('recipient', __('Người nhận'));
+        $grid->column('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class)->width(150);
+
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
         });
-        $grid->column('comment', __('Bình luận'))->action(AddContractAcceptanceComment::class)->width(150);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
@@ -94,20 +117,44 @@ class ContractAcceptanceController extends AdminController
         $show = new Show(ContractAcceptance::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Ngày tạo'));
-        $show->field('updated_at', __('Ngày cập nhật'));
-        $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract_id', __('Mã hợp đồng'));
+        $show->field('contract.property', __('Tài sản thẩm định giá'));
         $show->field('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         });
-        $show->field('status', __('Trạng thái'));
-        $show->field('address', __('Địa chỉ'));
-        $show->field('total_fee', __('Tổng phí'));
+        $show->field('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
+        $show->field('contract.tax_number', __('Mã số thuế'));
+        $show->field('contract.business_name', __('Tên doanh nghiệp'));
+        $show->field('contract.personal_address', __('Địa chỉ'));
+        $show->field('contract.representative', __('Người đại diện'));
+        $show->field('contract.position', __('Chức vụ'));
+        $show->field('contract.personal_name', __('Họ và tên'));
+        $show->field('contract.id_number', __('Số CMND/CCCD'));
+        $show->field('contract.issue_place', __('Nơi cấp'));
+        $show->field('contract.issue_date', __('Ngày cấp'));
+
+        $show->field('export_bill', __('Xuất hoá đơn'))->as(function ($value) {
+            return $value == 0 ? 'Có' : 'Không';
+        });   
+        $show->field('buyer_name', __('Đơn vị mua'));
+        $show->field('buyer_address', __('Địa chỉ'));
+        $show->field('buyer_tax_number', __('Mã số thuế'));
+        $show->field('bill_content', __('Nội dung hoá đơn'));
+
+        $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('delivery', __('Người chuyển'));
         $show->field('recipient', __('Người nhận'));
-        $show->field('document', __('Tài liệu'));
+        $show->field('advance_fee', __('Đã tạm ứng'));
+        $show->field('official_fee', __('Còn phải thanh toán'));
+        $show->field('document', __('Tài liệu'))->display(function ($url) {
+            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+        });
+        $show->field('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class);
+
+        $show->field('status', __('Trạng thái'));
+        $show->field('created_at', __('Ngày tạo'));
+        $show->field('updated_at', __('Ngày cập nhật'));
         $show->panel()
             ->tools(function ($tools) {
                 $tools->disableEdit();
@@ -143,10 +190,17 @@ class ContractAcceptanceController extends AdminController
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
-        $form->text('address', __('Địa chỉ'));
+        $form->select('export_bill', __('Xuất hoá đơn'))->options([0 => 'Có', 1 => 'Không']);
+        $form->text('buyer_name', __('Đơn vị mua'));
+        $form->text('buyer_address', __('Địa chỉ'));
+        $form->number('buyer_tax_number', __('Mã số thuế'));
+        $form->text('bill_content', __('Nội dung hoá đơn'));
+
         $form->number('total_fee', __('Tổng phí'));
         $form->text('delivery', __('Người chuyển'));
         $form->text('recipient', __('Người nhận'));
+        $form->number('advance_fee', __('Đã tạm ứng'));
+        $form->number('official_fee', __('Còn phải thanh toán'));
         $form->file('document', __('Tài liệu'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
