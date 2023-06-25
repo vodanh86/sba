@@ -50,6 +50,7 @@ class ContractController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'));
+        $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
         //$grid->column('invitationLetter.code', __('contract.Invitation letter id'));
         $grid->column('created_date', __('Ngày hợp đồng'));
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
@@ -140,6 +141,7 @@ class ContractController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('code', __('Mã hợp đồng'));
+        $show->field('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
         $show->field('created_date', __('Ngày hợp đồng'));
         //$show->field('invitation_letter_id', __('Invitation letter id'));
         //$show->field('name', __('Name'));
@@ -216,6 +218,7 @@ class ContractController extends AdminController
         }
         //$form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->setWidth(2, 2);
         //$form->text('name', __('Sale phụ trách'));
+        $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->required();
         $form->date('created_date', __('Ngày hợp đồng'))->default(date('Y-m-d'))->required();
 
         $form->divider('2. Thông tin khách hàng');

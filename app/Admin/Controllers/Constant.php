@@ -23,6 +23,7 @@ abstract class Constant
     const VEHICLE_TYPE = array(1 => "Ô tô con", 2 => "Xe tải", 3 => "Xe đầu kéo", 4 => "Sơ mi rơ móc", 5 => "Xe nâng", 6 => "Tàu nội địa", 7 => "Tàu biển");
     const APPROVE_TYPE = array(0 => "Không", 1 => "Từ chối", 2 => "Đồng ý");
 
+    const CONTRACT_TYPE = array(0 => "Sơ bộ", 2 => "Chính thức");
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");
     const YES_NO = array(0 => "Không", 1 => "Có");
     const INVITATION_STATUS = array(1 => "Chưa gửi khách hàng", 2 => "Khách hàng đồng ý",  2 => "Khách hàng từ chối");
