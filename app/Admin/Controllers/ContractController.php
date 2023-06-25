@@ -82,9 +82,17 @@ class ContractController extends AdminController
         //$grid->column('extended_purpose', __('Mục đích mở rộng'));
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
         $grid->column('from_date', __('Thời gian thẩm định'))->filter('like');
-        //$grid->column('to_date', __('Đến ngày'));
+        
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
         $grid->column('advance_fee', __('Tạm ứng'));
+
+        $grid->column('broker', __('Môi giới'));
+        $grid->column('source', __('Nguồn'));
+        $grid->column('sale', __('Sale'));
+        $grid->column('tdv', __('Tdv'));
+        $grid->column('tdv_assistant', __('Trợ lý tdv'));
+        $grid->column('supervisor', __('Kiểm soát viên'));
+
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($url) {
@@ -92,7 +100,7 @@ class ContractController extends AdminController
         });
         //$grid->column('payment_method', __('Hình thức thanh toán'))->using(Constant::PAYMENT_METHOD);
         //$grid->column('vat', __('Vat'))->using(Constant::YES_NO);
-        //$grid->column('broker', __('Người môi giới'));
+        
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $listStatus);
         $grid->model()->orderBy('id', 'desc');
@@ -179,7 +187,12 @@ class ContractController extends AdminController
         $show->field('advance_fee', __('Tạm ứng'));
         //$show->field('payment_method', __('Hình thức thanh toán'));
         //$show->field('vat', __('Vat'));
-        //$show->field('broker', __('Người môi giới'));
+        $show->field('broker', __('Môi giới'));
+        $show->field('source', __('Nguồn'));
+        $show->field('sale', __('Sale'));
+        $show->field('tdv', __('Tdv'));
+        $show->field('tdv_assistant', __('Trợ lý tdv'));
+        $show->field('supervisor', __('Kiểm soát viên'));
         $show->field('contact', __('Liên hệ'));
         $show->field('note', __('Ghi chú'));
         $show->panel()
@@ -265,8 +278,14 @@ class ContractController extends AdminController
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
         //$form->select('payment_method', __('Hình thức thanh toán'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
         //$form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
-
-        $form->divider('5. Thông tin khác');
+        $form->divider('5. Thông tin phiếu giao việc');
+        $form->text('broker', __('Môi giới'))->required();
+        $form->text('source', __('Nguồn'));
+        $form->text('sale', __('Sale'));
+        $form->text('tdv', __('Tdv'));
+        $form->text('tdv_assistant', __('Trợ lý tdv'));
+        $form->text('supervisor', __('Kiểm soát viên'));
+        $form->divider('6. Thông tin khác');
         //$form->text('broker', __('Người môi giới'));
         $form->text('contact', __('liên hệ'));
         $form->text('note', __('Ghi chú'));
