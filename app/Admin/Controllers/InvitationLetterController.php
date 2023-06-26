@@ -47,8 +47,8 @@ class InvitationLetterController extends AdminController
         $grid->column('code', __('Mã thư chào'));
         $grid->column('customer_name', __('Tên khách hàng'))->width(150);
         // $grid->column('customer_type', __('Loại khách hàng'))->using(Constant::CUSTOMER_TYPE);
-        $grid->column('property_type', __('Tài sản thẩm định giá'))->using(Constant::PROPRERTY_TYPE)->width(150);
-        $grid->column('purpose', __('Mục đích thẩm định giá'))->using(Constant::INVITATION_PURPOSE)->width(150);
+        $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150);
+        $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150);
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
         $grid->column('from_date', __('Từ ngày'))->width(150);
         $grid->column('to_date', __('Đến ngày'))->width(150);

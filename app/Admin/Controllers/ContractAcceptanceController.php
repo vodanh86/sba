@@ -64,11 +64,17 @@ class ContractAcceptanceController extends AdminController
         $grid->column('buyer_tax_number', __('Mã số thuế'));
         $grid->column('bill_content', __('Nội dung hoá đơn'));
 
-        $grid->column('total_fee', __('Tổng phí dịch vụ'));
+        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
         $grid->column('delivery', __('Người chuyển'));
         $grid->column('recipient', __('Người nhận'));
-        $grid->column('advance_fee', __('Đã tạm ứng'));
-        $grid->column('official_fee', __('Còn phải thanh toán'));
+        $grid->column('advance_fee', __('Đã tạm ứng'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
+        $grid->column('official_fee', __('Còn phải thanh toán'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -143,11 +149,17 @@ class ContractAcceptanceController extends AdminController
         $show->field('buyer_tax_number', __('Mã số thuế'));
         $show->field('bill_content', __('Nội dung hoá đơn'));
 
-        $show->field('total_fee', __('Tổng phí dịch vụ'));
+        $show->field('total_fee', __('Tổng phí dịch vụ'))->as(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
         $show->field('delivery', __('Người chuyển'));
         $show->field('recipient', __('Người nhận'));
-        $show->field('advance_fee', __('Đã tạm ứng'));
-        $show->field('official_fee', __('Còn phải thanh toán'));
+        $show->field('advance_fee', __('Đã tạm ứng'))->as(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
+        $show->field('official_fee', __('Còn phải thanh toán'))->as(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150);
         $show->field('document', __('Tài liệu'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -195,16 +207,20 @@ class ContractAcceptanceController extends AdminController
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
         $form->divider('2. Thông tin khách hàng');
-        $form->text('customer_type', __('Loại khách'))->disable();
-        $form->number('tax_number', __('Mã số thuế'))->disable();
-        $form->text('business_name', __('Tên doanh nghiệp'))->disable();
-        $form->text('personal_address', __('Địa chỉ'))->disable();
-        $form->text('representative', __('Người đại diện'))->disable();
-        $form->text('position', __('Chức vụ'))->disable();
-        $form->text('personal_name', __('Họ và tên'))->disable();
-        $form->number('id_number', __('Số CMND/CCCD'))->disable();
-        $form->text('issue_place', __('Nơi cấp'))->disable();
-        $form->date('issue_date', __('Ngày cấp'))->disable();
+        $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->disable()->required()->when(1, function (Form $form) {
+            $form->text('id_number', __('Số CMND/CCCD'))->disable();
+            $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'))->disable();
+            $form->text('personal_address', __('Địa chỉ'))->disable();
+            $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'))->disable();
+            $form->text('issue_place', __('Nơi cấp'))->disable();
+        })->when(2, function (Form $form) {
+            $form->text('tax_number', __('Mã số thuế'))->disable();
+            $form->text('business_name', __('Tên doanh nghiệp'))->disable();
+            $form->text('business_address', __('Địa chỉ doanh nghiệp'))->disable();
+            $form->text('representative', __('Người đại diện'))->disable();
+            $form->text('position', __('Chức vụ'))->disable();
+        })->required();
+
 
         $form->divider('3. Thông tin xuất hoá đơn');
         $form->select('export_bill', __('Xuất hoá đơn'))->options([0 => 'Có', 1 => 'Không']);
@@ -230,25 +246,25 @@ class ContractAcceptanceController extends AdminController
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
-        $(document).on('change', ".form-control", function () {
+        $(document).on('change', ".contract_code_id_", function () {
             $.get("$url",{q : this.value}, function (data) {
                 $("#property").val(data.property);
-                $("#customer_type").val(data.customer_type);
+                $(".customer_type").val(parseInt(data.customer_type)).change();
                 $("#tax_number").val(data.tax_number);  
                 $("#business_name").val(data.business_name);
                 $("#personal_address").val(data.personal_address);
+                $("#business_address").val(data.business_address);
                 $("#representative").val(data.representative);
                 $("#position").val(data.position);
                 $("#personal_name").val(data.personal_name);
                 $("#id_number").val(data.id_number);  
                 $("#issue_place").val(data.issue_place);  
-                $("#issue_date").val(data.issue_date);  
+                $("#issue_date").val(data.issue_date); 
             });
         });
         EOT;
 
         Admin::script($script);
-
         return $form;
     }
 }
