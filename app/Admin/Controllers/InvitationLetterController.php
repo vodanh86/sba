@@ -47,8 +47,8 @@ class InvitationLetterController extends AdminController
         $grid->column('code', __('Mã thư chào'));
         $grid->column('customer_name', __('Tên khách hàng'))->width(150);
         // $grid->column('customer_type', __('Loại khách hàng'))->using(Constant::CUSTOMER_TYPE);
-        $grid->column('property_type', __('Loại tài sản'))->using(Constant::PROPRERTY_TYPE)->width(150);
-        $grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE)->width(150);
+        $grid->column('property_type', __('Tài sản thẩm định giá'))->using(Constant::PROPRERTY_TYPE)->width(150);
+        $grid->column('purpose', __('Mục đích thẩm định giá'))->using(Constant::INVITATION_PURPOSE)->width(150);
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
         $grid->column('from_date', __('Từ ngày'))->width(150);
         $grid->column('to_date', __('Đến ngày'))->width(150);
@@ -120,8 +120,8 @@ class InvitationLetterController extends AdminController
         $show->field('id', __('Id'));
         $show->field('code', __('Mã thư chào'));
         $show->field('customer_name', __('Tên khách hàng'));
-        $show->field('property_type', __('Loại tài sản'))->using(Constant::PROPRERTY_TYPE)->width(150);
-        $show->field('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE)->width(150);
+        $show->field('property_type', __('Tài sản thẩm định giá'))->using(Constant::PROPRERTY_TYPE)->width(150);
+        $show->field('purpose', __('Mục đích thẩm định giá'))->using(Constant::INVITATION_PURPOSE)->width(150);
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
         $show->field('from_date', __('Từ ngày'))->width(150);
         $show->field('to_date', __('Đến ngày'))->width(150);
@@ -217,7 +217,8 @@ class InvitationLetterController extends AdminController
         // $form->text('bill_content', __('Nội dung hoá đơn'));
 
         $form->divider('2. Thông tin về hồ sơ thẩm định giá');
-        $form->select('property_type', __('Loại tài sản'))->options(Constant::PROPRERTY_TYPE)->setWidth(5, 2);
+        $form->text('property_type', __('Tài sản thẩm định giá'));
+        $form->text('purpose', __('Mục đích thẩm định giá'));
         $form->text('property_address', __('Địa điểm tài sản'));
         // $form->select('property_purpose', __('Mục đích sử dụng đất'))->options(Constant::PROPRERTY_PURPOSE)->setWidth(5, 2);
         // $form->select('vehicle_type', __('Loại phương tiện vận tải'))->options(Constant::VEHICLE_TYPE)->setWidth(5, 2);
@@ -226,7 +227,6 @@ class InvitationLetterController extends AdminController
         // $form->text('business', __('Ngành nghề'));
         // $form->text('company_name', __('Tên doanh nghiệp'));
         // $form->text('borrower', __('Tên khách nợ'));
-        $form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         // $form->text('extended_purpose', __('Mục đích mở rộng'));
         $form->date('appraisal_date', __('Thời điểm thẩm định giá'))->default(date('Y-m-d'));
 

@@ -21,3 +21,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('customers', 'CustomerController@index');
 Route::get('customer', 'CustomerController@find');
 Route::get('invitation-letter', 'InvitationLetterController@find');
+Route::get('contract', 'ContractController@find');
+

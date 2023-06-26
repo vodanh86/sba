@@ -96,6 +96,7 @@ class PreAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract_id', __('Mã hợp đồng'));
+        $show->field('contract.property', __('Tài sản thẩm định giá'));
        
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
@@ -145,6 +146,8 @@ class PreAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->text('property', __('Tài sản thẩm định giá'))->disable();
+
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
@@ -155,6 +158,19 @@ class PreAssessmentController extends AdminController
         $form->text('comment', __('Ghi chú'));
         $form->file('document', __('Tài liệu'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
+        
+        // $url = 'http://127.0.0.1:8000/api/contract';
+        $url = env('APP_URL') . '/api/contract';
+        
+        $script = <<<EOT
+        $(document).on('change', ".form-control", function () {
+            $.get("$url",{q : this.value}, function (data) {
+            $("#property").val(data.property);
+        });
+        });
+        EOT;
+
+        Admin::script($script);
 
         return $form;
     }
