@@ -123,6 +123,7 @@ class ContractAcceptanceController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         });
+
         $show->field('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
         $show->field('contract.tax_number', __('Mã số thuế'));
         $show->field('contract.business_name', __('Tên doanh nghiệp'));
@@ -173,6 +174,7 @@ class ContractAcceptanceController extends AdminController
 
         $form = new Form(new ContractAcceptance());
         $status = array();
+        $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('contract_acceptance');
             $model = $form->model()->find($id);
@@ -188,23 +190,61 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
+
+        $form->divider('2. Thông tin khách hàng');
+        $form->text('customer_type', __('Loại khách'))->disable();
+        $form->number('tax_number', __('Mã số thuế'))->disable();
+        $form->text('business_name', __('Tên doanh nghiệp'))->disable();
+        $form->text('personal_address', __('Địa chỉ'))->disable();
+        $form->text('representative', __('Người đại diện'))->disable();
+        $form->text('position', __('Chức vụ'))->disable();
+        $form->text('personal_name', __('Họ và tên'))->disable();
+        $form->number('id_number', __('Số CMND/CCCD'))->disable();
+        $form->text('issue_place', __('Nơi cấp'))->disable();
+        $form->date('issue_date', __('Ngày cấp'))->disable();
+
+        $form->divider('3. Thông tin xuất hoá đơn');
         $form->select('export_bill', __('Xuất hoá đơn'))->options([0 => 'Có', 1 => 'Không']);
         $form->text('buyer_name', __('Đơn vị mua'));
         $form->text('buyer_address', __('Địa chỉ'));
         $form->number('buyer_tax_number', __('Mã số thuế'));
         $form->text('bill_content', __('Nội dung hoá đơn'));
 
+        $form->divider('4. Thông tin phí và thanh toán');
         $form->number('total_fee', __('Tổng phí'));
         $form->text('delivery', __('Người chuyển'));
         $form->text('recipient', __('Người nhận'));
         $form->number('advance_fee', __('Đã tạm ứng'));
         $form->number('official_fee', __('Còn phải thanh toán'));
+
+        $form->divider('5. Thông tin khác');
         $form->file('document', __('Tài liệu'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;
+
+        $url = env('APP_URL') . '/api/contract';
+        $script = <<<EOT
+        $(document).on('change', ".contract.code_id", function () {
+            $.get("$url",{q : this.value}, function (data) {
+                $("#property").val(data.property);
+                $("#customer_type").val(data.customer_type);
+                $("#tax_number").val(data.tax_number);  
+                $("#business_name").val(data.business_name);
+                $("#personal_address").val(data.personal_address);
+                $("#representative").val(data.representative);
+                $("#position").val(data.position);
+                $("#personal_name").val(data.personal_name);
+                $("#id_number").val(data.id_number);  
+                $("#issue_place").val(data.issue_place);  
+                $("#issue_date").val(data.issue_date);  
+            });
+        });
+        EOT;
+        Admin::script($script);
     }
 }
