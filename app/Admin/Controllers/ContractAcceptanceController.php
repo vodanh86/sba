@@ -225,11 +225,12 @@ class ContractAcceptanceController extends AdminController
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
-        return $form;
 
+        // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
+        
         $script = <<<EOT
-        $(document).on('change', ".contract.code_id", function () {
+        $(document).on('change', ".form-control", function () {
             $.get("$url",{q : this.value}, function (data) {
                 $("#property").val(data.property);
                 $("#customer_type").val(data.customer_type);
@@ -245,6 +246,9 @@ class ContractAcceptanceController extends AdminController
             });
         });
         EOT;
+
         Admin::script($script);
+
+        return $form;
     }
 }
