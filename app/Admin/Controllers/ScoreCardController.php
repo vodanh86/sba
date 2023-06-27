@@ -39,7 +39,7 @@ class ScoreCardController extends AdminController
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('score', __('Điểm'));
-        $grid->column('error_score', __('Lỗi điểm'));
+        $grid->column('error_score', __('Lỗi điểm'))->width(150);
         $grid->column('document', __('Tệp đính kèm'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -137,7 +137,7 @@ class ScoreCardController extends AdminController
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
-        $form->text('error_score', __('Lỗi điểm'));
+        $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->setWidth(2, 2)->required();
         $form->file('document', __('Tài liệu'));
         $form->text('note', __('Ghi chú'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
