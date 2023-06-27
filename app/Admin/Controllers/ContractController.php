@@ -81,7 +81,7 @@ class ContractController extends AdminController
         //$grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE);
         //$grid->column('extended_purpose', __('Mục đích mở rộng'));
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
-        $grid->column('from_date', __('Thời gian thẩm định từ ngày'))->filter('like');
+        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->filter('like');
         $grid->column('to_date', __('Đến ngày'))->filter('like');
         
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
@@ -182,7 +182,7 @@ class ContractController extends AdminController
         $show->field('purpose', __('Mục đích thẩm định giá'));
         //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
-        $show->field('from_date', __('Thời gian thực hiện'));
+        $show->field('from_date', __('Thời gian thực hiện từ ngày'));
         $show->field('to_date', __('Đến ngày'));
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('advance_fee', __('Tạm ứng'));
@@ -269,7 +269,7 @@ class ContractController extends AdminController
         //$form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
-        $form->date('from_date', __('Thời điểm thực hiện từ ngày'))->default(date('Y-m-d'))->required();
+        $form->date('from_date', __('Thời gian thực hiện từ ngày'))->default(date('Y-m-d'))->required();
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
         //$form->divider('4. Thời gian thực hiện');
         //$form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));

@@ -23,6 +23,22 @@ abstract class Constant
     const PROPRERTY_PURPOSE = array(1 => "Đất ở", 2 => "Đất nông nghiệp", 3 => "Đất TMDV", 4 => "Đất SXKD", 5 => "PNN", 6 => "Đất hỗn hợp");
     const VEHICLE_TYPE = array(1 => "Ô tô con", 2 => "Xe tải", 3 => "Xe đầu kéo", 4 => "Sơ mi rơ móc", 5 => "Xe nâng", 6 => "Tàu nội địa", 7 => "Tàu biển");
     const APPROVE_TYPE = array(0 => "Không", 1 => "Từ chối", 2 => "Đồng ý");
+    const ASSESSMENT_TYPE = array(  "So sánh" => "So sánh", 
+                                    "Chi phí thay thế" => "Chi phí thay thế",
+                                    "Chi phí tái tạo" => "Chi phí tái tạo",
+                                    "Vốn hoá trực tiếp" => "Vốn hoá trực tiếp",
+                                    "Dòng tiền chiết khấu" => "Dòng tiền chiết khấu",
+                                    "Chiết trừ" => "Chiết trừ",
+                                    "Thặng dư" =>  "Thặng dư",
+                                    "Giá giao dịch" => "Giá giao dịch",
+                                    "Tỷ số bình quân" => "Tỷ số bình quân",
+                                    "Tài sản" => "Tài sản",
+                                    "Chiết khấu dòng cổ tức" => "Chiết khấu dòng cổ tức",
+                                    "Chiết khấu dòng tiền tự do vốn chủ sở hữu" => "Chiết khấu dòng tiền tự do vốn chủ sở hữu" ,
+                                    "Chiết khấu dòng tiền tự do của doanh nghiệp" => "Chiết khấu dòng tiền tự do của doanh nghiệp",
+                                    "Tiền sử dụng tài sản vô hình" => "Tiền sử dụng tài sản vô hình",
+                                    "Lợi nhuận vượt trội" => "Lợi nhuận vượt trội",
+                                    "Thu nhập tăng thêm" => "Thu nhập tăng thêm");
 
     const CONTRACT_TYPE = array(0 => "Sơ bộ", 2 => "Chính thức");
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");

@@ -76,7 +76,7 @@ class DoneContractController extends AdminController
         $grid->column('scoreCards',__('Phiếu chấm điểm'))->display($extractDocument);
         $grid->column('contractAcceptances',__('Hợp đồng nghiệm thu'))->display($extractDocument);
         $grid->column('statusDetail.name',__('Trạng thái'))->width(100);
-        $grid->column('from_date', __('Thời gian thẩm định từ ngày'))->filter('like');
+        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->filter('like');
         $grid->column('to_date', __('Đến ngày'))->filter('like');
         //$grid->column('to_date', __('Đến ngày'));
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
