@@ -154,10 +154,10 @@ class InvitationLetterController extends AdminController
         // $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
         // $show->field('from_date', __('Từ ngày'));
         // $show->field('to_date', __('Đến ngày'));
-        $show->field('total_fee', __('Tổng phí'))->display(function ($money) {
+        $show->field('total_fee', __('Tổng phí'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });
-        $show->field('advance_fee', __('Tạm ứng'))->display(function ($money) {
+        $show->field('advance_fee', __('Tạm ứng'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });
         // $show->field('vat', __('Vat'));
@@ -178,6 +178,7 @@ class InvitationLetterController extends AdminController
     protected function form()
     {
         $form = new Form(new InvitationLetter());
+        $form->divider('1. Thông tin thư chào');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('invitation_letter');
             $model = $form->model()->find($id);
@@ -187,15 +188,15 @@ class InvitationLetterController extends AdminController
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $form->text('code', "Mã thư chào")->readonly();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::INVITATION_LETTER_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
-            $form->hidden('code')->default(Utils::generateInvitationCode("invitation_letters"));
+            $form->text('code', "Mã thư chào")->default(Utils::generateInvitationCode("invitation_letters", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
         }
 
-        $form->divider('1. Thông tin khách hàng');
         $form->text('customer_name', __('Tên khách hàng'));
         // $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->default(1)->when(1, function (Form $form) {
         //     $form->text('id_number', __('Số CMND/CCCD'));
