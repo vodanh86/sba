@@ -14,6 +14,7 @@ abstract class Constant
     const EDIT_CONTRACTS = "edit.contracts";
 
     const CUSTOMER_TYPE = array(1 => "Khách hàng cá nhân", 2 => "Khách hàng doanh nghiệp");
+    const INVITATION_LETTERS_TYPE = array("Lỗi nghiêm trọng" => "Lỗi nghiêm trọng", "Lỗi nghiệp vụ" => "Lỗi nghiệp vụ", "Lỗi cơ bản" => "Lỗi cơ bản");
     const PROPRERTY_TYPE = array(1 => "Bất động sản", 2 => "Phương tiện vận tải", 3 => "Máy móc thiết bị", 4 => "Giá trị doanh nghiệp", 5 => "Khoản nợ", 6 => "Tài sản hỗn hợp");
     const PROPRERTY_ADDRESS = array(1 => "Tỉnh/thành phố", 2 => "Quận/huyện", 3 => "Xã/phường/thị trấn", 4 => "Đường");
     const INVITATION_PURPOSE = array("Thế chấp vay vốn" => "Thế chấp vay vốn", "Xử lý nợ" => "Xử lý nợ", "Phê duyệt dự toán" => "Phê duyệt dự toán",
