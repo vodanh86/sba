@@ -81,7 +81,8 @@ class ContractController extends AdminController
         //$grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE);
         //$grid->column('extended_purpose', __('Mục đích mở rộng'));
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
-        $grid->column('from_date', __('Thời gian thẩm định'))->filter('like');
+        $grid->column('from_date', __('Thời gian thẩm định từ ngày'))->filter('like');
+        $grid->column('to_date', __('Đến ngày'))->filter('like');
         
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
         $grid->column('advance_fee', __('Tạm ứng'));
@@ -182,7 +183,7 @@ class ContractController extends AdminController
         //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
         $show->field('from_date', __('Thời gian thực hiện'));
-        //$show->field('to_date', __('Đến ngày'));
+        $show->field('to_date', __('Đến ngày'));
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('advance_fee', __('Tạm ứng'));
         //$show->field('payment_method', __('Hình thức thanh toán'));
@@ -267,11 +268,11 @@ class ContractController extends AdminController
         //$form->text('borrower', __('Tên khách nợ'));
         //$form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
-        $form->date('appraisal_date', __('Thời điểm thẩm định giá'))->default(date('Y-m-d'))->required();
-        $form->date('from_date', __('Thời điểm thực hiện'))->default(date('Y-m-d'))->required();
+        $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
+        $form->date('from_date', __('Thời điểm thực hiện từ ngày'))->default(date('Y-m-d'))->required();
+        $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
         //$form->divider('4. Thời gian thực hiện');
         //$form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));
-        //$form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'));
 
         $form->divider('4. Thông tin phí và thanh toán');
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
