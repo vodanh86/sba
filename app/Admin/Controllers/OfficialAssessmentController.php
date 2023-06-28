@@ -148,7 +148,8 @@ class OfficialAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
+        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 

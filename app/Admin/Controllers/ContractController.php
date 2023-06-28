@@ -112,7 +112,10 @@ class ContractController extends AdminController
             $grid->model()->whereIn('status', $listStatus);
         } else if ($condition == 1) {
             $grid->model()->where('status', Constant::CONTRACT_INPUTTING_STATUS);
-            $grid->model()->where('tdv_assistant', '=', Admin::user()->id);
+            $grid->model()->where(function($query) {
+                    $query->where('tdv_assistant', '=', Admin::user()->id)
+                        ->orWhere('supervisor', '=', Admin::user()->id);
+            });
         }
         $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {

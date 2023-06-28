@@ -134,7 +134,8 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
+        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('supervisor', '=', Admin::user()->id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->setWidth(2, 2)->required();
