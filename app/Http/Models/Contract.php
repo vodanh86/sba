@@ -13,6 +13,16 @@ class Contract extends Model
         return $this->belongsTo(InvitationLetter::class, 'invitation_letter_id');
     }
 
+    public function assistant()
+    {
+        return $this->belongsTo(AdminUser::class, 'tdv_assistant');
+    }   
+
+    public function supervisorDetail()
+    {
+        return $this->belongsTo(AdminUser::class, 'supervisor');
+    }   
+
     public function statusDetail()
     {
         return $this->belongsTo(Status::class, 'status');

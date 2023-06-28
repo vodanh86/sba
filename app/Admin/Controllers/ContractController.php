@@ -3,8 +3,9 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
-use App\Http\Models\InvitationLetter;
+use Encore\Admin\Layout\Content;
 use App\Admin\Actions\Document\AddContractComment;
+use App\Http\Models\AdminUser;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
@@ -30,9 +31,29 @@ class ContractController extends AdminController
      */
     protected function grid()
     {
+        return $this->search(0);
+    }
+
+    /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function assignedContracts(Content $content)
+    {
+        return $content
+            ->title($this->title())
+            ->description($this->description['index'] ?? trans('admin.list'))
+            ->body($this->search(1));
+    }
+
+    protected function search($condition)
+    {
         $nextStatuses = array();
         $statuses = StatusTransition::where(["table" => Constant::CONTRACT_TABLE])->where("approvers", 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->whereIn("approve_type", [1, 2])->get();
-        foreach($statuses as $key =>$status){
+        foreach ($statuses as $key => $status) {
             $nextStatuses[$status->status_id] = Status::find($status->status_id)->name;
             $nextStatuses[$status->next_status_id] = Status::find($status->next_status_id)->name;
         }
@@ -51,7 +72,6 @@ class ContractController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'));
         $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
-        //$grid->column('invitationLetter.code', __('contract.Invitation letter id'));
         $grid->column('created_date', __('Ngày hợp đồng'));
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -64,26 +84,12 @@ class ContractController extends AdminController
         $grid->column('personal_name', __('Họ và tên'))->filter('like');
         $grid->column('issue_place', __('Nơi cấp'))->filter('like');
         $grid->column('issue_date', __('Ngày cấp'))->filter('like');
-        //$grid->column('buyer_name', __('Đơn vị mua'));
-        //$grid->column('buyer_address', __('Địa chỉ'));
-        //$grid->column('buyer_tax_number', __('Mã số thuế'));
-        //$grid->column('bill_content', __('Nội dung hoá đơn'));
         $grid->column('property', __('Tài sản thẩm định giá'))->filter('like');
-        //$grid->column('property_type', __('Loại tài sản'))->using(Constant::PROPRERTY_TYPE);
-        //$grid->column('property_address', __('Địa điểm tài sản'));
-        //$grid->column('property_purpose', __('Mục đích sử dụng đất'))->using(Constant::PROPRERTY_PURPOSE);
-        //$grid->column('vehicle_type', __('Loại phương tiện vận tải'))->using(Constant::VEHICLE_TYPE);
-        //$grid->column('production_year', __('Năm sản xuất'));
-        //$grid->column('registration_number', __('Biển kiểm soát/Số đăng ký'));
-        //$grid->column('company_name', __('Tên doanh nghiệp'));
-        //$grid->column('borrower', __('Tên khách nợ'));
         $grid->column('purpose', __('Mục đích thẩm định giá'))->filter('like');
-        //$grid->column('purpose', __('Mục đích'))->using(Constant::INVITATION_PURPOSE);
-        //$grid->column('extended_purpose', __('Mục đích mở rộng'));
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
         $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->filter('like');
         $grid->column('to_date', __('Đến ngày'))->filter('like');
-        
+
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
         $grid->column('advance_fee', __('Tạm ứng'));
 
@@ -91,21 +97,25 @@ class ContractController extends AdminController
         $grid->column('source', __('Nguồn'));
         $grid->column('sale', __('Sale'));
         $grid->column('tdv', __('Tdv'));
-        $grid->column('tdv_assistant', __('Trợ lý tdv'));
-        $grid->column('supervisor', __('Kiểm soát viên'));
+        $grid->column('assistant.name', __('Trợ lý tdv'));
+        $grid->column('supervisorDetail.name', __('Kiểm soát viên'));
 
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='" . env('APP_URL') . '/../storage/app/' . $url . "' target='_blank'>" . basename($url) . "</a>";
         });
-        //$grid->column('payment_method', __('Hình thức thanh toán'))->using(Constant::PAYMENT_METHOD);
-        //$grid->column('vat', __('Vat'))->using(Constant::YES_NO);
-        
 
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $listStatus);
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
+        // get list of assigned contracts
+        if ($condition == 0) {
+            $grid->model()->whereIn('status', $listStatus);
+        } else if ($condition == 1) {
+            $grid->model()->where('status', Constant::CONTRACT_INPUTTING_STATUS);
+            $grid->model()->where('tdv_assistant', '=', Admin::user()->id);
+        }
         $grid->model()->orderBy('id', 'desc');
-        if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
@@ -115,13 +125,12 @@ class ContractController extends AdminController
             }
         });
         $grid->column('comment', __('Bình luận'))->action(AddContractComment::class)->width(250);
-        $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
         })->width(100);
-        //$grid->column('name', __('Sale phụ trách'));
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt);
             return $carbonCreateAt->format('d/m/Y - H:i:s');
@@ -131,7 +140,7 @@ class ContractController extends AdminController
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
 
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->like('code', 'Mã hợp đồng');
         });
@@ -152,9 +161,6 @@ class ContractController extends AdminController
         $show->field('code', __('Mã hợp đồng'));
         $show->field('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
         $show->field('created_date', __('Ngày hợp đồng'));
-        //$show->field('invitation_letter_id', __('Invitation letter id'));
-        //$show->field('name', __('Name'));
-        //$show->field('comment', __('Comment'));
         $show->field('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('tax_number', __('Mã số thuế'));
         $show->field('business_name', __('Tên doanh nghiệp'));
@@ -166,19 +172,7 @@ class ContractController extends AdminController
         $show->field('personal_name', __('Họ và tên'));
         $show->field('issue_place', __('Nơi cấp'));
         $show->field('issue_date', __('Ngày cấp'));
-        //$show->field('buyer_name', __('Đơn vị mua'));
-        //$show->field('buyer_address', __('Địa chỉ'));
-        //$show->field('buyer_tax_number', __('Mã số thuế'));
-        //$show->field('bill_content', __('Nội dung hoá đơn'));
         $show->field('property', __('Tài sản thẩm định giá'));
-        //$show->field('property_type', __('Loại tài sản'));
-        //$show->field('property_address', __('Địa điểm tài sản'));
-        //$show->field('property_purpose', __('Mục đích sử dụng đất'));
-        //$show->field('vehicle_type', __('Loại phương tiện vận tải'));
-        //$show->field('production_year', __('Năm sản xuất'));
-        //$show->field('registration_number', __('Biển kiểm soát/Số đăng ký'));
-        //$show->field('company_name', __('Tên doanh nghiệp'));
-        //$show->field('borrower', __('Tên khách nợ'));
         $show->field('purpose', __('Mục đích thẩm định giá'));
         //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
@@ -192,15 +186,15 @@ class ContractController extends AdminController
         $show->field('source', __('Nguồn'));
         $show->field('sale', __('Sale'));
         $show->field('tdv', __('Tdv'));
-        $show->field('tdv_assistant', __('Trợ lý tdv'));
-        $show->field('supervisor', __('Kiểm soát viên'));
+        $show->field('assistant.name', __('Trợ lý tdv'));
+        $show->field('supervisorDetail.name', __('Kiểm soát viên'));
         $show->field('contact', __('Liên hệ'));
         $show->field('note', __('Ghi chú'));
         $show->panel()
-        ->tools(function ($tools) {
-            $tools->disableEdit();
-            $tools->disableDelete();
-        });
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
         return $show;
     }
 
@@ -249,48 +243,33 @@ class ContractController extends AdminController
             $form->text('representative', __('Người đại diện'));
             $form->text('position', __('Chức vụ'));
         })->required();
-        
-        //$form->text('buyer_name', __('Đơn vị mua'));
-        //$form->text('buyer_address', __('Địa chỉ'));
-        //$form->text('buyer_tax_number', __('Mã số thuế'));
-        //$form->text('bill_content', __('Nội dung hoá đơn'));
 
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->text('property', __('Tài sản thẩm định giá'))->required();
-        //$form->select('property_type', __('Loại tài sản'))->options(Constant::PROPRERTY_TYPE)->setWidth(5, 2);
-        //$form->text('property_address', __('Địa điểm tài sản'));
-        //$form->select('property_purpose', __('Mục đích sử dụng đất'))->options(Constant::PROPRERTY_PURPOSE)->setWidth(5, 2);
-        //$form->select('vehicle_type', __('Loại phương tiện vận tải'))->options(Constant::VEHICLE_TYPE)->setWidth(5, 2);
-        //$form->text('production_year', __('Năm sản xuất'));
-        //$form->text('registration_number', __('Biển kiểm soát/Số đăng ký'));
-        //$form->text('business', __('Ngành nghề'));
-        //$form->text('company_name', __('Tên doanh nghiệp'));
-        //$form->text('borrower', __('Tên khách nợ'));
-        //$form->select('purpose', __('Mục đích'))->options(Constant::INVITATION_PURPOSE)->setWidth(5, 2);
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
         $form->date('from_date', __('Thời gian thực hiện từ ngày'))->default(date('Y-m-d'))->required();
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
-        //$form->divider('4. Thời gian thực hiện');
-        //$form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));
 
         $form->divider('4. Thông tin phí và thanh toán');
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
-        //$form->select('payment_method', __('Hình thức thanh toán'))->options(Constant::PAYMENT_METHOD)->setWidth(5, 2);
-        //$form->select('vat', __('Vat'))->options(Constant::YES_NO)->setWidth(5, 2);
+
         $form->divider('5. Thông tin phiếu giao việc');
         $form->text('broker', __('Môi giới'))->required();
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
         $form->text('tdv', __('Tdv'));
-        $form->text('tdv_assistant', __('Trợ lý tdv'));
-        $form->text('supervisor', __('Kiểm soát viên'));
+        $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
+            $q->where('id', Constant::BUSINESS_STAFF);
+        })->pluck('name', 'id'));
+        $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
+            $q->where('id', Constant::QA_STAFF);
+        })->pluck('name', 'id'));
+
         $form->divider('6. Thông tin khác');
-        //$form->text('broker', __('Người môi giới'));
         $form->text('contact', __('liên hệ'));
         $form->text('note', __('Ghi chú'));
-        //$form->divider('7. Trạng thái hợp đồng');
         $form->file('document', __('File đính kèm'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
