@@ -40,7 +40,7 @@ abstract class Constant
                                     "Lợi nhuận vượt trội" => "Lợi nhuận vượt trội",
                                     "Thu nhập tăng thêm" => "Thu nhập tăng thêm");
 
-    const CONTRACT_TYPE = array(0 => "Sơ bộ", 2 => "Chính thức");
+    const CONTRACT_TYPE = array(0 => "Sơ bộ", 1 => "Chính thức");
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");
     const YES_NO = array(0 => "Không", 1 => "Có");
     const INVITATION_STATUS = array(1 => "Chưa gửi khách hàng", 2 => "Khách hàng đồng ý",  2 => "Khách hàng từ chối");
