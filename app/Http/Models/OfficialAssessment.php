@@ -27,4 +27,14 @@ class OfficialAssessment extends Model
     {
         return $this->belongsTo(Status::class, 'status');
     }
+
+    public function getAssessmentTypeAttribute($value)
+    {
+        return explode(',', $value);
+    }
+
+    public function setAssessmentTypeAttribute($value)
+    {
+        $this->attributes['assessment_type'] = implode(',', $value);
+    }
 }

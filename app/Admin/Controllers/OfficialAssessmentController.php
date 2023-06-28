@@ -44,7 +44,11 @@ class OfficialAssessmentController extends AdminController
             return $carbonUpdatedAt->format('d/m/Y');
         })->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
-        $grid->column('assessment_type', __('Phưong pháp thẩm định'));
+        $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
+            if (!is_null($types)){
+                return join(", ", $types);
+            }
+        });
         $grid->column('note', __('Chú ý'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
@@ -154,7 +158,7 @@ class OfficialAssessmentController extends AdminController
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->select('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
+        $form->multipleSelect('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
         $form->text('note', __('Chú ý'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         
