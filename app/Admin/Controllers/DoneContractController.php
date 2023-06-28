@@ -81,6 +81,12 @@ class DoneContractController extends AdminController
         //$grid->column('to_date', __('Đến ngày'));
         $grid->column('total_fee', __('Tổng phí dịch vụ'));
         $grid->column('advance_fee', __('Tạm ứng'));
+        $grid->column('broker', __('Môi giới'));
+        $grid->column('source', __('Nguồn'));
+        $grid->column('sale', __('Sale'));
+        $grid->column('tdv', __('Tdv'));
+        $grid->column('assistant.name', __('Trợ lý tdv'));
+        $grid->column('supervisorDetail.name', __('Kiểm soát viên'));
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($url) {
@@ -158,6 +164,12 @@ class DoneContractController extends AdminController
         $show->field('to_date', __('Đến ngày'));
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('advance_fee', __('Tạm ứng'));
+        $show->field('broker', __('Môi giới'));
+        $show->field('source', __('Nguồn'));
+        $show->field('sale', __('Sale'));
+        $show->field('tdv', __('Tdv'));
+        $show->field('assistant.name', __('Trợ lý tdv'));
+        $show->field('supervisorDetail.name', __('Kiểm soát viên'));
         //$show->field('payment_method', __('Hình thức thanh toán'));
         //$show->field('vat', __('Vat'));
         //$show->field('broker', __('Người môi giới'));
