@@ -202,7 +202,8 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
+        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 

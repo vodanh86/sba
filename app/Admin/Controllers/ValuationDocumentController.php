@@ -131,7 +131,8 @@ class ValuationDocumentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
+        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->pluck('code', 'id'));
         $form->file('document', __('Tài liệu'));
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
