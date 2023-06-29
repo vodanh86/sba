@@ -51,6 +51,13 @@ class ContractController extends AdminController
 
     protected function search($condition)
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        };
+        $moneyFormatter = function($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        };
         $nextStatuses = array();
         $statuses = StatusTransition::where(["table" => Constant::CONTRACT_TABLE])->where("approvers", 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->whereIn("approve_type", [1, 2])->get();
         foreach ($statuses as $key => $status) {
@@ -90,8 +97,8 @@ class ContractController extends AdminController
         $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->filter('like');
         $grid->column('to_date', __('Đến ngày'))->filter('like');
 
-        $grid->column('total_fee', __('Tổng phí dịch vụ'));
-        $grid->column('advance_fee', __('Tạm ứng'));
+        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
+        $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 
         $grid->column('broker', __('Môi giới'));
         $grid->column('source', __('Nguồn'));
@@ -134,14 +141,8 @@ class ContractController extends AdminController
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
         })->width(100);
-        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
-        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();

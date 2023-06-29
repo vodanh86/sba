@@ -29,6 +29,10 @@ class ScoreCardController extends AdminController
      */
     protected function grid()
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        };
         $nextStatuses = Utils::getNextStatuses(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug);
         $viewStatus = Utils::getAvailbleStatus(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug, "editors");
@@ -52,14 +56,8 @@ class ScoreCardController extends AdminController
         });
 
         $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100);
-        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
-        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -134,27 +132,28 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('supervisor', '=', Admin::user()->id)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
-        $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->setWidth(2, 2)->required();
+        $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();
         $form->file('document', __('Tài liệu'));
         $form->text('note', __('Ghi chú'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
        
+        // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
-        
+
         $script = <<<EOT
-        $(document).on('change', ".form-control", function () {
+        $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
-            $("#property").val(data.property);
+            $("#property").val(data.property)
         });
         });
         EOT;
 
         Admin::script($script);
+
         return $form;
     }
 }
