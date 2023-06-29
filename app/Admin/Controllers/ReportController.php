@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Forms\BaReport;
 use Encore\Admin\Layout\Content;
 use App\Admin\Forms\SaleReport;
+use App\Admin\Forms\SupervisorReport;
 Use Encore\Admin\Widgets\Table;
 use Encore\Admin\Widgets\Tab;
 use App\Http\Models\InvitationLetter;
@@ -14,6 +15,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use App\Exports\ReportExport;
 use App\Http\Models\AdminUser;
+use App\Http\Models\ScoreCard;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
 
@@ -64,7 +66,7 @@ class ReportController extends AdminController
                 $statuses = Status::pluck("name", "id")->toArray();
                 $result = $query->select(["source", "sale", "broker", "status", "contract_type",
                 DB::raw("COUNT(*) as count"),
-                DB::raw("SUM(total_fee) as fee")])->groupBy(["source", "sale", "broker", "status", "contract_type"])->get();
+                DB::raw("SUM(total_fee) as fee")])->groupBy(["source", "sale", "broker", "status", "contract_type"])->orderBy('sale')->orderBy('status')->get();
                 foreach($result as $i=>$row){
                     $rows[] = [$row["source"], $row["sale"], $row["broker"], 
                     !is_null($row["status"]) && array_key_exists($row["status"], $statuses) ? $statuses[$row["status"]] : "", is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"], number_format($row["fee"])];
@@ -114,11 +116,87 @@ class ReportController extends AdminController
             $rows = [];
             $statuses = Status::pluck("name", "id")->toArray();
             $users = AdminUser::pluck("name", "id")->toArray();
-            $result = $query->select(["tdv_assistant", "status", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["tdv_assistant", "status", "contract_type"])->get();
+            $result = $query->select(["tdv_assistant", "status", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["tdv_assistant", "status", "contract_type"])
+            ->orderBy('tdv_assistant')->orderBy('status')->get();
             foreach($result as $i=>$row){
                 $rows[] = [!is_null($row["tdv_assistant"]) && array_key_exists($row["tdv_assistant"], $users) ? $users[$row["tdv_assistant"]] : "", 
                 !is_null($row["status"]) && array_key_exists($row["status"], $statuses) ? $statuses[$row["status"]] : "", 
                 is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"]];
+            }
+
+            $table = new Table($headers, $rows);
+            $tab = new Tab();
+
+            // store in excel
+            array_unshift($rows, $headers);
+            $export = new ReportExport($rows);
+            Excel::store($export, 'report.xlsx');
+
+            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
+                    "<br/>Link download: <a href='".env('APP_URL')."/../storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+            $content->row($tab);
+            
+        }
+
+        return $content;
+    }
+
+        /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function supervisorReport(Content $content)
+    {
+        $content
+            ->title('Báo cáo')
+            ->row(new SupervisorReport());
+
+        if ($data = session('result')) {
+            // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
+            if ($data["type"] == "l") {
+                $headers = ['Nhân viên', 'Loại hợp đồng', 'Số lượng'];
+                $query = Contract::where("branch_id", Admin::user()->branch_id);
+                if (!is_null(($data["from_date"]))){
+                    $query->where('created_at', '>=', $data["from_date"]);
+                }
+                if (!is_null(($data["to_date"]))){
+                    $query->where('created_at', '<=', $data["to_date"]);
+                }
+                $rows = [];
+                $statuses = Status::pluck("name", "id")->toArray();
+                $users = AdminUser::pluck("name", "id")->toArray();
+                $result = $query->select(["supervisor", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["supervisor", "contract_type"])->orderby('supervisor')->orderBy('contract_type')->get();
+                foreach($result as $i=>$row){
+                    $rows[] = [!is_null($row["supervisor"]) && array_key_exists($row["supervisor"], $users) ? $users[$row["supervisor"]] : "", 
+                    is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"]];
+                }
+            } else {
+                $headers = ['Nhân viên', 'Lỗi', 'Điểm', 'Số lượng'];
+                $rows = [];
+                $statuses = Status::pluck("name", "id")->toArray();
+                $users = AdminUser::pluck("name", "id")->toArray();
+                $result = DB::select("SELECT ".
+                                    "sba.contracts.tdv_assistant, ".
+                                    "sba.score_cards.error_score, ".
+                                    "score, ".
+                                    "COUNT(*) AS count ".
+                                    "FROM ".
+                                    "sba.score_cards, ".
+                                    "sba.contracts ".
+                                    "WHERE ".
+                                    "sba.score_cards.contract_id = sba.contracts.id ".
+                                    "AND sba.score_cards.branch_id = ? ".
+                                        "AND sba.score_cards.created_at >= '".$data["from_date"]."' ".
+                                        "AND sba.score_cards.created_at <= '".$data["to_date"]."' ".
+                                "GROUP BY sba.contracts.tdv_assistant , sba.score_cards.error_score , sba.score_cards.score ".
+                                "ORDER BY sba.contracts.tdv_assistant , sba.score_cards.score;", array(Admin::user()->branch_id));
+                foreach($result as $i=>$row){
+                    $rows[] = [!is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "", 
+                    $row->error_score, $row->score, $row->count];
+                }
             }
 
             $table = new Table($headers, $rows);
