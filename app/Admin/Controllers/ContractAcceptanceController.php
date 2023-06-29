@@ -29,6 +29,10 @@ class ContractAcceptanceController extends AdminController
      */
     protected function grid()
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        };
         $nextStatuses = Utils::getNextStatuses(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug);
         $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "editors");
@@ -86,14 +90,8 @@ class ContractAcceptanceController extends AdminController
             }
             return $this->statusDetail->name;
         });
-        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
-        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
         if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug){
@@ -183,7 +181,6 @@ class ContractAcceptanceController extends AdminController
      */
     protected function form()
     {
-
         $form = new Form(new ContractAcceptance());
         $status = array();
         $form->divider('1. Thông tin hợp đồng');
@@ -202,13 +199,12 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->pluck('code', 'id'));
+        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
         $form->divider('2. Thông tin khách hàng');
-        $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->disable()->required()->when(1, function (Form $form) {
+        $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->disable()->required()->when(1, function (Form $form) {
             $form->text('id_number', __('Số CMND/CCCD'))->disable();
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'))->disable();
             $form->text('personal_address', __('Địa chỉ'))->disable();

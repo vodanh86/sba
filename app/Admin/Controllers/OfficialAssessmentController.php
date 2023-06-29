@@ -30,6 +30,10 @@ class OfficialAssessmentController extends AdminController
      */
     protected function grid()
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+        };
         $nextStatuses = Utils::getNextStatuses(Constant::OFFICIAL_ASSESS_TABLE, Admin::user()->roles[0]->slug);
         $viewStatus = Utils::getAvailbleStatus(Constant::OFFICIAL_ASSESS_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::OFFICIAL_ASSESS_TABLE, Admin::user()->roles[0]->slug, "editors");
@@ -39,10 +43,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('finished_date', __('Ngày hoàn thành'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y');
-        })->width(150);
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
             if (!is_null($types)){
@@ -63,14 +64,8 @@ class OfficialAssessmentController extends AdminController
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
-        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
-        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -152,8 +147,7 @@ class OfficialAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('official_assessment.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 
@@ -172,7 +166,7 @@ class OfficialAssessmentController extends AdminController
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
-        $(document).on('change', ".form-control", function () {
+        $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
             $("#property").val(data.property);
         });
