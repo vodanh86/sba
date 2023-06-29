@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Forms\BaReport;
 use Encore\Admin\Layout\Content;
 use App\Admin\Forms\SaleReport;
 Use Encore\Admin\Widgets\Table;
@@ -12,6 +13,7 @@ use App\Http\Models\Status;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use App\Exports\ReportExport;
+use App\Http\Models\AdminUser;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
 
@@ -67,6 +69,56 @@ class ReportController extends AdminController
                     $rows[] = [$row["source"], $row["sale"], $row["broker"], 
                     !is_null($row["status"]) && array_key_exists($row["status"], $statuses) ? $statuses[$row["status"]] : "", is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"], number_format($row["fee"])];
                 }
+            }
+
+            $table = new Table($headers, $rows);
+            $tab = new Tab();
+
+            // store in excel
+            array_unshift($rows, $headers);
+            $export = new ReportExport($rows);
+            Excel::store($export, 'report.xlsx');
+
+            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
+                    "<br/>Link download: <a href='".env('APP_URL')."/../storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+            $content->row($tab);
+            
+        }
+
+        return $content;
+    }
+
+        /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function baReport(Content $content)
+    {
+        $content
+            ->title('Báo cáo')
+            ->row(new BaReport());
+
+        if ($data = session('result')) {
+            // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
+            $headers = ['Nhân viên', 'Tình trạng thực hiện', 'Loại hợp đồng', 'Số lượng'];
+            $query = Contract::where("branch_id", Admin::user()->branch_id);
+            if (!is_null(($data["from_date"]))){
+                $query->where('created_at', '>=', $data["from_date"]);
+            }
+            if (!is_null(($data["to_date"]))){
+                $query->where('created_at', '<=', $data["to_date"]);
+            }
+            $rows = [];
+            $statuses = Status::pluck("name", "id")->toArray();
+            $users = AdminUser::pluck("name", "id")->toArray();
+            $result = $query->select(["tdv_assistant", "status", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["tdv_assistant", "status", "contract_type"])->get();
+            foreach($result as $i=>$row){
+                $rows[] = [!is_null($row["tdv_assistant"]) && array_key_exists($row["tdv_assistant"], $users) ? $users[$row["tdv_assistant"]] : "", 
+                !is_null($row["status"]) && array_key_exists($row["status"], $statuses) ? $statuses[$row["status"]] : "", 
+                is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"]];
             }
 
             $table = new Table($headers, $rows);

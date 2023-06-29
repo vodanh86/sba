@@ -16,6 +16,7 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/assigned-contracts', 'ContractController@assignedContracts');
     $router->get('/sale-reports', 'ReportController@saleReport');
+    $router->get('/ba-reports', 'ReportController@baReport');
     $router->resource('branches', BranchController::class);
     $router->resource('individual-customers', IndividualCustomerController::class);
     $router->resource('business-customers', BusinessCustomerController::class);
