@@ -46,6 +46,9 @@ class SaleReport extends Form
      */
     public function data()
     {
+        if ($data = session('result')) {
+            return $data;
+        }
         return [
             'from_date' => date('Y-m'),
             'to_date' => date("Y-m-d"),
