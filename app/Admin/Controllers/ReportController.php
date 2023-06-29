@@ -11,6 +11,8 @@ use App\Http\Models\Contract;
 use App\Http\Models\Status;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
+use App\Exports\ReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 use DB;
 
 class ReportController extends AdminController
@@ -70,7 +72,13 @@ class ReportController extends AdminController
             $table = new Table($headers, $rows);
             $tab = new Tab();
 
-            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] . " <br/>" . $table);
+            // store in excel
+            array_unshift($rows, $headers);
+            $export = new ReportExport($rows);
+            Excel::store($export, 'report.xlsx');
+
+            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
+                    "<br/>Link download: <a href='".env('APP_URL')."/../storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
             
         }
