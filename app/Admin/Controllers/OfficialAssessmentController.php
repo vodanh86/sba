@@ -101,7 +101,11 @@ class OfficialAssessmentController extends AdminController
 
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
-        $show->field('assessment_type', __('Phương pháp thẩm định'));
+        $show->field('assessment_type', __('Phương pháp thẩm định'))->as(function ($types) {
+            if (!is_null($types)){
+                return join(", ", $types);
+            }
+        });
         $show->field('note', __('Chú ý'));
         $show->field('statusDetail.name', __('Trạng thái'));
 
@@ -109,7 +113,7 @@ class OfficialAssessmentController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         });
         $show->field('comment', __('Ghi chú'));
-        $show->field('document', __('Tài liệu'))->display(function ($url) {
+        $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('created_at', __('Ngày tạo'));

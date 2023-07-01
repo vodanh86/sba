@@ -107,7 +107,7 @@ class PreAssessmentController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         });
         $show->field('comment', __('Ghi chú'));
-        $show->field('document', __('Tài liệu'))->display(function ($url) {
+        $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('created_at', __('Ngày tạo'));
