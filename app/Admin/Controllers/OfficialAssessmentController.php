@@ -62,7 +62,7 @@ class OfficialAssessmentController extends AdminController
         })->width(150);
         $grid->column('comment', __('Ghi chú'))->action(AddOfficialAssessmentComment::class)->width(150);
         $grid->column('document', __('Document'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
@@ -114,7 +114,7 @@ class OfficialAssessmentController extends AdminController
         });
         $show->field('comment', __('Ghi chú'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));

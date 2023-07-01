@@ -45,7 +45,7 @@ class ScoreCardController extends AdminController
         $grid->column('score', __('Điểm'));
         $grid->column('error_score', __('Lỗi điểm'))->width(150);
         $grid->column('document', __('Tệp đính kèm'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('note', __('Ghi chú'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
@@ -94,7 +94,7 @@ class ScoreCardController extends AdminController
         $show->field('score', __('Điểm'));
         $show->field('error_score', __('Lỗi điểm'));
         $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('note', __('Ghi chú'));
         $show->field('status', __('Trạng thái'));

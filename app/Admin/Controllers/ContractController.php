@@ -110,7 +110,7 @@ class ContractController extends AdminController
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($url) {
-            return "<a href='" . env('APP_URL') . '/../storage/app/' . $url . "' target='_blank'>" . basename($url) . "</a>";
+            return "<a href='" . env('APP_URL') . '/public/storage/' . $url . "' target='_blank'>" . basename($url) . "</a>";
         });
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);

@@ -39,7 +39,7 @@ class ValuationDocumentController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('valuation_document.contract_id'));
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));
@@ -92,7 +92,7 @@ class ValuationDocumentController extends AdminController
         $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract.code', __('valuation_document.contract_id'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performer', __('Người thực hiện'));

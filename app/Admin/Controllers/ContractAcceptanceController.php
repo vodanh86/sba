@@ -80,7 +80,7 @@ class ContractAcceptanceController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->column('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class)->width(150);
 
@@ -159,7 +159,7 @@ class ContractAcceptanceController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class);
 

@@ -31,7 +31,7 @@ class DoneContractController extends AdminController
         $extractDocument = function ($documents){
             $url = "";
             foreach($documents as $x => $document){
-                $url .= "<a href='".env('APP_URL').'/../storage/app/'.$document["document"]."' target='_blank'>".basename($document["document"])."</a><br/>";
+                $url .= "<a href='".env('APP_URL').'/public/storage/'.$document["document"]."' target='_blank'>".basename($document["document"])."</a><br/>";
             }
             return $url;
         };
@@ -90,7 +90,7 @@ class DoneContractController extends AdminController
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
+            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', $doneStatus->id);
         $grid->model()->orderBy('id', 'desc');
