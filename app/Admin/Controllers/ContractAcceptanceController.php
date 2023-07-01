@@ -158,7 +158,7 @@ class ContractAcceptanceController extends AdminController
         $show->field('official_fee', __('Còn phải thanh toán'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $show->field('document', __('Tài liệu'))->display(function ($url) {
+        $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class);

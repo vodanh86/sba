@@ -93,7 +93,7 @@ class ScoreCardController extends AdminController
         $show->field('contract.property', __('Tài sản thẩm định giá'));
         $show->field('score', __('Điểm'));
         $show->field('error_score', __('Lỗi điểm'));
-        $show->field('document', __('Tệp đính kèm'))->display(function ($url) {
+        $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($url) {
             return "<a href='".env('APP_URL').'/../storage/app/'.$url."' target='_blank'>".basename($url)."</a>";
         });
         $show->field('note', __('Ghi chú'));
