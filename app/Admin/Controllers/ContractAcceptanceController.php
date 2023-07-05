@@ -65,7 +65,7 @@ class ContractAcceptanceController extends AdminController
         });        
         $grid->column('buyer_name', __('Đơn vị mua'));
         $grid->column('buyer_address', __('Địa chỉ'));
-        $grid->column('buyer_tax_number', __('Mã số thuế'));
+        $grid->column('tax_number', __('Mã số thuế'));
         $grid->column('bill_content', __('Nội dung hoá đơn'));
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display(function ($money) {
@@ -144,7 +144,7 @@ class ContractAcceptanceController extends AdminController
         });   
         $show->field('buyer_name', __('Đơn vị mua'));
         $show->field('buyer_address', __('Địa chỉ'));
-        $show->field('buyer_tax_number', __('Mã số thuế'));
+        $show->field('tax_number', __('Mã số thuế'));
         $show->field('bill_content', __('Nội dung hoá đơn'));
 
         $show->field('total_fee', __('Tổng phí dịch vụ'))->as(function ($money) {
@@ -199,7 +199,7 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract.code_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
@@ -223,7 +223,7 @@ class ContractAcceptanceController extends AdminController
         $form->select('export_bill', __('Xuất hoá đơn'))->options([0 => 'Có', 1 => 'Không']);
         $form->text('buyer_name', __('Đơn vị mua'));
         $form->text('buyer_address', __('Địa chỉ'));
-        $form->number('buyer_tax_number', __('Mã số thuế'));
+        $form->number('tax_number', __('Mã số thuế'));
         $form->text('bill_content', __('Nội dung hoá đơn'));
 
         $form->divider('4. Thông tin phí và thanh toán');
@@ -243,7 +243,7 @@ class ContractAcceptanceController extends AdminController
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
-        $(document).on('change', ".contract_code_id_", function () {
+        $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
                 $("#property").val(data.property);
                 $(".customer_type").val(parseInt(data.customer_type)).change();
