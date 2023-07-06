@@ -42,6 +42,7 @@ class OfficialAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
+        $grid->column('certificate_code', __('Mã chứng thư'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
@@ -97,6 +98,7 @@ class OfficialAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('official_assessment.contract_id'));
+        $show->field('certificate_code', __('Mã chứng thư'));
         $show->field('contract.property', __('Tài sản thẩm định giá'));
 
         $show->field('finished_date', __('Ngày hoàn thành'));
@@ -153,6 +155,7 @@ class OfficialAssessmentController extends AdminController
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
+        $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
@@ -173,6 +176,7 @@ class OfficialAssessmentController extends AdminController
         $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
             $("#property").val(data.property);
+            $("#certificate_code").val(data.code);
         });
         });
         EOT;
