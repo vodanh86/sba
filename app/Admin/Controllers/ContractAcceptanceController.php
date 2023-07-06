@@ -239,7 +239,7 @@ class ContractAcceptanceController extends AdminController
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
 
-        // $url = 'http://127.0.0.1:8000/api/contract';
+        // $url = 'http://127.0.0.1:8000/api/contract 1';
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
