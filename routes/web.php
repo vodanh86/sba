@@ -17,5 +17,6 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 Route::fallback(function () {
-    return view('404');
+    //return view('404');
+    return redirect(url('/admin'));
 });
