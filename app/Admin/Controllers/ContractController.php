@@ -50,7 +50,11 @@ class ContractController extends AdminController
     }
 
     protected function search($condition)
-    {
+    {   
+        $convertIdToNameUser = function ($tdvId) {
+            $adminUser = AdminUser::find($tdvId);
+            return $adminUser ? $adminUser->name : '';
+        };
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
@@ -103,10 +107,10 @@ class ContractController extends AdminController
         $grid->column('broker', __('Môi giới'));
         $grid->column('source', __('Nguồn'));
         $grid->column('sale', __('Sale'));
-        $grid->column('tdv', __('Tdv'));
-        $grid->column('legal_representative', __('Đại diện pháp luật'));
+        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser);
+        $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
         $grid->column('assistant.name', __('Trợ lý tdv'));
-        $grid->column('supervisorDetail.name', __('Kiểm soát viên'));
+        $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
 
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
@@ -160,6 +164,11 @@ class ContractController extends AdminController
      */
     protected function detail($id)
     {
+        $convertIdToNameUser = function ($tdvId) {
+            $adminUser = AdminUser::find($tdvId);
+            return $adminUser ? $adminUser->name : '';
+        };
+
         $show = new Show(Contract::findOrFail($id));
 
         $show->field('id', __('Id'));
@@ -190,10 +199,11 @@ class ContractController extends AdminController
         $show->field('broker', __('Môi giới'));
         $show->field('source', __('Nguồn'));
         $show->field('sale', __('Sale'));
-        $show->field('tdv', __('Tdv'));
-        $show->field('legal_representative', __('Đại diện pháp luật'));
+
+        $show->field('tdv', __('Thẩm định viên'))->as($convertIdToNameUser);
+        $show->field('legal_representative', __('Đại diện pháp luật'))->as($convertIdToNameUser);
         $show->field('assistant.name', __('Trợ lý tdv'));
-        $show->field('supervisorDetail.name', __('Kiểm soát viên'));
+        $show->field('supervisor', __('Kiểm soát viên'))->as($convertIdToNameUser);
         $show->field('contact', __('Liên hệ'));
         $show->field('note', __('Ghi chú'));
         $show->panel()
@@ -265,14 +275,21 @@ class ContractController extends AdminController
         $form->text('broker', __('Môi giới'))->required();
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
-        $form->text('tdv', __('Tdv'));
-        $form->text('legal_representative', __('Đại diện pháp luật'));
+        
+        $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_TDV)->pluck('name', 'id'));
+
+        $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_DDPL)->pluck('name', 'id'));
+
         $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
-        $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
-            $q->where('id', Constant::QA_STAFF);
-        })->pluck('name', 'id'));
+
+        // $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
+        //     $q->where('id', Constant::QA_STAFF);
+        // })->pluck('name', 'id'));
+
+        $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_KSV)->pluck('name', 'id'));
+
 
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
