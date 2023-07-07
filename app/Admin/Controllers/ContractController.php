@@ -104,6 +104,7 @@ class ContractController extends AdminController
         $grid->column('source', __('Nguồn'));
         $grid->column('sale', __('Sale'));
         $grid->column('tdv', __('Tdv'));
+        $grid->column('legal_representative', __('Đại diện pháp luật'));
         $grid->column('assistant.name', __('Trợ lý tdv'));
         $grid->column('supervisorDetail.name', __('Kiểm soát viên'));
 
@@ -190,6 +191,7 @@ class ContractController extends AdminController
         $show->field('source', __('Nguồn'));
         $show->field('sale', __('Sale'));
         $show->field('tdv', __('Tdv'));
+        $show->field('legal_representative', __('Đại diện pháp luật'));
         $show->field('assistant.name', __('Trợ lý tdv'));
         $show->field('supervisorDetail.name', __('Kiểm soát viên'));
         $show->field('contact', __('Liên hệ'));
@@ -264,6 +266,7 @@ class ContractController extends AdminController
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
         $form->text('tdv', __('Tdv'));
+        $form->text('legal_representative', __('Đại diện pháp luật'));
         $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));

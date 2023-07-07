@@ -22,7 +22,7 @@ class OfficialAssessment extends Model
     {
         return $this->belongsTo(AdminUser::class, 'performer');
     }
-
+    
     public function statusDetail()
     {
         return $this->belongsTo(Status::class, 'status');
