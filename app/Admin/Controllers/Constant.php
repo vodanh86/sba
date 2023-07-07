@@ -47,6 +47,12 @@ abstract class Constant
 
     const BUSINESS_STAFF = 5;
     const QA_STAFF = 7;
+
+    const USER_KSV = [24,25,56,57,35,47];
+    const USER_TDV = [24,25,56,35,47];
+    const USER_DDPL = [18,56,34];
+
+
     const CONTRACT_INPUTTING_STATUS = 56;
     const OFFICIAL_CONTRACT_TYPE = 2;
 
