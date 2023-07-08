@@ -30,6 +30,8 @@ class InvitationLetterController extends AdminController
     protected function grid()
     {
         $nextStatuses = array();
+        $noneDoneStatus = Status::where("table", "invitation_letters")->where("done", 0)->get();
+        $noneDonestatusIds = $noneDoneStatus->pluck('id');
         $statuses = StatusTransition::where(["table" => Constant::INVITATION_LETTER_TABLE])->where("approvers", 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->whereIn("approve_type", [1, 2])->get();
         foreach($statuses as $key =>$status){
             $nextStatuses[$status->status_id] = Status::find($status->status_id)->name;
@@ -97,7 +99,10 @@ class InvitationLetterController extends AdminController
         $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);        
+        })->width(150);
+
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $noneDonestatusIds);
+        
         // callback after save
         $grid->filter(function($filter){
             $filter->disableIdFilter();
