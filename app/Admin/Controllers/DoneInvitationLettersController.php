@@ -43,6 +43,8 @@ class DoneInvitationLettersController extends AdminController
         })->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', $doneStatus->id);
+        $grid->model()->orderBy('id', 'desc');
+        
         $grid->column('advance_fee', __('Tạm ứng'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
@@ -59,6 +61,7 @@ class DoneInvitationLettersController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);        
+
         // callback after save
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
@@ -69,7 +72,6 @@ class DoneInvitationLettersController extends AdminController
         $grid->filter(function($filter){
             $filter->disableIdFilter();
             $filter->like('code', 'Mã thư chào');
-            $filter->like('invitationLetter.code', __('contract.Invitation letter id'));
         });
         return $grid;
     }
