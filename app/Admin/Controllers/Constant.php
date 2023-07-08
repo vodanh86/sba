@@ -48,11 +48,6 @@ abstract class Constant
     const BUSINESS_STAFF = 5;
     const QA_STAFF = 7;
 
-    const USER_KSV = [24,25,56,57,35,47];
-    const USER_TDV = [24,25,56,35,47];
-    const USER_DDPL = [18,56,34];
-
-
     const CONTRACT_INPUTTING_STATUS = 56;
     const ASSESSMENT_DONE_STATUS = 20;
     const PRE_CONTRACT_TYPE = 0;
@@ -60,13 +55,14 @@ abstract class Constant
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
-    const TABLES = array("invitation_letters" => "invitation_letters",
+    const TABLES = array("invitation_letters" => "invitation_letters", "pre_contracts" => "pre_contracts",
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
         "official_assessments" => "official_assessments", "score_cards" => "score_cards", 
         "contract_acceptances" => "contract_acceptances", "valuation_documents" => "valuation_documents"
     );
 
     const INVITATION_LETTER_TABLE = "invitation_letters";
+    const PRE_CONTRACT_TABLE = "pre_contracts";
     const CONTRACT_TABLE = "contracts";
     const TASK_NOTE_TABLE = "task_notes";
     const PRE_ASSESS_TABLE = "pre_assessments";

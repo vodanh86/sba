@@ -14,6 +14,11 @@ abstract class Utils
         return StatusTransition::where(["table" => $table])->where($permission, 'LIKE', '%'.$role.'%')->pluck('status_id')->toArray();
     }
 
+    public static function getAvailbleStatusInTables(array $tables, string $role, string $permission)
+    {
+        return StatusTransition::whereIn("table", $tables)->where($permission, 'LIKE', '%'.$role.'%')->pluck('status_id')->toArray();
+    }
+
     public static function getNextStatuses(string $table, string $role)
     {
         $nextStatuses = array();
