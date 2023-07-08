@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Document\AddScoreCardComment;
 use App\Http\Models\ScoreCard;
 use App\Http\Models\Contract;
+use App\Http\Models\OfficialAssessment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Controllers\AdminController;
@@ -115,6 +116,15 @@ class ScoreCardController extends AdminController
      */
     protected function form()
     {
+        $avaiContracts = array();
+        $contracts = Contract::where("branch_id", Admin::user()->branch_id)->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)
+        ->where("supervisor", '=', Admin::user()->id)->get();
+        foreach($contracts as $i=>$contract){
+            $officialAssessments = OfficialAssessment::where('contract_id', '=', $contract->id)->where('status', '=', Constant::ASSESSMENT_DONE_STATUS)->get();
+            if(count($officialAssessments) > 0){
+                $avaiContracts[$contract->id] = $contract->code;
+            }
+        }
         $form = new Form(new ScoreCard());
         $status = array();
         if ($form->isEditing()) {
@@ -132,7 +142,7 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts);
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();

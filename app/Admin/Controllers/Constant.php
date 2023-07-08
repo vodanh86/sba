@@ -54,7 +54,9 @@ abstract class Constant
 
 
     const CONTRACT_INPUTTING_STATUS = 56;
-    const OFFICIAL_CONTRACT_TYPE = 2;
+    const ASSESSMENT_DONE_STATUS = 20;
+    const PRE_CONTRACT_TYPE = 0;
+    const OFFICIAL_CONTRACT_TYPE = 1;
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
