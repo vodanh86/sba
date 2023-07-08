@@ -235,7 +235,11 @@ class ContractAcceptanceController extends AdminController
 
         $form->divider('5. Thông tin khác');
         $form->file('document', __('Tài liệu'));
-        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        if (in_array("Lưu nháp", $status)) {
+            $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->required();
+        } else {
+            $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        }
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
 

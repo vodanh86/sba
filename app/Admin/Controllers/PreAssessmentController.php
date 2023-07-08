@@ -152,13 +152,16 @@ class PreAssessmentController extends AdminController
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
-        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
-
         $form->number('pre_value', __('Giá trị sơ bộ'));
         $form->text('comment', __('Ghi chú'));
         $form->file('document', __('Tài liệu'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        
+
+        if (in_array("Lưu nháp", $status)) {
+            $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->required();
+        } else {
+            $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        }
         // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
         

@@ -295,7 +295,11 @@ class ContractController extends AdminController
         $form->text('contact', __('liên hệ'));
         $form->text('note', __('Ghi chú'));
         $form->file('document', __('File đính kèm'));
-        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        if (in_array("Lưu nháp", $status)) {
+            $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->required();
+        } else {
+            $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        }
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;
