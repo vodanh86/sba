@@ -32,4 +32,5 @@ Route::group([
     $router->resource('contract-acceptances', ContractAcceptanceController::class);
     $router->resource('valuation-documents', ValuationDocumentController::class);
     $router->resource('done-contracts', DoneContractController::class);
+    $router->resource('done-invitation-letters', DoneInvitationLettersController::class);
 });
