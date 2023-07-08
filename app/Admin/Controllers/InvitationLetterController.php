@@ -243,9 +243,12 @@ class InvitationLetterController extends AdminController
 
         // $form->divider('5. Thông tin môi giới');
         // $form->text('broker', __('Người môi giới'));
-
         $form->divider('5. Trạng thái thư mời');
-        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        if (in_array("Lưu nháp", $status)) {
+            $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->required();
+        } else {
+            $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
+        }
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         return $form;
