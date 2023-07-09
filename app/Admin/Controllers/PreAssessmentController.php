@@ -145,7 +145,7 @@ class PreAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRAPRE_CONTRACT_INPUTTING_STATUSCT_INPUTTING_STATUS)
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
         ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
 
