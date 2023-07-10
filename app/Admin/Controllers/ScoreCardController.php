@@ -142,7 +142,7 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts);
+        $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required();
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();

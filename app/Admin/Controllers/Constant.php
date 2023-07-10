@@ -50,7 +50,7 @@ abstract class Constant
 
     const PRE_CONTRACT_INPUTTING_STATUS = 65;
     const CONTRACT_INPUTTING_STATUS = 56;
-    const ASSESSMENT_DONE_STATUS = 20;
+    const ASSESSMENT_DONE_STATUS = 58;
     const PRE_CONTRACT_TYPE = 0;
     const OFFICIAL_CONTRACT_TYPE = 1;
 

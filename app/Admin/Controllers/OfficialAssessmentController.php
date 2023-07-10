@@ -156,7 +156,7 @@ class OfficialAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
+        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required();
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('certificate_date', __('Ngày chứng thư'));
@@ -165,8 +165,7 @@ class OfficialAssessmentController extends AdminController
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->multipleSelect('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
         $form->text('note', __('Chú ý'));
-        
-        $form->number('official_value', __('Giá trị chính thức'));
+        $form->currency('official_value', __('Giá trị chính thức'))->symbol('VND');
         $form->text('comment', __('Ghi chú'));
         $form->file('document', __('Tài liệu'));
 

@@ -199,7 +199,7 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'));
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'))->required();
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
@@ -223,15 +223,16 @@ class ContractAcceptanceController extends AdminController
         $form->select('export_bill', __('Xuất hoá đơn'))->options([0 => 'Có', 1 => 'Không']);
         $form->text('buyer_name', __('Đơn vị mua'));
         $form->text('buyer_address', __('Địa chỉ'));
-        $form->number('tax_number', __('Mã số thuế'));
+        $form->text('tax_number', __('Mã số thuế'));
         $form->text('bill_content', __('Nội dung hoá đơn'));
 
         $form->divider('4. Thông tin phí và thanh toán');
-        $form->number('total_fee', __('Tổng phí'));
+        $form->currency('total_fee', __('Tổng phí'))->symbol('VND');
+
         $form->text('delivery', __('Người chuyển'));
         $form->text('recipient', __('Người nhận'));
-        $form->number('advance_fee', __('Đã tạm ứng'));
-        $form->number('official_fee', __('Còn phải thanh toán'));
+        $form->currency('advance_fee', __('Đã tạm ứng'))->symbol('VND');
+        $form->currency('official_fee', __('Còn phải thanh toán'))->symbol('VND');
 
         $form->divider('5. Thông tin khác');
         $form->file('document', __('Tài liệu'));
