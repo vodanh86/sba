@@ -146,14 +146,14 @@ class PreAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
-        ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'));
+        ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required();
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
 
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
-        $form->number('pre_value', __('Giá trị sơ bộ'));
+        $form->currency('pre_value', __('Giá trị sơ bộ'))->symbol('VND');
         $form->text('comment', __('Ghi chú'));
         $form->file('document', __('Tài liệu'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
