@@ -297,7 +297,7 @@ class ContractController extends AdminController
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->text('property', __('Tài sản thẩm định giá'))->required();
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
-        $form->date('appraisal_date', __('Thời điểm thẩm định giá'))->required();
+        $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
         $form->date('from_date', __('Thời gian thực hiện từ ngày'))->default(date('Y-m-d'))->required();
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
 
