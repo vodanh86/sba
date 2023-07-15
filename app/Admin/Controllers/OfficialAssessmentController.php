@@ -52,7 +52,7 @@ class OfficialAssessmentController extends AdminController
                 return join(", ", $types);
             }
         });
-        $grid->column('note', __('Chú ý'));
+        $grid->column('note', __('Ghi chú'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
@@ -62,7 +62,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('official_value', __('Giá trị chính thức'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $grid->column('comment', __('Ghi chú'))->action(AddOfficialAssessmentComment::class)->width(150);
+        $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150);
         $grid->column('document', __('Document'))->display(function ($url) {
             return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -70,7 +70,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->orderByDesc('id');
         if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }
@@ -110,13 +110,13 @@ class OfficialAssessmentController extends AdminController
                 return join(", ", $types);
             }
         });
-        $show->field('note', __('Chú ý'));
+        $show->field('note', __('Ghi chú'));
         $show->field('statusDetail.name', __('Trạng thái'));
 
         $show->field('official_value', __('Giá trị chính thức'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });
-        $show->field('comment', __('Ghi chú'));
+        $show->field('comment', __('Bình luận'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
             return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
         });
@@ -164,9 +164,9 @@ class OfficialAssessmentController extends AdminController
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->multipleSelect('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
-        $form->text('note', __('Chú ý'));
+        $form->text('note', __('Ghi chú'));
         $form->currency('official_value', __('Giá trị chính thức'))->symbol('VND');
-        $form->text('comment', __('Ghi chú'));
+        $form->text('comment', __('Bình luận'));
         $form->file('document', __('Tài liệu'));
 
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
@@ -175,15 +175,22 @@ class OfficialAssessmentController extends AdminController
         } else {
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
-        // $url = 'http://127.0.0.1:8000/api/contract';
-        $url = env('APP_URL') . '/api/contract';
+        $url = 'http://127.0.0.1:8000/api/contract';
+        // $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
-        $(document).on('change', ".contract_id", function () {
-            $.get("$url",{q : this.value}, function (data) {
-            $("#property").val(data.property);
-            $("#certificate_code").val(data.code);
-        });
+        $(function() {
+            var contractId = $(".contract_id").val();
+            $.get("$url",{q : contractId}, function (data) {
+                $("#property").val(data.property);
+                $("#certificate_code").val(data.code);
+            });
+            $(document).on('change', ".contract_id", function () {
+                $.get("$url",{q : this.value}, function (data) {
+                $("#property").val(data.property);
+                $("#certificate_code").val(data.code);
+                });
+            });
         });
         EOT;
 
