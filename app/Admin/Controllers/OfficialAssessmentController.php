@@ -175,8 +175,8 @@ class OfficialAssessmentController extends AdminController
         } else {
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
-        $url = 'http://127.0.0.1:8000/api/contract';
-        // $url = env('APP_URL') . '/api/contract';
+        // $url = 'http://127.0.0.1:8000/api/contract';
+        $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
         $(function() {
