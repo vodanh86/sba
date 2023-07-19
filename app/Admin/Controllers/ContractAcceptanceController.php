@@ -244,10 +244,26 @@ class ContractAcceptanceController extends AdminController
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
 
-        // $url = 'http://127.0.0.1:8000/api/contract 1';
+        // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
+        $(function() {
+        var contractId = $(".contract_id").val();
+        $.get("$url",{q : contractId}, function (data) {
+            $("#property").val(data.property);
+            $(".customer_type").val(parseInt(data.customer_type)).change();
+            $("#tax_number").val(data.tax_number);  
+            $("#business_name").val(data.business_name);
+            $("#personal_address").val(data.personal_address);
+            $("#business_address").val(data.business_address);
+            $("#representative").val(data.representative);
+            $("#position").val(data.position);
+            $("#personal_name").val(data.personal_name);
+            $("#id_number").val(data.id_number);  
+            $("#issue_place").val(data.issue_place);  
+            $("#issue_date").val(data.issue_date); 
+        });
         $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
                 $("#property").val(data.property);
@@ -263,6 +279,7 @@ class ContractAcceptanceController extends AdminController
                 $("#issue_place").val(data.issue_place);  
                 $("#issue_date").val(data.issue_date); 
             });
+        });
         });
         EOT;
 
