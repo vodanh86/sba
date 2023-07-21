@@ -7,6 +7,7 @@ use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
 use App\Admin\Actions\Document\AddContractAcceptanceComment;
+use App\Http\Models\Status;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -97,12 +98,15 @@ class ContractAcceptanceController extends AdminController
         if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }
-        $grid->actions(function ($actions) use ($editStatus, $grid) {
-            if (!in_array($actions->row->status, $editStatus)) {
+        $grid->actions(function ($actions) use ($editStatus) {
+            $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
+            $doneStatusIds = $doneStatus->pluck('id')->toArray();
+            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
                 $actions->disableDelete();
                 $actions->disableEdit();
             }
         });
+        
         $grid->filter(function($filter){
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));

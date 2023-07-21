@@ -16,6 +16,7 @@ use Encore\Admin\Facades\Admin;
 use App\Exports\ReportExport;
 use App\Http\Models\AdminUser;
 use App\Http\Models\OfficialAssessment;
+use App\Http\Models\PreAssessment;
 use App\Http\Models\ScoreCard;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
@@ -104,71 +105,134 @@ class ReportController extends AdminController
     public function baReport(Content $content)
     {
         $content
-            ->title('Báo cáo chứng thư phát hành')
+            ->title('Báo cáo')
             ->row(new BaReport());
 
         if ($data = session('result')) {
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
-            $headers = ['Số chứng thư', 
-            'Ngày chứng thư', 
-            'Thẩm định viên',
-            'Đại diện pháp luật',
-            'Khách hàng thẩm định giá', 
-            'Tài sản thẩm định giá', 
-            'Mục đích thẩm định giá',
-            'Thời điểm thẩm định giá', 
-            'Phương pháp thẩm định giá', 
-            'Kết quả thẩm định giá', 
-            // 'Tình trạng thực hiện', 
-            // 'Số lượng', 
-            'Phí dịch vụ'];
-            $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
-            if (!is_null(($data["from_date"]))) {
-                $query->where('created_at', '>=', $data["from_date"]);
-            }
-            if (!is_null(($data["to_date"]))) {
-                $query->where('created_at', '<=', $data["to_date"]);
-            } 
-            $rows = [];
-            $statuses = Status::pluck("name", "id")->toArray();
-            $users = AdminUser::pluck("name", "id")->toArray();
+            if ($data["type"] == "prev") {
+                $headers = ['Mã hợp đồng', 'Tài sản thẩm định giá', 'Người thực hiện', 'Ngày hoàn thành', 'Giá trị sơ bộ', 'Tài liệu'];
+                $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
+                if (!is_null(($data["from_date"]))) {
+                    $query->where('created_at', '>=', $data["from_date"]);
+                }
+                if (!is_null(($data["to_date"]))) {
+                    $query->where('created_at', '<=', $data["to_date"]);
+                }
+                $rows = [];
+                $statuses = Status::pluck("name", "id")->toArray();
+                $result = DB::select("
+                SELECT
+                    sba.contracts.code,
+                    sba.contracts.property,
+                    sba.admin_users.name,
+                    sba.pre_assessments.finished_date,
+                    sba.pre_assessments.pre_value,
+                    sba.pre_assessments.document,
+                    COUNT(*) AS count
+                    FROM
+                        sba.pre_assessments
+                    INNER JOIN
+                        sba.contracts
+                    ON
+                        sba.pre_assessments.contract_id = sba.contracts.id
+                    INNER JOIN
+                        sba.admin_users
+                    ON
+                        sba.pre_assessments.performer = sba.admin_users.id
+                    WHERE
+                        sba.pre_assessments.branch_id = ?
+                        AND sba.pre_assessments.created_at >= ?
+                        AND sba.pre_assessments.created_at <= ?
+                    GROUP BY
+                        sba.contracts.code,
+                        sba.contracts.property,
+                        sba.admin_users.name,
+                        sba.pre_assessments.finished_date,
+                        sba.pre_assessments.pre_value,
+                        sba.pre_assessments.document
+                    ORDER BY
+                        sba.contracts.code
+                    ", [Admin::user()->branch_id, $data["from_date"], $data["to_date"]]);
 
-            // $result = $query->select(["tdv_assistant", "official_assessments.code", "status", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["tdv_assistant", "official_assessments.code", "status", "contract_type"])
-            // ->orderBy('tdv_assistant')->orderBy('status')->get();
-            $result = $query->select(["certificate_code", 
-            "certificate_date", 
-            "official_assessments.contract_id",
-            "official_assessments.contract_id",
-            "official_assessments.contract_id",
-            "official_assessments.contract_id", 
-            "official_assessments.contract_id", 
-            "official_assessments.contract_id", 
-            "assessment_type", 
-            "status",
-            "official_assessments.contract_id", 
-            DB::raw("COUNT(*) as count")])
-                ->groupBy(["certificate_code", "certificate_date", "official_assessments.contract_id","official_assessments.contract_id","official_assessments.contract_id", "official_assessments.contract_id", "official_assessments.contract_id", "assessment_type", "status", "official_assessments.contract_id"])
-                ->orderBy('performer')
-                ->orderBy('status')
-                ->get();
+                    $rows = [];
+                    foreach ($result as $row) {
+                        $documentLink = "<a href='" . env('APP_URL') . '/public/storage/' . $row->document . "' target='_blank'>" . basename($row->document) . "</a>";
+                        $rows[] = [
+                            $row->code,
+                            $row->property,
+                            $row->name,
+                            $row->finished_date,
+                            $row->pre_value,
+                            $documentLink,
+                        ];
+                    }
+            } else {
+                $headers = ['Mã hợp đồng','Tài sản thẩm định giá', 'Mã chứng thư', 'Ngày chứng thư', 'Ngày hoàn thành', 'Người thực hiện', 'Phương pháp thẩm định', 'Giá trị chính thức', 'Tài liệu'];
+                $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
+                if (!is_null(($data["from_date"]))) {
+                    $query->where('created_at', '>=', $data["from_date"]);
+                }
+                if (!is_null(($data["to_date"]))) {
+                    $query->where('created_at', '<=', $data["to_date"]);
+                }
+                $rows = [];
+                $statuses = Status::pluck("name", "id")->toArray();
+                $result = DB::select("
+                SELECT
+                    sba.contracts.code,
+                    sba.contracts.property,
+                    sba.official_assessments.certificate_code,
+                    sba.official_assessments.certificate_date,
+                    sba.official_assessments.finished_date,
+                    sba.admin_users.name,
+                    sba.official_assessments.assessment_type,
+                    sba.official_assessments.official_value,
+                    sba.official_assessments.document,
+                    COUNT(*) AS count
+                    FROM
+                        sba.official_assessments
+                    INNER JOIN
+                        sba.contracts
+                    ON
+                        sba.official_assessments.contract_id = sba.contracts.id
+                    INNER JOIN
+                        sba.admin_users
+                    ON
+                        sba.official_assessments.performer = sba.admin_users.id
+                    WHERE
+                        sba.official_assessments.branch_id = ?
+                        AND sba.official_assessments.created_at >= ?
+                        AND sba.official_assessments.created_at <= ?
+                    GROUP BY
+                        sba.contracts.code,
+                        sba.contracts.property,
+                        sba.official_assessments.certificate_code,
+                        sba.official_assessments.certificate_date,
+                        sba.official_assessments.finished_date,
+                        sba.admin_users.name,
+                        sba.official_assessments.assessment_type,
+                        sba.official_assessments.official_value,
+                        sba.official_assessments.document
+                    ORDER BY
+                        sba.contracts.code
+                    ", [Admin::user()->branch_id, $data["from_date"], $data["to_date"]]);
 
-
-            foreach ($result as $i => $row) {
-                $contract = $row->contract;
-                $rows[] = [
-                    isset($row["certificate_code"]) ? $row["certificate_code"] : $contract->code,
-                    $row["certificate_date"],
-                    $contract->tdv,
-                    $contract->legal_representative,
-                    $contract->name,
-                    $contract->property,
-                    $contract->purpose,
-                    $contract->appraisal_date,
-                    implode(", ", $row["assessment_type"]),
-                    // !is_null($row["performer"]) && array_key_exists($row["performer"], $users) ? $users[$row["performer"]] : "", 
-                    !is_null($row["status"]) && array_key_exists($row["status"], $statuses) ? $statuses[$row["status"]] : "",
-                    number_format($contract->total_fee, 2, ',', ' ') . " VND",
-                ];
+                    $rows = [];
+                    foreach ($result as $row) {
+                        $documentLink = "<a href='" . env('APP_URL') . '/public/storage/' . $row->document . "' target='_blank'>" . basename($row->document) . "</a>";
+                        $rows[] = [
+                            $row->code,
+                            $row->property,
+                            $row->certificate_code,
+                            $row->certificate_date,
+                            $row->finished_date,
+                            $row->name,
+                            $row->assessment_type,
+                            $row->official_value,
+                            $documentLink,
+                        ];
+                    }
             }
 
             $table = new Table($headers, $rows);

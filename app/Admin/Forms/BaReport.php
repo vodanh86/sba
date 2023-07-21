@@ -24,10 +24,10 @@ class BaReport extends Form
     public function handle(Request $request)
     {
         $result = array("from_date" => $request->get("from_date"),
-                        "to_date" => $request->get("to_date"));
+                        "to_date" => $request->get("to_date"),
+                        "type" => $request->get("type"));
         return back()->with(['result' => $result]);
     }
-
     /**
      * Build a form here.
      */
@@ -35,6 +35,7 @@ class BaReport extends Form
     {
         $this->date('from_date', 'Từ ngày')->width(2);
         $this->date('to_date', 'Đến ngày')->width(2);
+        $this->radio('type', 'Loại báo cáo')->options(['prev' => 'Thẩm định sơ bộ ', 'official'=> 'Thẩm định chính thức'])->default('prev');
     }
 
     /**

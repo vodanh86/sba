@@ -7,6 +7,7 @@ use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
 use App\Admin\Actions\Document\AddOfficialAssessmentComment;
+use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -74,8 +75,10 @@ class OfficialAssessmentController extends AdminController
         if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
             $grid->disableCreateButton();
         }
-        $grid->actions(function ($actions) use ($editStatus, $grid) {
-            if (!in_array($actions->row->status, $editStatus)) {
+        $grid->actions(function ($actions) use ($editStatus) {
+            $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
+            $doneStatusIds = $doneStatus->pluck('id')->toArray();
+            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
                 $actions->disableDelete();
                 $actions->disableEdit();
             }

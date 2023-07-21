@@ -133,8 +133,10 @@ class ContractController extends AdminController
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
-        $grid->actions(function ($actions) use ($editStatus, $grid) {
-            if (!in_array($actions->row->status, $editStatus)) {
+        $grid->actions(function ($actions) use ($editStatus) {
+            $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
+            $doneStatusIds = $doneStatus->pluck('id')->toArray();
+            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
                 $actions->disableDelete();
                 $actions->disableEdit();
             }
