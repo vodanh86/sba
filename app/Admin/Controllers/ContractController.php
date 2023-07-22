@@ -6,6 +6,7 @@ use App\Http\Models\Contract;
 use Encore\Admin\Layout\Content;
 use App\Admin\Actions\Document\AddContractComment;
 use App\Http\Models\AdminUser;
+use App\Http\Models\PreAssessment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
@@ -136,9 +137,19 @@ class ContractController extends AdminController
         $grid->actions(function ($actions) use ($editStatus) {
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
-            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
-                $actions->disableDelete();
+            $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
+            if (
+                !in_array($actions->row->status, $editStatus) ||
+                (!($preAssessment && $preAssessment->status == 16))
+            ) {
                 $actions->disableEdit();
+            }
+            if (
+                !in_array($actions->row->status, $editStatus) ||
+                in_array($actions->row->status, $doneStatusIds) ||
+                (!($preAssessment && $preAssessment->status == 16))
+            ) {
+                $actions->disableDelete();
             }
         });
         $grid->column('comment', __('Bình luận'))->action(AddContractComment::class)->width(250);
