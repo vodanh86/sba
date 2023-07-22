@@ -139,8 +139,7 @@ class ContractController extends AdminController
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
             if (
-                !in_array($actions->row->status, $editStatus) ||
-                (!($preAssessment && $preAssessment->status == 16))
+                !in_array($actions->row->status, $editStatus) 
             ) {
                 $actions->disableEdit();
             }
