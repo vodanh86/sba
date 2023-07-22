@@ -170,10 +170,16 @@ class PreAssessmentController extends AdminController
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
-        $(document).on('change', ".contract_id", function () {
-            $.get("$url",{q : this.value}, function (data) {
-            $("#property").val(data.property);
-        });
+        $(function() {
+            var contractId = $(".contract_id").val();
+            $.get("$url",{q : contractId}, function (data) {
+                $("#property").val(data.property);
+            });
+            $(document).on('change', ".contract_id", function () {
+                $.get("$url",{q : this.value}, function (data) {
+                $("#property").val(data.property);
+                });
+            });
         });
         EOT;
 
