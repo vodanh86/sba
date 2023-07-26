@@ -14,7 +14,6 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index')->name('home');
-    $router->get('/assigned-contracts', 'ContractController@assignedContracts');
     $router->get('/sale-reports', 'ReportController@saleReport');
     $router->get('/ba-reports', 'ReportController@baReport');
     $router->get('/supervisor-reports', 'ReportController@supervisorReport');
@@ -23,6 +22,7 @@ Route::group([
     $router->resource('business-customers', BusinessCustomerController::class);
     $router->resource('invitation-letters', InvitationLetterController::class);
     $router->resource('contracts', ContractController::class);
+    $router->resource('assigned-contracts', AssignedContractController::class);
     $router->resource('statuses', StatusController::class);
     $router->resource('status-transitions', StatusTransitionController::class);
     $router->resource('task-notes', TaskNoteController::class);

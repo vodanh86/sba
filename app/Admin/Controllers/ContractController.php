@@ -238,6 +238,9 @@ class ContractController extends AdminController
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('contract');
+            if (is_null($id)){
+                $id = request()->route()->parameter('assigned_contract');
+            }
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
             $nextStatuses = StatusTransition::where(["table" => $model->contract_type == Constant::OFFICIAL_CONTRACT_TYPE ? Constant::CONTRACT_TABLE : Constant::PRE_CONTRACT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
@@ -344,6 +347,11 @@ class ContractController extends AdminController
         $form->file('document', __('File đính kèm'));
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
+        $form->tools(function (Form\Tools $tools) {
+            // Disable `Delete` btn.
+            $tools->disableDelete();
+        });
+        
         return $form;
     }
 }
