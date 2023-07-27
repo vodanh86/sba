@@ -115,8 +115,12 @@ class ContractController extends AdminController
 
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
-        $grid->column('document', __('File đính kèm'))->display(function ($url) {
-            return "<a href='" . env('APP_URL') . '/public/storage/' . $url . "' target='_blank'>" . basename($url) . "</a>";
+        $grid->column('document', __('File đính kèm'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;
         });
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
@@ -345,7 +349,7 @@ class ContractController extends AdminController
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
         $form->text('note', __('Ghi chú'));
-        $form->file('document', __('File đính kèm'));
+        $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         $form->tools(function (Form\Tools $tools) {
