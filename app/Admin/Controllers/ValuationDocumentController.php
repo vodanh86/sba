@@ -38,9 +38,12 @@ class ValuationDocumentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('valuation_document.contract_id'));
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $grid->column('document', __('Tài liệu'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('note', __('Chú ý'));
@@ -91,9 +94,12 @@ class ValuationDocumentController extends AdminController
         $show->field('id', __('Id'));
         $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract.code', __('valuation_document.contract_id'));
-        $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performer', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
@@ -135,7 +141,7 @@ class ValuationDocumentController extends AdminController
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
         ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)->pluck('code', 'id'));
-        $form->file('document', __('Tài liệu'));
+        $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));

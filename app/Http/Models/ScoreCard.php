@@ -22,4 +22,16 @@ class ScoreCard extends Model
     {
         return $this->belongsTo(Status::class, 'status');
     }
+
+    public function setDocumentAttribute($documents)
+    {
+        if (is_array($documents)) {
+            $this->attributes['document'] = json_encode($documents);
+        }
+    }
+
+    public function getDocumentAttribute($documents)
+    {
+        return json_decode($documents, true);
+    }
 }

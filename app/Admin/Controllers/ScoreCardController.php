@@ -45,9 +45,12 @@ class ScoreCardController extends AdminController
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('score', __('Điểm'));
         $grid->column('error_score', __('Lỗi điểm'))->width(150);
-        $grid->column('document', __('Tệp đính kèm'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $grid->column('document', __('Tệp đính kèm'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $grid->column('note', __('Ghi chú'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
@@ -94,9 +97,12 @@ class ScoreCardController extends AdminController
         $show->field('contract.property', __('Tài sản thẩm định giá'));
         $show->field('score', __('Điểm'));
         $show->field('error_score', __('Lỗi điểm'));
-        $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $show->field('note', __('Ghi chú'));
         $show->field('status', __('Trạng thái'));
         $show->field('created_at', __('Ngày tạo'));
@@ -146,7 +152,7 @@ class ScoreCardController extends AdminController
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();
-        $form->file('document', __('Tài liệu'));
+        $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->text('note', __('Ghi chú'));
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
