@@ -61,9 +61,12 @@ class PreAssessmentController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
         $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $grid->column('document', __('Tài liệu'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;       });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
@@ -110,9 +113,12 @@ class PreAssessmentController extends AdminController
             return number_format($money, 2, ',', ' ') . " VND";
         });
         $show->field('comment', __('Ghi chú'));
-        $show->field('document', __('Tài liệu'))->unescape()->as(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
-        });
+        $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
 
@@ -158,7 +164,7 @@ class PreAssessmentController extends AdminController
         $form->text('note', __('Chú ý'));
         $form->currency('pre_value', __('Giá trị sơ bộ'))->symbol('VND');
         $form->text('comment', __('Ghi chú'));
-        $form->file('document', __('Tài liệu'));
+        $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         if (in_array("Lưu nháp", $status)) {
