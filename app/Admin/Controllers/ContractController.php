@@ -124,7 +124,8 @@ class ContractController extends AdminController
         if ($condition == 0) {
             $grid->model()->whereIn('status', $listStatus);
         } else if ($condition == 1) {
-            $grid->model()->whereIn('status', [Constant::CONTRACT_INPUTTING_STATUS, Constant::PRE_CONTRACT_INPUTTING_STATUS, Constant::WAIT_ASSIGN]);
+            $grid->model()->whereIn('status', [Constant::CONTRACT_INPUTTING_STATUS, 
+            Constant::PRE_CONTRACT_INPUTTING_STATUS, Constant::WAIT_ASSIGN, Constant::OFFICIAL_ASSIGN]);
             $grid->model()->where(function($query) {
                     $query->where('tdv_assistant', '=', Admin::user()->id)
                         ->orWhere('supervisor', '=', Admin::user()->id)
