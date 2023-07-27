@@ -72,9 +72,12 @@ class DoneContractController extends AdminController
         $grid->column('official_fee', __('Còn phải thanh toán'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='" . env('APP_URL') . '/public/storage/' . $url . "' target='_blank'>" . basename($url) . "</a>";
-        });
+        $grid->column('document', __('Tài liệu'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;        });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
