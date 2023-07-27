@@ -10,6 +10,7 @@ use App\Http\Models\ContractAcceptance;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class DoneContractController extends AdminController
 {
@@ -28,7 +29,7 @@ class DoneContractController extends AdminController
     protected function grid()
     {
         $dateFormatter = function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         };
         $grid = new Grid(new ContractAcceptance());

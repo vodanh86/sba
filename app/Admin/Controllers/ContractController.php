@@ -15,6 +15,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class ContractController extends AdminController
 {
@@ -57,7 +58,7 @@ class ContractController extends AdminController
             return $adminUser ? $adminUser->name : '';
         };
         $dateFormatter = function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         };
         $moneyFormatter = function($money) {

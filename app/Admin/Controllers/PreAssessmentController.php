@@ -14,6 +14,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class PreAssessmentController extends AdminController
 {
@@ -32,7 +33,7 @@ class PreAssessmentController extends AdminController
     protected function grid()
     {
         $dateFormatter = function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         };
 

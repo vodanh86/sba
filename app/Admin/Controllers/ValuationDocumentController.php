@@ -13,6 +13,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class ValuationDocumentController extends AdminController
 {
@@ -56,11 +57,11 @@ class ValuationDocumentController extends AdminController
         });
         $grid->column('comment', __('Bình luận'))->action(AddValuationDocumentComment::class)->width(100);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
+            $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
             return $carbonCreateAt->format('d/m/Y H:i:s');
         })->width(100);
         $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y H:i:s');
         })->width(100);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));

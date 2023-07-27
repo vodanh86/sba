@@ -12,6 +12,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class InvitationLetterController extends AdminController
 {
@@ -70,12 +71,12 @@ class InvitationLetterController extends AdminController
 
         $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(250);
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt);
+            $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
             return $carbonCreateAt->format('d/m/Y - H:i:s');
         })->width(150);
         
         $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
 

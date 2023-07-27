@@ -13,6 +13,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Config;
 
 class ContractAcceptanceController extends AdminController
 {
@@ -31,7 +32,7 @@ class ContractAcceptanceController extends AdminController
     protected function grid()
     {
         $dateFormatter = function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         };
         $nextStatuses = Utils::getNextStatuses(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug);
