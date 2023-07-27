@@ -80,8 +80,12 @@ class ContractAcceptanceController extends AdminController
         $grid->column('official_fee', __('Còn phải thanh toán'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $grid->column('document', __('Tài liệu'))->display(function ($url) {
-            return "<a href='".env('APP_URL').'/public/storage/'.$url."' target='_blank'>".basename($url)."</a>";
+        $grid->column('document', __('Tài liệu'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach($urls as $i => $url){
+                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            }
+            return $urlsHtml;
         });
         $grid->column('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class)->width(150);
 
@@ -239,7 +243,7 @@ class ContractAcceptanceController extends AdminController
         $form->currency('official_fee', __('Còn phải thanh toán'))->symbol('VND');
 
         $form->divider('5. Thông tin khác');
-        $form->file('document', __('Tài liệu'));
+        $form->multipleFile('document', __('Tài liệu'))->removable();
         if (in_array("Lưu nháp", $status)) {
             $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->required();
         } else {
