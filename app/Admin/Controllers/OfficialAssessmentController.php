@@ -176,7 +176,7 @@ class OfficialAssessmentController extends AdminController
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->multipleSelect('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
-        $form->text('note', __('Ghi chú'));
+        $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->currency('official_value', __('Giá trị chính thức'))->symbol('VND');
         $form->text('comment', __('Bình luận'));
         $form->multipleFile('document', __('Tài liệu'))->removable();

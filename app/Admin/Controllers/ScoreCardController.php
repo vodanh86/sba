@@ -154,7 +154,7 @@ class ScoreCardController extends AdminController
         $form->number('score', __('Điểm'));
         $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();
         $form->multipleFile('document', __('Tài liệu'))->removable();
-        $form->text('note', __('Ghi chú'));
+        $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
        

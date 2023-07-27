@@ -164,7 +164,7 @@ class PreAssessmentController extends AdminController
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
         $form->currency('pre_value', __('Giá trị sơ bộ'))->symbol('VND');
-        $form->text('comment', __('Ghi chú'));
+        $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
