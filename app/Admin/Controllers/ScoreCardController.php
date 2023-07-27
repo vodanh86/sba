@@ -45,7 +45,9 @@ class ScoreCardController extends AdminController
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('score', __('Điểm'));
-        $grid->column('error_score', __('Lỗi điểm'))->width(150);
+        $grid->column('basic_error', __('Lỗi cơ bản'));
+        $grid->column('business_error', __('Lỗi nghiệp vụ'));
+        $grid->column('serious_error', __('Lỗi nghiêm trọng'));
         $grid->column('document', __('Tệp đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
             foreach($urls as $i => $url){
@@ -97,7 +99,9 @@ class ScoreCardController extends AdminController
         $show->field('contract_id', __('Mã hợp đồng'));
         $show->field('contract.property', __('Tài sản thẩm định giá'));
         $show->field('score', __('Điểm'));
-        $show->field('error_score', __('Lỗi điểm'));
+        $show->field('basic_error', __('Lỗi cơ bản'));
+        $show->field('business_error', __('Lỗi nghiệp vụ'));
+        $show->field('serious_error', __('Lỗi nghiêm trọng'));
         $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
             foreach($urls as $i => $url){
@@ -152,7 +156,9 @@ class ScoreCardController extends AdminController
         $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required();
         $form->text('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
-        $form->select('error_score', __('Lỗi điểm'))->options(Constant::INVITATION_LETTERS_TYPE)->required();
+        $form->number('basic_error', __('Lỗi cơ bản'));
+        $form->number('business_error', __('Lỗi nghiệp vụ'));
+        $form->number('serious_error', __('Lỗi nghiêm trọng'));
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
