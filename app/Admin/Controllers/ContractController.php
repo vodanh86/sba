@@ -318,7 +318,7 @@ class ContractController extends AdminController
         })->required();
 
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
-        $form->text('property', __('Tài sản thẩm định giá'))->required();
+        $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
         $form->date('from_date', __('Thời gian thực hiện từ ngày'))->default(date('Y-m-d'))->required();
@@ -350,7 +350,7 @@ class ContractController extends AdminController
 
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
-        $form->text('note', __('Ghi chú'));
+        $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
