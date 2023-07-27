@@ -37,6 +37,6 @@ class ValuationDocument extends Model
 
     public function getDocumentAttribute($documents)
     {
-        return json_decode($documents, true);
+        return is_null($documents) ? [] : json_decode($documents, true);
     }
 }
