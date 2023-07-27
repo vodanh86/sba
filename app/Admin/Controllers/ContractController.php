@@ -251,7 +251,9 @@ class ContractController extends AdminController
             $nextStatuses = StatusTransition::where(["table" => $model->contract_type == Constant::OFFICIAL_CONTRACT_TYPE ? Constant::CONTRACT_TABLE : Constant::PRE_CONTRACT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
             foreach ($nextStatuses as $nextStatus) {
-                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+                if (!is_null($nextStatus->nextStatus)){
+                    $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+                }
             }
             $form->text('code', "Mã hợp đồng")->readonly();
             if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1){
