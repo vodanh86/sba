@@ -52,7 +52,7 @@ class ContractController extends AdminController
     }
 
     protected function search($condition)
-    {   
+    {
         $convertIdToNameUser = function ($tdvId) {
             $adminUser = AdminUser::find($tdvId);
             return $adminUser ? $adminUser->name : '';
@@ -61,7 +61,7 @@ class ContractController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         };
-        $moneyFormatter = function($money) {
+        $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         };
         $nextStatuses = array();
@@ -118,26 +118,47 @@ class ContractController extends AdminController
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
             return $urlsHtml;
         });
 
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         // get list of assigned contracts
         if ($condition == 0) {
             $grid->model()->whereIn('status', $listStatus);
         } else if ($condition == 1) {
-            $grid->model()->whereIn('status', [Constant::CONTRACT_INPUTTING_STATUS, 
-            Constant::PRE_CONTRACT_INPUTTING_STATUS, Constant::WAIT_ASSIGN, Constant::OFFICIAL_ASSIGN]);
-            $grid->model()->where(function($query) {
-                    $query->where('tdv_assistant', '=', Admin::user()->id)
-                        ->orWhere('supervisor', '=', Admin::user()->id)
-                        ->orWhere('tdv', '=', Admin::user()->id);
+            $grid->model()->whereIn('status', [
+                Constant::CONTRACT_INPUTTING_STATUS,
+                Constant::PRE_CONTRACT_INPUTTING_STATUS, Constant::WAIT_ASSIGN, Constant::OFFICIAL_ASSIGN
+            ]);
+            $grid->model()->where(function ($query) {
+                $query->where('tdv_assistant', '=', Admin::user()->id)
+                    ->orWhere('supervisor', '=', Admin::user()->id)
+                    ->orWhere('tdv', '=', Admin::user()->id);
             });
         }
-        $grid->model()->orderBy('id', 'desc');
+
+        $grid->model()
+            ->where('branch_id', Admin::user()->branch_id)
+            ->where(function ($query) {
+                $query->whereExists(function ($subQuery) {
+                    $subQuery->select('contract_id')
+                        ->from('contract_acceptances')
+                        ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
+                        ->where('status', '!=', Constant::DONE_CONTRACT_STATUS);
+                })
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->whereNotExists(function ($innerQuery) {
+                            $innerQuery->select('contract_id')
+                                ->from('contract_acceptances')
+                                ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
+                                ->where('status', '=', Constant::DONE_CONTRACT_STATUS);
+                        });
+                    });
+            })
+            ->orderBy('id', 'desc');
+
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
@@ -146,7 +167,7 @@ class ContractController extends AdminController
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
             if (
-                !in_array($actions->row->status, $editStatus) 
+                !in_array($actions->row->status, $editStatus)
             ) {
                 $actions->disableEdit();
             }
@@ -244,7 +265,7 @@ class ContractController extends AdminController
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('contract');
-            if (is_null($id)){
+            if (is_null($id)) {
                 $id = request()->route()->parameter('assigned_contract');
             }
             $model = $form->model()->find($id);
@@ -252,12 +273,12 @@ class ContractController extends AdminController
             $nextStatuses = StatusTransition::where(["table" => $model->contract_type == Constant::OFFICIAL_CONTRACT_TYPE ? Constant::CONTRACT_TABLE : Constant::PRE_CONTRACT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
             foreach ($nextStatuses as $nextStatus) {
-                if (!is_null($nextStatus->nextStatus)){
+                if (!is_null($nextStatus->nextStatus)) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
                 }
             }
             $form->text('code', "Mã hợp đồng")->readonly();
-            if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1){
+            if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1) {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($status) {
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
                 })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) {
@@ -333,7 +354,7 @@ class ContractController extends AdminController
         $form->text('broker', __('Môi giới'))->required();
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
-        
+
         // $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_TDV)->pluck('name', 'id'));
         $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
 
@@ -359,7 +380,7 @@ class ContractController extends AdminController
             // Disable `Delete` btn.
             $tools->disableDelete();
         });
-        
+
         return $form;
     }
 }

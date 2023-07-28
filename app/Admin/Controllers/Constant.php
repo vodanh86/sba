@@ -56,6 +56,8 @@ abstract class Constant
     const PRE_CONTRACT_TYPE = 0;
     const OFFICIAL_CONTRACT_TYPE = 1;
     const DONE_CONTRACT_STATUS = 35;
+    const DONE_SCORE_STATUS = 74;
+
 
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
