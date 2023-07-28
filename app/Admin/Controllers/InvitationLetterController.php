@@ -155,7 +155,7 @@ class InvitationLetterController extends AdminController
 
         $form->text('customer_name', __('Tên khách hàng'));
         $form->divider('2. Thông tin về hồ sơ thẩm định giá');
-        $form->text('property_type', __('Tài sản thẩm định giá'));
+        $form->textarea('property_type', __('Tài sản thẩm định giá'));
         $form->text('purpose', __('Mục đích thẩm định giá'));
         $form->text('property_address', __('Địa điểm tài sản'));
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'));

@@ -154,7 +154,7 @@ class ScoreCardController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required();
-        $form->text('contract.property', __('Tài sản thẩm định giá'))->disable();
+        $form->textarea('contract.property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->number('basic_error', __('Lỗi cơ bản'));
         $form->number('business_error', __('Lỗi nghiệp vụ'));

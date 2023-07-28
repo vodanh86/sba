@@ -39,7 +39,7 @@ class ContractAcceptanceController extends AdminController
         $viewStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "viewers");
         $editStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "editors");
         $approveStatus = Utils::getAvailbleStatus(Constant::CONTRACT_ACCEPTANCE_TABLE, Admin::user()->roles[0]->slug, "approvers");
-        
+
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
@@ -49,8 +49,8 @@ class ContractAcceptanceController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt);
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
         })->width(150);
-       
-    
+
+
         $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
         $grid->column('contract.tax_number', __('Mã số thuế'));
         $grid->column('contract.business_name', __('Tên doanh nghiệp'));
@@ -64,7 +64,7 @@ class ContractAcceptanceController extends AdminController
 
         $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
             return $value == 0 ? 'Không' : 'Có';
-        });        
+        });
         $grid->column('buyer_name', __('Đơn vị mua'));
         $grid->column('buyer_address', __('Địa chỉ'));
         $grid->column('tax_number', __('Mã số thuế'));
@@ -83,8 +83,8 @@ class ContractAcceptanceController extends AdminController
         })->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
             return $urlsHtml;
         });
@@ -100,7 +100,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
-        if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::CONTRACT_ACCEPTANCE_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
@@ -111,8 +111,8 @@ class ContractAcceptanceController extends AdminController
                 $actions->disableEdit();
             }
         });
-        
-        $grid->filter(function($filter){
+
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
@@ -150,7 +150,7 @@ class ContractAcceptanceController extends AdminController
 
         $show->field('export_bill', __('Xuất hoá đơn'))->as(function ($value) {
             return $value == 0 ? 'Có' : 'Không';
-        });   
+        });
         $show->field('buyer_name', __('Đơn vị mua'));
         $show->field('buyer_address', __('Địa chỉ'));
         $show->field('tax_number', __('Mã số thuế'));
@@ -169,8 +169,8 @@ class ContractAcceptanceController extends AdminController
         })->width(150);
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
             return $urlsHtml;
         });
@@ -201,9 +201,9 @@ class ContractAcceptanceController extends AdminController
             $id = request()->route()->parameter('contract_acceptance');
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
-            $nextStatuses = StatusTransition::where(["table" => Constant::CONTRACT_ACCEPTANCE_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $nextStatuses = StatusTransition::where(["table" => Constant::CONTRACT_ACCEPTANCE_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
-            foreach($nextStatuses as $nextStatus){
+            foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
@@ -212,8 +212,10 @@ class ContractAcceptanceController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->pluck('code', 'id'))->required();
-        $form->text('property', __('Tài sản thẩm định giá'))->disable();
+        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->whereHas('scoreCards', function ($query) {
+            $query->where('status', 74);
+        })->pluck('code', 'id'))->required();
+        $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
         $form->divider('2. Thông tin khách hàng');
@@ -257,9 +259,8 @@ class ContractAcceptanceController extends AdminController
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
 
-        // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
-        
+
         $script = <<<EOT
         $(function() {
         var contractId = $(".contract_id").val();
