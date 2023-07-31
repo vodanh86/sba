@@ -153,7 +153,7 @@ class ScoreCardController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required();
+        $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required()->rules('unique:score_cards');;
         $form->textarea('contract.property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->number('basic_error', __('Lỗi cơ bản'));

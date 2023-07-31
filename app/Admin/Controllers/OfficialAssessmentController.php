@@ -168,7 +168,7 @@ class OfficialAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required();
+        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()->rules('unique:official_assessments');
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('certificate_date', __('Ngày chứng thư'));
