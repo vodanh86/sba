@@ -170,7 +170,7 @@ class ScoreCardController extends AdminController
         $script = <<<EOT
         $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
-            $("#property").val(data.property)
+            $(".property").val(data.property)
         });
         });
         EOT;
