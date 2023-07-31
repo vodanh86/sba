@@ -265,7 +265,7 @@ class ContractAcceptanceController extends AdminController
         $(function() {
         var contractId = $(".contract_id").val();
         $.get("$url",{q : contractId}, function (data) {
-            $("#property").val(data.property);
+            $(".property").val(data.property);
             $(".customer_type").val(parseInt(data.customer_type)).change();
             $("#tax_number").val(data.tax_number);  
             $("#business_name").val(data.business_name);
@@ -280,7 +280,7 @@ class ContractAcceptanceController extends AdminController
         });
         $(document).on('change', ".contract_id", function () {
             $.get("$url",{q : this.value}, function (data) {
-                $("#property").val(data.property);
+                $(".property").val(data.property);
                 $(".customer_type").val(parseInt(data.customer_type)).change();
                 $("#tax_number").val(data.tax_number);  
                 $("#business_name").val(data.business_name);

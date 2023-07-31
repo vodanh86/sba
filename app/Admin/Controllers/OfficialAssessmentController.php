@@ -194,12 +194,12 @@ class OfficialAssessmentController extends AdminController
         $(function() {
             var contractId = $(".contract_id").val();
             $.get("$url",{q : contractId}, function (data) {
-                $("#property").val(data.property);
+                $(".property").val(data.property);
                 $("#certificate_code").val(data.code);
             });
             $(document).on('change', ".contract_id", function () {
                 $.get("$url",{q : this.value}, function (data) {
-                $("#property").val(data.property);
+                $(".property").val(data.property);
                 $("#certificate_code").val(data.code);
                 });
             });

@@ -173,18 +173,18 @@ class PreAssessmentController extends AdminController
         } else {
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
-        // $url = 'http://127.0.0.1:8000/api/contract';
+        // $url = 'https://valuation.sba.net.vn/api/contract';
         $url = env('APP_URL') . '/api/contract';
         
         $script = <<<EOT
         $(function() {
             var contractId = $(".contract_id").val();
             $.get("$url",{q : contractId}, function (data) {
-                $("#property").val(data.property);
+                $(".property").val(data.property);
             });
             $(document).on('change', ".contract_id", function () {
                 $.get("$url",{q : this.value}, function (data) {
-                $("#property").val(data.property);
+                $(".property").val(data.property);
                 });
             });
         });
