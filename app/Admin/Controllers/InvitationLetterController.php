@@ -81,7 +81,14 @@ class InvitationLetterController extends AdminController
         })->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $noneDonestatusIds)->orderByDesc('id');
-        
+        $grid->actions(function ($actions) use ($editStatus) {
+            $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
+            $doneStatusIds = $doneStatus->pluck('id')->toArray();
+            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            }
+        });
         // callback after save
         $grid->filter(function($filter){
             $filter->disableIdFilter();
@@ -104,11 +111,11 @@ class InvitationLetterController extends AdminController
         $show->field('id', __('Id'));
         $show->field('code', __('Mã thư chào'));
         $show->field('customer_name', __('Tên khách hàng'));
-        $show->field('property_type', __('Tài sản thẩm định giá'))->using(Constant::PROPRERTY_TYPE)->width(150);
-        $show->field('purpose', __('Mục đích thẩm định giá'))->using(Constant::INVITATION_PURPOSE)->width(150);
-        $show->field('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
-        $show->field('from_date', __('Từ ngày'))->width(150);
-        $show->field('to_date', __('Đến ngày'))->width(150);
+        $show->field('property_type', __('Tài sản thẩm định giá'));
+        $show->field('purpose', __('Mục đích thẩm định giá'));
+        $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
+        $show->field('from_date', __('Từ ngày'));
+        $show->field('to_date', __('Đến ngày'));
         $show->field('total_fee', __('Tổng phí'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });
