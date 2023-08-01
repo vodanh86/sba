@@ -103,8 +103,9 @@ class PreAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract_id', __('Mã hợp đồng'));
-        $show->field('contract.property', __('Tài sản thẩm định giá'));
-       
+        $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
+            return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
+        });       
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));

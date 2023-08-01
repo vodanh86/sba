@@ -109,8 +109,9 @@ class OfficialAssessmentController extends AdminController
         $show->field('contract.code', __('official_assessment.contract_id'));
         $show->field('certificate_code', __('Mã chứng thư'));
         $show->field('certificate_date', __('Ngày chứng thư'));
-        $show->field('contract.property', __('Tài sản thẩm định giá'));
-
+        $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
+            return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
+        });
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('assessment_type', __('Phương pháp thẩm định'))->as(function ($types) {

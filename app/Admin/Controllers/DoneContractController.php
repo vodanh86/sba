@@ -130,8 +130,9 @@ class DoneContractController extends AdminController
         //$show->field('buyer_address', __('Địa chỉ'));
         //$show->field('buyer_tax_number', __('Mã số thuế'));
         //$show->field('bill_content', __('Nội dung hoá đơn'));
-        $show->field('property', __('Tài sản thẩm định giá'));
-        //$show->field('property_type', __('Loại tài sản'));
+        $show->field('property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
+            return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
+        });        //$show->field('property_type', __('Loại tài sản'));
         //$show->field('property_address', __('Địa điểm tài sản'));
         //$show->field('property_purpose', __('Mục đích sử dụng đất'));
         //$show->field('vehicle_type', __('Loại phương tiện vận tải'));
