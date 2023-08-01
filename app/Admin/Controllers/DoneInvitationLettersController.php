@@ -53,6 +53,7 @@ class DoneInvitationLettersController extends AdminController
         
         $grid->column('statusDetail.name',__('Trạng thái'))->width(100);
         $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(250);
+        $grid->column('userDetail.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
             return $carbonCreateAt->format('d/m/Y - H:i:s');

@@ -13,6 +13,11 @@ class InvitationLetter extends Model
         return $this->belongsTo(Status::class, 'status');
     }
 
+    public function userDetail()
+    {
+        return $this->belongsTo(AdminUser::class, 'user_id');
+    }
+
 	protected $hidden = [
     ];
 
