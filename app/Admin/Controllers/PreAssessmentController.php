@@ -157,7 +157,9 @@ class PreAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
-        ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()->creationRules('unique:pre_assessments');
+        ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()
+        ->creationRules(['required', "unique:pre_assessments"])
+        ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
 
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
