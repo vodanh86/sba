@@ -159,6 +159,7 @@ class InvitationLetterController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
             $form->text('code', "Mã thư chào")->default(Utils::generateInvitationCode("invitation_letters", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
+            $form->hidden('user_id')->default(Admin::user()->id);
         }
 
         $form->text('customer_name', __('Tên khách hàng'));
@@ -183,7 +184,6 @@ class InvitationLetterController extends AdminController
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-        $form->hidden('user_id')->default(Admin::user()->id);
 
         return $form;
       
