@@ -226,7 +226,9 @@ class ContractController extends AdminController
         $show->field('personal_name', __('Họ và tên'));
         $show->field('issue_place', __('Nơi cấp'));
         $show->field('issue_date', __('Ngày cấp'));
-        $show->field('property', __('Tài sản thẩm định giá'));
+        $show->field('property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
+            return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
+        });        
         $show->field('purpose', __('Mục đích thẩm định giá'));
         //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));

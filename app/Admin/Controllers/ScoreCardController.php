@@ -50,10 +50,11 @@ class ScoreCardController extends AdminController
         $grid->column('serious_error', __('Lỗi nghiêm trọng'));
         $grid->column('document', __('Tệp đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;        });
+            return $urlsHtml;
+        });
         $grid->column('note', __('Ghi chú'));
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
@@ -68,7 +69,7 @@ class ScoreCardController extends AdminController
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
-        if (Utils::getCreateRole(Constant::SCORE_CARD_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::SCORE_CARD_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
@@ -77,7 +78,7 @@ class ScoreCardController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
@@ -97,26 +98,29 @@ class ScoreCardController extends AdminController
         $show->field('id', __('Id'));
         $show->field('branch_id', __('Id Chi nhánh'));
         $show->field('contract_id', __('Mã hợp đồng'));
-        $show->field('contract.property', __('Tài sản thẩm định giá'));
+        $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
+            return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
+        });
         $show->field('score', __('Điểm'));
         $show->field('basic_error', __('Lỗi cơ bản'));
         $show->field('business_error', __('Lỗi nghiệp vụ'));
         $show->field('serious_error', __('Lỗi nghiêm trọng'));
         $show->field('document', __('Tệp đính kèm'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;        });
+            return $urlsHtml;
+        });
         $show->field('note', __('Ghi chú'));
         $show->field('status', __('Trạng thái'));
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
         $show->panel()
-        ->tools(function ($tools) {
-            $tools->disableEdit();
-            $tools->disableDelete();
-        });
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
         return $show;
     }
 
@@ -129,10 +133,10 @@ class ScoreCardController extends AdminController
     {
         $avaiContracts = array();
         $contracts = Contract::where("branch_id", Admin::user()->branch_id)->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)
-        ->where("supervisor", '=', Admin::user()->id)->get();
-        foreach($contracts as $i=>$contract){
+            ->where("supervisor", '=', Admin::user()->id)->get();
+        foreach ($contracts as $i => $contract) {
             $officialAssessments = OfficialAssessment::where('contract_id', '=', $contract->id)->where('status', '=', Constant::ASSESSMENT_DONE_STATUS)->get();
-            if(count($officialAssessments) > 0){
+            if (count($officialAssessments) > 0) {
                 $avaiContracts[$contract->id] = $contract->code;
             }
         }
@@ -142,9 +146,9 @@ class ScoreCardController extends AdminController
             $id = request()->route()->parameter('score_card');
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
-            $nextStatuses = StatusTransition::where(["table" => Constant::SCORE_CARD_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $nextStatuses = StatusTransition::where(["table" => Constant::SCORE_CARD_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
-            foreach($nextStatuses as $nextStatus){
+            foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
@@ -154,7 +158,7 @@ class ScoreCardController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required()->creationRules('unique:score_cards');;
-        $form->textarea('contract.property', __('Tài sản thẩm định giá'))->disable();
+        $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->number('basic_error', __('Lỗi cơ bản'));
         $form->number('business_error', __('Lỗi nghiệp vụ'));
@@ -163,7 +167,7 @@ class ScoreCardController extends AdminController
         $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
-       
+
         // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
 
