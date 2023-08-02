@@ -215,7 +215,8 @@ class ContractAcceptanceController extends AdminController
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->whereHas('scoreCards', function ($query) {
             $query->where('status', 74);
-        })->pluck('code', 'id'))->required()
+        })->whereDoesntHave('contractAcceptances')
+        ->pluck('code', 'id'))->required()
         ->creationRules(['required', "unique:contract_acceptances"])
         ->updateRules(['required', "unique:contract_acceptances,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
