@@ -230,14 +230,11 @@ class ContractController extends AdminController
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
         });        
         $show->field('purpose', __('Mục đích thẩm định giá'));
-        //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
         $show->field('from_date', __('Thời gian thực hiện từ ngày'));
         $show->field('to_date', __('Đến ngày'));
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('advance_fee', __('Tạm ứng'));
-        //$show->field('payment_method', __('Hình thức thanh toán'));
-        //$show->field('vat', __('Vat'));
         $show->field('broker', __('Môi giới'));
         $show->field('source', __('Nguồn'));
         $show->field('sale', __('Sale'));

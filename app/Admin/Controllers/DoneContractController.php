@@ -106,15 +106,16 @@ class DoneContractController extends AdminController
      */
     protected function detail($id)
     {
+        $convertIdToNameUser = function ($tdvId) {
+            $adminUser = AdminUser::find($tdvId);
+            return $adminUser ? $adminUser->name : '';
+        };
         $show = new Show(ContractAcceptance::findOrFail($id));
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('Mã hợp đồng'));
         $show->field('contract.contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
         $show->field('contract.created_date', __('Ngày hợp đồng'));
-        //$show->field('invitation_letter_id', __('Invitation letter id'));
-        //$show->field('name', __('Name'));
-        //$show->field('comment', __('Comment'));
         $show->field('contract.customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('contract.tax_number', __('Mã số thuế'));
         $show->field('contract.business_name', __('Tên doanh nghiệp'));
@@ -126,22 +127,10 @@ class DoneContractController extends AdminController
         $show->field('contract.personal_name', __('Họ và tên'));
         $show->field('contract.issue_place', __('Nơi cấp'));
         $show->field('contract.issue_date', __('Ngày cấp'));
-        //$show->field('buyer_name', __('Đơn vị mua'));
-        //$show->field('buyer_address', __('Địa chỉ'));
-        //$show->field('buyer_tax_number', __('Mã số thuế'));
-        //$show->field('bill_content', __('Nội dung hoá đơn'));
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
-        });        //$show->field('property_type', __('Loại tài sản'));
-        //$show->field('property_address', __('Địa điểm tài sản'));
-        //$show->field('property_purpose', __('Mục đích sử dụng đất'));
-        //$show->field('vehicle_type', __('Loại phương tiện vận tải'));
-        //$show->field('production_year', __('Năm sản xuất'));
-        //$show->field('registration_number', __('Biển kiểm soát/Số đăng ký'));
-        //$show->field('company_name', __('Tên doanh nghiệp'));
-        //$show->field('borrower', __('Tên khách nợ'));
+        });       
         $show->field('contract.purpose', __('Mục đích thẩm định giá'));
-        //$show->field('extended_purpose', __('Mục đích mở rộng'));
         $show->field('contract.appraisal_date', __('Thời điểm thẩm định giá'));
         $show->field('contract.from_date', __('Thời gian thực hiện từ ngày'));
         $show->field('contract.to_date', __('Đến ngày'));
@@ -150,12 +139,10 @@ class DoneContractController extends AdminController
         $show->field('contract.broker', __('Môi giới'));
         $show->field('contract.source', __('Nguồn'));
         $show->field('contract.sale', __('Sale'));
-        $show->field('contracttdv', __('Tdv'));
-        $show->field('assistant.name', __('Trợ lý tdv'));
-        $show->field('supervisorDetail.name', __('Kiểm soát viên'));
-        //$show->field('payment_method', __('Hình thức thanh toán'));
-        //$show->field('vat', __('Vat'));
-        //$show->field('broker', __('Người môi giới'));
+        $show->field('contract.tdv', __('Tdv'))->as($convertIdToNameUser);
+        $show->field('contract.legal_representative', __('Đại diện pháp luật'))->as($convertIdToNameUser);
+        $show->field('contract.tdv_assistant', __('Trợ lý tdv'))->as($convertIdToNameUser);
+        $show->field('supervisorDetail.name', __('Kiểm soát viên'))->as($convertIdToNameUser);
         $show->field('contract.contact', __('Liên hệ'));
         $show->field('contract.note', __('Ghi chú'));
         $show->panel()
