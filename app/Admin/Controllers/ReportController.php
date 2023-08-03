@@ -297,52 +297,30 @@ class ReportController extends AdminController
             ->row(new SupervisorReport());
 
         if ($data = session('result')) {
-            // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
-            if ($data["type"] == "l") {
-                $headers = ['Nhân viên', 'Loại hợp đồng', 'Số lượng'];
-                $query = Contract::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
-                }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
-                }
-                $rows = [];
-                $statuses = Status::pluck("name", "id")->toArray();
-                $users = AdminUser::pluck("name", "id")->toArray();
-                $result = $query->select(["supervisor", "contract_type", DB::raw("COUNT(*) as count")])->groupBy(["supervisor", "contract_type"])->orderby('supervisor')->orderBy('contract_type')->get();
-                foreach ($result as $i => $row) {
-                    $rows[] = [
-                        !is_null($row["supervisor"]) && array_key_exists($row["supervisor"], $users) ? $users[$row["supervisor"]] : "",
-                        is_null($row["contract_type"]) ? "" : Constant::CONTRACT_TYPE[$row["contract_type"]], $row["count"]
-                    ];
-                }
-            } else {
-                $headers = ['Nhân viên', 'Lỗi', 'Điểm', 'Số lượng'];
-                $rows = [];
-                $statuses = Status::pluck("name", "id")->toArray();
-                $users = AdminUser::pluck("name", "id")->toArray();
-                $result = DB::select("SELECT " .
-                    "sba.contracts.tdv_assistant, " .
-                    "sba.score_cards.error_score, " .
-                    "score, " .
-                    "COUNT(*) AS count " .
-                    "FROM " .
-                    "sba.score_cards, " .
-                    "sba.contracts " .
-                    "WHERE " .
-                    "sba.score_cards.contract_id = sba.contracts.id " .
-                    "AND sba.score_cards.branch_id = ? " .
-                    "AND sba.score_cards.created_at >= '" . $data["from_date"] . "' " .
-                    "AND sba.score_cards.created_at <= '" . $data["to_date"] . "' " .
-                    "GROUP BY sba.contracts.tdv_assistant , sba.score_cards.error_score , sba.score_cards.score " .
-                    "ORDER BY sba.contracts.tdv_assistant , sba.score_cards.score;", array(Admin::user()->branch_id));
-                foreach ($result as $i => $row) {
-                    $rows[] = [
-                        !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
-                        $row->error_score, $row->score, $row->count
-                    ];
-                }
+            $headers = ['Người thực hiện', 'Số lượng hợp đồng chính thức', 'Số lỗi cơ bản', 'Số lỗi nghiệp vụ', 'Số lỗi nghiêm trọng', 'Số điểm'];
+            $rows = [];
+            $users = AdminUser::pluck("name", "id")->toArray();
+            $result = DB::select("SELECT " .
+                "sba.contracts.tdv, " .
+                "COUNT(*) AS count, " .
+                "SUM(sba.score_cards.score) AS score, " .
+                "SUM(sba.score_cards.basic_error) AS basic_error, " .
+                "SUM(sba.score_cards.business_error) AS business_error, " .
+                "SUM(sba.score_cards.serious_error) AS serious_error " .
+                "FROM " .
+                "sba.score_cards, " .
+                "sba.contracts " .
+                "WHERE " .
+                "sba.score_cards.contract_id = sba.contracts.id " .
+                "AND sba.score_cards.branch_id = ? " .
+                "AND sba.score_cards.created_at >= '" . $data["from_date"] . "' " .
+                "AND sba.score_cards.created_at <= '" . $data["to_date"] . "' " .
+                "GROUP BY sba.contracts.tdv;" , array(Admin::user()->branch_id));
+            foreach ($result as $i => $row) {
+                $rows[] = [
+                    !is_null($row->tdv) && array_key_exists($row->tdv, $users) ? $users[$row->tdv] : "",
+                    $row->count, $row->basic_error, $row->business_error, $row->serious_error, $row->score
+                ];
             }
 
             $table = new Table($headers, $rows);
