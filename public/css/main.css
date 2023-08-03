@@ -8,3 +8,10 @@
         left: 50px
     }
 }
+
+.report-result td{
+    border: 1px solid black!important;
+}
+.report-result th{
+    border: 1px solid black!important;
+}
