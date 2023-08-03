@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Forms\BaReport;
 use Encore\Admin\Layout\Content;
 use App\Admin\Forms\Report;
+use App\Admin\Forms\AcReport;
 use App\Admin\Forms\SaleReport;
 use App\Admin\Forms\SupervisorReport;
 use Encore\Admin\Widgets\Table;
@@ -19,6 +20,7 @@ use App\Http\Models\AdminUser;
 use App\Http\Models\OfficialAssessment;
 use App\Http\Models\PreAssessment;
 use App\Http\Models\ScoreCard;
+use App\Http\Models\ContractAcceptance;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
 
@@ -321,6 +323,69 @@ class ReportController extends AdminController
                     !is_null($row->tdv) && array_key_exists($row->tdv, $users) ? $users[$row->tdv] : "",
                     $row->count, $row->basic_error, $row->business_error, $row->serious_error, $row->score
                 ];
+            }
+
+            $table = new Table($headers, $rows);
+            $tab = new Tab();
+
+            // store in excel
+            array_unshift($rows, $headers);
+            $export = new ReportExport($rows);
+            Excel::store($export, 'public/files/report.xlsx');
+
+            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+            $content->row($tab);
+        }
+
+        return $content;
+    }
+
+           /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function accountantManagerReport(Content $content)
+    {
+        $content
+            ->title('Báo cáo')
+            ->row(new AcReport());
+
+        if ($data = session('result')) {
+            if ($data["type"] == "c") {
+                $headers = ['Số chứng thư','Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện'];
+                $users = AdminUser::pluck("name", "id")->toArray();
+                $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
+                if (!is_null(($data["from_date"]))) {
+                    $query->where('created_at', '>=', $data["from_date"]);
+                }
+                if (!is_null(($data["to_date"]))) {
+                    $query->where('created_at', '<=', $data["to_date"]);
+                }
+                $result = $query->get();
+                $rows = [];
+                foreach ($result as $i => $row) {
+                    $rows[] = [$row->certificate_code, $row->certificate_date, $users[$row->performer], $row->contract->representative, $row->contract->property, $row->contract->purpose,
+                    $row->appraisal_date, join(', ', $row->assessment_type), 
+                    Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $users[$row->performer]];
+                }
+            } else {
+                $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng'];
+                $query = ValuationDocument::where("branch_id", Admin::user()->branch_id);
+                if (!is_null(($data["from_date"]))) {
+                    $query->where('created_at', '>=', $data["from_date"]);
+                }
+                if (!is_null(($data["to_date"]))) {
+                    $query->where('created_at', '<=', $data["to_date"]);
+                }
+                $result = $query->get();
+                $rows = [];
+                foreach ($result as $i => $row) {
+                    $rows[] = [$row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý"];
+                }
             }
 
             $table = new Table($headers, $rows);
