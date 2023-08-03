@@ -138,10 +138,10 @@ class ReportController extends AdminController
             // store in excel
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'report.xlsx');
+            Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/files/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
@@ -294,10 +294,10 @@ class ReportController extends AdminController
             // store in excel
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'report.xlsx');
+            Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/files/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
@@ -372,10 +372,10 @@ class ReportController extends AdminController
             // store in excel
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'report.xlsx');
+            Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/files/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
