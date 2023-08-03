@@ -141,7 +141,7 @@ class ReportController extends AdminController
             Excel::store($export, 'report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/public/storage/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
@@ -297,7 +297,7 @@ class ReportController extends AdminController
             Excel::store($export, 'report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/public/storage/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
@@ -375,7 +375,7 @@ class ReportController extends AdminController
             Excel::store($export, 'report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/public/storage/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/app/report.xlsx' target='_blank'>Link</a><br/>" . $table);
             $content->row($tab);
         }
 
