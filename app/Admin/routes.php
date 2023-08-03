@@ -17,6 +17,7 @@ Route::group([
     $router->get('/sale-reports', 'ReportController@saleReport');
     $router->get('/ba-reports', 'ReportController@baReport');
     $router->get('/supervisor-reports', 'ReportController@supervisorReport');
+    $router->get('/ba-manager-reports', 'ReportController@baManagerReport');
     $router->resource('branches', BranchController::class);
     $router->resource('individual-customers', IndividualCustomerController::class);
     $router->resource('business-customers', BusinessCustomerController::class);

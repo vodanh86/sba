@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Forms\BaReport;
 use Encore\Admin\Layout\Content;
+use App\Admin\Forms\Report;
 use App\Admin\Forms\SaleReport;
 use App\Admin\Forms\SupervisorReport;
 use Encore\Admin\Widgets\Table;
@@ -220,6 +221,67 @@ class ReportController extends AdminController
 
         return $content;
     }
+
+       /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function baManagerReport(Content $content)
+    {
+        $content
+            ->title('Báo cáo')
+            ->row(new Report());
+
+        if ($data = session('result')) {
+            $headers = ['Người thực hiện','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng'];
+            $users = AdminUser::pluck("name", "id")->toArray();
+            $appraisers = array();
+            $sum = 0;
+            $query = Contract::where("branch_id", Admin::user()->branch_id);
+            if (!is_null(($data["from_date"]))) {
+                $query->where('created_at', '>=', $data["from_date"]);
+            }
+            if (!is_null(($data["to_date"]))) {
+                $query->where('created_at', '<=', $data["to_date"]);
+            }
+            $result = $query->get();
+            foreach ($result as $i => $row) {
+                $currentVal = array_key_exists($row["tdv"], $appraisers) ? $appraisers[$row["tdv"]] : [[0,0], [0,0], 0];
+                $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)] ++;
+                $currentVal[2] ++;
+                $appraisers[$row["tdv"]] = $currentVal;
+                $sum ++;
+            }
+
+            $rows = [];
+            foreach ($appraisers as $appraiser => $row) {
+                $rows[] = [array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
+                $rows[] = ["", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
+                $rows[] = ["", "Chính thức", "Đang xử lý", number_format($row[1][0])];
+                $rows[] = ["", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
+                $rows[] = ["Tổng", "", "", $row[2]];
+            }
+            $rows[] = ["Tổng cộng", "",  "", $sum];
+
+            $table = new Table($headers, $rows);
+            $tab = new Tab();
+
+            // store in excel
+            array_unshift($rows, $headers);
+            $export = new ReportExport($rows);
+            Excel::store($export, 'public/files/report.xlsx');
+
+            $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/>" . $table);
+            $content->row($tab);
+        }
+
+        return $content;
+    }
+
 
     /**
      * Index interface.
