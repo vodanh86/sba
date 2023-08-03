@@ -176,7 +176,7 @@ class ReportController extends AdminController
             }
             $rows = [];
             $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE )
-            ->where("tdv", Admin::user()->id);
+            ->where("tdv_assistant", Admin::user()->id);
             if (!is_null(($data["from_date"]))) {
                 $query->where('created_at', '>=', $data["from_date"]);
             }
@@ -251,10 +251,10 @@ class ReportController extends AdminController
             }
             $result = $query->get();
             foreach ($result as $i => $row) {
-                $currentVal = array_key_exists($row["tdv"], $appraisers) ? $appraisers[$row["tdv"]] : [[0,0], [0,0], 0];
+                $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0,0], [0,0], 0];
                 $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)] ++;
                 $currentVal[2] ++;
-                $appraisers[$row["tdv"]] = $currentVal;
+                $appraisers[$row["tdv_assistant"]] = $currentVal;
                 $sum ++;
             }
 
@@ -303,7 +303,7 @@ class ReportController extends AdminController
             $rows = [];
             $users = AdminUser::pluck("name", "id")->toArray();
             $result = DB::select("SELECT " .
-                "sba.contracts.tdv, " .
+                "sba.contracts.tdv_assistant, " .
                 "COUNT(*) AS count, " .
                 "SUM(sba.score_cards.score) AS score, " .
                 "SUM(sba.score_cards.basic_error) AS basic_error, " .
@@ -317,10 +317,10 @@ class ReportController extends AdminController
                 "AND sba.score_cards.branch_id = ? " .
                 "AND sba.score_cards.created_at >= '" . $data["from_date"] . "' " .
                 "AND sba.score_cards.created_at <= '" . $data["to_date"] . "' " .
-                "GROUP BY sba.contracts.tdv;" , array(Admin::user()->branch_id));
+                "GROUP BY sba.contracts.tdv_assistant;" , array(Admin::user()->branch_id));
             foreach ($result as $i => $row) {
                 $rows[] = [
-                    !is_null($row->tdv) && array_key_exists($row->tdv, $users) ? $users[$row->tdv] : "",
+                    !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
                     $row->count, $row->basic_error, $row->business_error, $row->serious_error, $row->score
                 ];
             }
