@@ -77,4 +77,21 @@ abstract class Utils
         }
         return 0;
     }
+
+    public static function checkContractEndDate($contract) {
+        if ($contract->contract_type == Constant::PRE_CONTRACT_TYPE) {
+            foreach ($contract->preAssessments as $i=>$preAssessment) {
+                if (Status::find($preAssessment->status)->done == 1) {
+                    return Status::find($preAssessment->status)->finished_date;
+                }
+            }   
+        } else {
+            foreach ($contract->contractAcceptances as $i=>$contractAcceptance) {
+                if (Status::find($contractAcceptance->status)->done == 1) {
+                    return $contract->to_date;
+                }
+            }
+        }
+        return "";
+    }
 }

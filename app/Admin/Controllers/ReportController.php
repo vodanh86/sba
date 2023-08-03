@@ -163,129 +163,46 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
-            if ($data["type"] == "prev") {
-                $headers = ['Mã hợp đồng', 'Tài sản thẩm định giá', 'Người thực hiện', 'Ngày hoàn thành', 'Giá trị sơ bộ', 'Tài liệu'];
-                $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+            $headers = ['Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Tình trạng thực hiện','Ngày hoàn thành'];
+            $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
+            if (!is_null(($data["from_date"]))) {
+                $query->where('created_at', '>=', $data["from_date"]);
+            }
+            if (!is_null(($data["to_date"]))) {
+                $query->where('created_at', '<=', $data["to_date"]);
+            }
+            $rows = [];
+            $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE )
+            ->where("tdv", Admin::user()->id);
+            if (!is_null(($data["from_date"]))) {
+                $query->where('created_at', '>=', $data["from_date"]);
+            }
+            if (!is_null(($data["to_date"]))) {
+                $query->where('created_at', '<=', $data["to_date"]);
+            }
+            $result = $query->get();
+            $rows = [];
+            foreach ($result as $row) {
+                if (Utils::checkContractStatus($row) == 0){
+                    $rows[] = [
+                        $row->code,
+                        $row->broker,
+                        $row->property,
+                        $row->purpose,
+                        "Đang xử lý",
+                        ""
+                    ];
+                } else {
+                    $endDate = "";
+                    $rows[] = [
+                        $row->code,
+                        $row->broker,
+                        $row->property,
+                        $row->purpose,
+                        "Đã hoàn thành",
+                        Utils::checkContractEndDate($row)
+                    ];
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
-                }
-                $rows = [];
-                $statuses = Status::pluck("name", "id")->toArray();
-                $result = DB::select("
-                SELECT
-                    sba.contracts.code,
-                    sba.contracts.property,
-                    sba.admin_users.name,
-                    sba.pre_assessments.finished_date,
-                    sba.pre_assessments.pre_value,
-                    sba.pre_assessments.document,
-                    COUNT(*) AS count
-                    FROM
-                        sba.pre_assessments
-                    INNER JOIN
-                        sba.contracts
-                    ON
-                        sba.pre_assessments.contract_id = sba.contracts.id
-                    INNER JOIN
-                        sba.admin_users
-                    ON
-                        sba.pre_assessments.performer = sba.admin_users.id
-                    WHERE
-                        sba.pre_assessments.branch_id = ?
-                        AND sba.pre_assessments.created_at >= ?
-                        AND sba.pre_assessments.created_at <= ?
-                    GROUP BY
-                        sba.contracts.code,
-                        sba.contracts.property,
-                        sba.admin_users.name,
-                        sba.pre_assessments.finished_date,
-                        sba.pre_assessments.pre_value,
-                        sba.pre_assessments.document
-                    ORDER BY
-                        sba.contracts.code
-                    ", [Admin::user()->branch_id, $data["from_date"], $data["to_date"]]);
-
-                    $rows = [];
-                    foreach ($result as $row) {
-                        $documentLink = "<a href='" . env('APP_URL') . '/public/storage/' . $row->document . "' target='_blank'>" . basename($row->document) . "</a>";
-                        $rows[] = [
-                            $row->code,
-                            $row->property,
-                            $row->name,
-                            $row->finished_date,
-                            $row->pre_value,
-                            $documentLink,
-                        ];
-                    }
-            } else {
-                $headers = ['Mã hợp đồng','Tài sản thẩm định giá', 'Mã chứng thư', 'Ngày chứng thư', 'Ngày hoàn thành', 'Người thực hiện', 'Phương pháp thẩm định', 'Giá trị chính thức', 'Tài liệu'];
-                $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
-                }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
-                }
-                $rows = [];
-                $statuses = Status::pluck("name", "id")->toArray();
-                $result = DB::select("
-                SELECT
-                    sba.contracts.code,
-                    sba.contracts.property,
-                    sba.official_assessments.certificate_code,
-                    sba.official_assessments.certificate_date,
-                    sba.official_assessments.finished_date,
-                    sba.admin_users.name,
-                    sba.official_assessments.assessment_type,
-                    sba.official_assessments.official_value,
-                    sba.official_assessments.document,
-                    COUNT(*) AS count
-                    FROM
-                        sba.official_assessments
-                    INNER JOIN
-                        sba.contracts
-                    ON
-                        sba.official_assessments.contract_id = sba.contracts.id
-                    INNER JOIN
-                        sba.admin_users
-                    ON
-                        sba.official_assessments.performer = sba.admin_users.id
-                    WHERE
-                        sba.official_assessments.branch_id = ?
-                        AND sba.official_assessments.created_at >= ?
-                        AND sba.official_assessments.created_at <= ?
-                    GROUP BY
-                        sba.contracts.code,
-                        sba.contracts.property,
-                        sba.official_assessments.certificate_code,
-                        sba.official_assessments.certificate_date,
-                        sba.official_assessments.finished_date,
-                        sba.admin_users.name,
-                        sba.official_assessments.assessment_type,
-                        sba.official_assessments.official_value,
-                        sba.official_assessments.document
-                    ORDER BY
-                        sba.contracts.code
-                    ", [Admin::user()->branch_id, $data["from_date"], $data["to_date"]]);
-
-                    $rows = [];
-                    foreach ($result as $row) {
-                        $documentLink = "<a href='" . env('APP_URL') . '/public/storage/' . $row->document . "' target='_blank'>" . basename($row->document) . "</a>";
-                        $rows[] = [
-                            $row->code,
-                            $row->property,
-                            $row->certificate_code,
-                            $row->certificate_date,
-                            $row->finished_date,
-                            $row->name,
-                            $row->assessment_type,
-                            $row->official_value,
-                            $documentLink,
-                        ];
-                    }
             }
 
             $table = new Table($headers, $rows);
