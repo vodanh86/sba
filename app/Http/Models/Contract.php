@@ -35,7 +35,7 @@ class Contract extends Model
 
     public function preAssessments()
     {
-        return $this->hasMany(preAssessment::class);
+        return $this->hasMany(PreAssessment::class);
     }
 
     public function valuationDocuments()
