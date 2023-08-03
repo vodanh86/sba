@@ -36,7 +36,7 @@ class SaleReport extends Form
     {
         $this->date('from_date', 'Từ ngày')->width(2);
         $this->date('to_date', 'Đến ngày')->width(2);
-        $this->radio('type', 'Loại báo cáo')->options(['l' => 'Thư chào ', 'c'=> ' Hợp đồng'])->default('l');
+        $this->radio('type', 'Loại báo cáo')->options(['l' => 'Thư chào ', 'c1' => ' Hợp đồng theo sale', 'c2' => 'Hợp đồng theo môi giới'])->default('l');
     }
 
     /**

@@ -60,4 +60,21 @@ abstract class Utils
         }
         return "A".date('ym')."001";
     }
+
+    public static function checkContractStatus($contract) {
+        if ($contract->contract_type == Constant::PRE_CONTRACT_TYPE) {
+            foreach ($contract->preAssessments as $i=>$preAssessment) {
+                if (Status::find($preAssessment->status)->done == 1) {
+                    return 1;
+                }
+            }   
+        } else {
+            foreach ($contract->contractAcceptances as $i=>$contractAcceptance) {
+                if (Status::find($contractAcceptance->status)->done == 1) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
 }

@@ -33,6 +33,11 @@ class Contract extends Model
         return $this->hasMany(OfficialAssessment::class);
     }
 
+    public function preAssessments()
+    {
+        return $this->hasMany(preAssessment::class);
+    }
+
     public function valuationDocuments()
     {
         return $this->hasMany(ValuationDocument::class);
