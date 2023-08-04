@@ -8,11 +8,11 @@ class Links
 {
     public function __toString()
     {
-    $role = Admin::user()->name;
+    $name = Admin::user()->name;
         return 
             <<<HTML
                 <li>
-                    <p style="font-weight: bold; margin-top: 15px; color: #fff;">Chức vụ: $role</p>
+                    <p style="font-weight: bold; margin-top: 15px; color: #fff;">Xin chào: $name</p>
                 </li>
             HTML;
     }
