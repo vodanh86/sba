@@ -260,6 +260,12 @@ class ContractController extends AdminController
      */
     protected function form()
     {
+       $checkStatus = function ($form) {
+            if (!$id = $form->model()->status) {
+                return 'required:status';
+            }
+        };
+
         $form = new Form(new Contract());
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
@@ -279,43 +285,43 @@ class ContractController extends AdminController
             $form->text('code', "Mã hợp đồng")->readonly();
             if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1) {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($status) {
-                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
+                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) {
                     $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
                     foreach ($nextStatuses as $nextStatus) {
                         $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
                     }
                     if (in_array("Lưu nháp", $status)) {
-                        $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2);
+                        $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->rules($checkStatus);
                     } else {
-                        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
+                        $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                     }
                 });
             } else {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->readOnly();
-                $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
+                $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
-            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(Constant::PRE_CONTRACT_TYPE)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) {
+            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(Constant::PRE_CONTRACT_TYPE)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
                 }
                 if (in_array("Lưu nháp (Sơ bộ)", $status)) {
-                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp (Sơ bộ)", $status))->setWidth(5, 2);
+                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp (Sơ bộ)", $status))->setWidth(5, 2)->rules($checkStatus);
                 } else {
-                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
+                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
-            })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) {
+            })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
                 }
                 if (in_array("Lưu nháp", $status)) {
-                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2);
+                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->rules($checkStatus);
                 } else {
-                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2);
+                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
             })->required();
         }
