@@ -386,6 +386,13 @@ class ContractController extends AdminController
             $tools->disableDelete();
         });
 
+        // callback before save
+        $form->saving(function (Form $form) {
+            if ($form->isCreating()) {
+                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
+            }
+        });
+
         return $form;
     }
 }
