@@ -37,6 +37,7 @@ abstract class Utils
     public static function generateCode($table, $branchId){
         $code = DB::table($table)
         ->select(DB::raw('code'))
+        ->where('branch_id', $branchId)
         ->where('code', 'like', '%'.date('ym').'%')
         ->orderByDesc('id')
         ->first();
