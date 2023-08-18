@@ -10,18 +10,12 @@ class ResetButton extends RowAction
 {
     public $name = 'Làm lại';
 
-    public function handle($id)
+    public function handle(Contract $contract)
     {
-        if ($id) {
-            $model = Contract::find($id);
-
-            if ($model) {
-                $model->status = Constant::CONTRACT_INIT;
-                $model->save();
-                return $this->response()->success('Reset thành công');
-            } else {
-                return $this->response()->error('Bản ghi không tồn tại');
-            }
+        if ($contract) {
+            $contract->status = Constant::CONTRACT_INIT;
+            $contract->save();
+            return $this->response()->success('Reset thành công');
         } else {
             return $this->response()->error('Không thể thực hiện reset cho bản ghi này');
         }
