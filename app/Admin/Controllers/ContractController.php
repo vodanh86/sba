@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Http\Models\Contract;
 use Encore\Admin\Layout\Content;
 use App\Admin\Actions\Document\AddContractComment;
+use App\Admin\Grid\ResetButton;
 use App\Http\Models\AdminUser;
 use App\Http\Models\PreAssessment;
 use App\Http\Models\Status;
@@ -163,9 +164,13 @@ class ContractController extends AdminController
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
+            if (Admin::user()->roles[0]->slug === "bld"){
+                $actions->add(new ResetButton($actions->getKey()));
+            }
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
+            
             if (
                 !in_array($actions->row->status, $editStatus)
             ) {
@@ -245,6 +250,13 @@ class ContractController extends AdminController
         $show->field('supervisor', __('Kiểm soát viên'))->as($convertIdToNameUser);
         $show->field('contact', __('Liên hệ'));
         $show->field('note', __('Ghi chú'));
+        $show->document(__('File đính kèm'))->unescape()->as(function ($value) {
+            $urlsHtml = "";
+            foreach ($value as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
+            }
+            return $urlsHtml;
+        });
         $show->panel()
             ->tools(function ($tools) {
                 $tools->disableEdit();
@@ -260,16 +272,17 @@ class ContractController extends AdminController
      */
     protected function form()
     {
-       $checkStatus = function ($form) {
+        $checkStatus = function ($form) {
             if (!$id = $form->model()->status) {
                 return 'required:status';
             }
         };
-
+        $currentStatus = null;
         $form = new Form(new Contract());
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('contract');
+            $currentStatus = $form->model()->find($id)->getOriginal("status");
             if (is_null($id)) {
                 $id = request()->route()->parameter('assigned_contract');
             }
@@ -284,9 +297,9 @@ class ContractController extends AdminController
             }
             $form->text('code', "Mã hợp đồng")->readonly();
             if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1) {
-                $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($status) {
+                $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($status, $checkStatus) {
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
-                })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) {
+                })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                     $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
                     foreach ($nextStatuses as $nextStatus) {
                         $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -361,7 +374,7 @@ class ContractController extends AdminController
         $form->text('sale', __('Sale'));
 
         // $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_TDV)->pluck('name', 'id'));
-        $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required(Constant::CONTRACT_REQUIRE === $currentStatus);
 
         // $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_DDPL)->pluck('name', 'id'));
         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
