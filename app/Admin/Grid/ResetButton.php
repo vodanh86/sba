@@ -13,7 +13,8 @@ class ResetButton extends RowAction
     public function handle(Contract $contract)
     {
         if ($contract) {
-            $contract->status = Constant::CONTRACT_INIT;
+            $resetStatusContract = $contract->contract_type === 0 ? Constant::PRE_CONTRACT_INIT : Constant::OFFICIAL_CONTRACT_INIT; 
+            $contract->status = $resetStatusContract;
             $contract->save();
             return $this->response()->success('Reset thành công');
         } else {
