@@ -277,12 +277,11 @@ class ContractController extends AdminController
                 return 'required:status';
             }
         };
-        $currentStatus = null;
+        $currentStatus = 0;
         $form = new Form(new Contract());
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
             $id = request()->route()->parameter('contract');
-            $currentStatus = $form->model()->find($id)->getOriginal("status");
             if (is_null($id)) {
                 $id = request()->route()->parameter('assigned_contract');
             }
@@ -356,7 +355,6 @@ class ContractController extends AdminController
             $form->text('representative', __('Người đại diện'));
             $form->text('position', __('Chức vụ'));
         })->required();
-
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
@@ -374,8 +372,12 @@ class ContractController extends AdminController
         $form->text('sale', __('Sale'));
 
         // $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_TDV)->pluck('name', 'id'));
-        $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required(Constant::CONTRACT_REQUIRE === $currentStatus);
-
+        if(Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus){
+            $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
+        }else{
+            $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+        }
+        
         // $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_DDPL)->pluck('name', 'id'));
         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
 

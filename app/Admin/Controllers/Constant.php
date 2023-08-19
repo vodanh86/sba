@@ -57,9 +57,11 @@ abstract class Constant
     const OFFICIAL_CONTRACT_TYPE = 1;
     const DONE_CONTRACT_STATUS = 35;
     const DONE_SCORE_STATUS = 74;
-    const CONTRACT_INIT = 6;
+    const PRE_CONTRACT_INIT = 64;
+    const OFFICIAL_CONTRACT_INIT = 6;
+    const PRE_CONTRACT_REQUIRE = 66;
+    const OFFICIAL_CONTRACT_REQUIRE = 70;
 
-    const CONTRACT_REQUIRE = 9;
 
 
 
