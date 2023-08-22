@@ -47,38 +47,38 @@ class InvitationLetterController extends AdminController
         $grid = new Grid(new InvitationLetter());
         
         $grid->column('id', __('Id'));
-        $grid->column('code', __('Mã thư chào'));
-        $grid->column('customer_name', __('Tên khách hàng'))->width(150);
-        $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150);
-        $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
-        $grid->column('from_date', __('Từ ngày'))->width(150);
-        $grid->column('to_date', __('Đến ngày'))->width(150);
+        $grid->column('code', __('Mã thư chào'))->filter('like');
+        $grid->column('customer_name', __('Tên khách hàng'))->width(150)->filter('like');
+        $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150)->filter('like');
+        $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150)->filter('like');
+        $grid->column('from_date', __('Từ ngày'))->width(150)->filter('like');
+        $grid->column('to_date', __('Đến ngày'))->width(150)->filter('like');
         $grid->column('total_fee', __('Tổng phí'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150);
+        })->width(150)->filter('like');
         
         $grid->column('advance_fee', __('Tạm ứng'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150);
+        })->width(150)->filter('like');
 
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
-        })->width(100);
+        })->width(100)->filter('like');
 
-        $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(250);
-        $grid->column('userDetail.name', __('Người tạo'));
+        $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(250)->filter('like');
+        $grid->column('userDetail.name', __('Người tạo'))->filter('like');
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
+            return $carbonCreateAt->format('d/m/Y');
         })->width(150);
         
         $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+            return $carbonUpdatedAt->format('d/m/Y');
         })->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', $noneDonestatusIds)->orderByDesc('id');

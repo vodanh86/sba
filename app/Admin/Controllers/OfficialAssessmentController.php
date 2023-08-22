@@ -34,7 +34,7 @@ class OfficialAssessmentController extends AdminController
     {
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+            return $carbonUpdatedAt->format('d/m/Y');
         };
         $nextStatuses = Utils::getNextStatuses(Constant::OFFICIAL_ASSESS_TABLE, Admin::user()->roles[0]->slug);
         $viewStatus = Utils::getAvailbleStatus(Constant::OFFICIAL_ASSESS_TABLE, Admin::user()->roles[0]->slug, "viewers");
@@ -43,28 +43,28 @@ class OfficialAssessmentController extends AdminController
         $grid = new Grid(new OfficialAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('official_assessment.contract_id'));
-        $grid->column('certificate_code', __('Mã chứng thư'));
-        $grid->column('certificate_date', __('Ngày chứng thư'));
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
-        $grid->column('performerDetail.name', __('Người thực hiện'));
+        $grid->column('contract.code', __('official_assessment.contract_id'))->filter('like');
+        $grid->column('certificate_code', __('Mã chứng thư'))->filter('like');
+        $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter)->filter('like');
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('performerDetail.name', __('Người thực hiện'))->filter('like');
         $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
             if (!is_null($types)){
                 return join(", ", $types);
             }
-        });
-        $grid->column('note', __('Ghi chú'));
+        })->filter('like');
+        $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        });
+        })->filter('like');
         $grid->column('official_value', __('Giá trị chính thức'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150);
-        $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150);
+        })->width(150)->filter('like');
+        $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Document'))->display(function ($urls) {
             $urlsHtml = "";
             foreach($urls as $i => $url){

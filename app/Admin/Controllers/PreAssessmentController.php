@@ -34,7 +34,7 @@ class PreAssessmentController extends AdminController
     {
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+            return $carbonUpdatedAt->format('d/m/Y');
         };
 
         $nextStatuses = Utils::getNextStatuses(Constant::PRE_ASSESS_TABLE, Admin::user()->roles[0]->slug);
@@ -44,24 +44,21 @@ class PreAssessmentController extends AdminController
         $grid = new Grid(new PreAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('finished_date', __('Ngày hoàn thành'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y');
-        })->width(150);
-        $grid->column('performerDetail.name', __('Người thực hiện'))->width(150);
-        $grid->column('note', __('Chú ý'));
+        $grid->column('contract.code', __('Mã hợp đồng'))->filter('like');
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('performerDetail.name', __('Người thực hiện'))->width(150)->filter('like');
+        $grid->column('note', __('Chú ý'))->filter('like');
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        })->width(200);
+        })->width(200)->filter('like');
         $grid->column('pre_value', __('Giá trị sơ bộ'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150);
-        $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150);
+        })->width(150)->filter('like');
+        $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
             foreach($urls as $i => $url){

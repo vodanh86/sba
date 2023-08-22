@@ -27,9 +27,9 @@ class BranchController extends AdminController
         $grid = new Grid(new Branch());
 
         $grid->column('id', __('Id'));
-        $grid->column('branch_name', __('Tên chi nhánh'));
-        $grid->column('code', __('Mã chi nhánh'));
-        $grid->column('address', __('Địa chỉ'));
+        $grid->column('branch_name', __('Tên chi nhánh'))->filter('like');
+        $grid->column('code', __('Mã chi nhánh'))->filter('like');
+        $grid->column('address', __('Địa chỉ'))->filter('like');
         $grid->column('created_at', __('Ngày tạo'));
         $grid->column('updated_at', __('Ngày cập nhật'));
         $grid->model()->orderBy('id', 'desc');
