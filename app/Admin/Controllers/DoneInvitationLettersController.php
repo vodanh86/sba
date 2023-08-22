@@ -29,19 +29,23 @@ class DoneInvitationLettersController extends AdminController
     protected function grid()
     {
         $doneStatus = Status::where("table", "invitation_letters")->where("done", 1)->first();
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $grid = new Grid(new InvitationLetter());
         
         $grid->column('id', __('Id'));
-        $grid->column('code', __('Mã thư chào'));
-        $grid->column('customer_name', __('Tên khách hàng'))->width(150);
-        $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150);
-        $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150);
-        $grid->column('from_date', __('Từ ngày'))->width(150);
-        $grid->column('to_date', __('Đến ngày'))->width(150);
+        $grid->column('code', __('Mã thư chào'))->filter('like');
+        $grid->column('customer_name', __('Tên khách hàng'))->width(150)->filter('like');
+        $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150)->filter('like');
+        $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150)->filter('like');
+        $grid->column('from_date', __('Từ ngày'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('to_date', __('Đến ngày'))->display($dateFormatter)->width(150)->filter('like');
         $grid->column('total_fee', __('Tổng phí'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150);
+        })->width(150)->filter('like');
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', $doneStatus->id);
         $grid->model()->orderBy('id', 'desc');
@@ -54,15 +58,9 @@ class DoneInvitationLettersController extends AdminController
         $grid->column('statusDetail.name',__('Trạng thái'))->width(100);
         $grid->column('comment', __('Bình luận'))->action(AddInvitationLetterComment::class)->width(250);
         $grid->column('userDetail.name', __('Người tạo'));
-        $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
-            $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
-            return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         
-        $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);        
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);        
 
         // callback after save
         $grid->disableCreateButton();

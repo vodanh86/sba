@@ -60,7 +60,7 @@ class ContractController extends AdminController
         };
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+            return $carbonUpdatedAt->format('d/m/Y');
         };
         $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
@@ -86,7 +86,7 @@ class ContractController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'));
         $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
-        $grid->column('created_date', __('Ngày hợp đồng'));
+        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
         $grid->column('business_name', __('Tên doanh nghiệp'))->filter('like');
@@ -97,12 +97,12 @@ class ContractController extends AdminController
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('personal_name', __('Họ và tên'))->filter('like');
         $grid->column('issue_place', __('Nơi cấp'))->filter('like');
-        $grid->column('issue_date', __('Ngày cấp'))->filter('like');
+        $grid->column('issue_date', __('Ngày cấp'))->display($dateFormatter)->filter('like');
         $grid->column('property', __('Tài sản thẩm định giá'))->filter('like');
         $grid->column('purpose', __('Mục đích thẩm định giá'))->filter('like');
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
-        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->filter('like');
-        $grid->column('to_date', __('Đến ngày'))->filter('like');
+        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->display($dateFormatter)->filter('like');
+        $grid->column('to_date', __('Đến ngày'))->display($dateFormatter)->filter('like');
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
         $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);

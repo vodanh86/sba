@@ -33,7 +33,7 @@ class ScoreCardController extends AdminController
     {
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
+            return $carbonUpdatedAt->format('d/m/Y');
         };
         $nextStatuses = Utils::getNextStatuses(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug);
         $viewStatus = Utils::getAvailbleStatus(Constant::SCORE_CARD_TABLE, Admin::user()->roles[0]->slug, "viewers");
@@ -42,12 +42,12 @@ class ScoreCardController extends AdminController
 
         $grid = new Grid(new ScoreCard());
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('score', __('Điểm'));
-        $grid->column('basic_error', __('Lỗi cơ bản'));
-        $grid->column('business_error', __('Lỗi nghiệp vụ'));
-        $grid->column('serious_error', __('Lỗi nghiêm trọng'));
+        $grid->column('contract.code', __('Mã hợp đồng'))->filter('like');
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('score', __('Điểm'))->filter('like');
+        $grid->column('basic_error', __('Lỗi cơ bản'))->filter('like');
+        $grid->column('business_error', __('Lỗi nghiệp vụ'))->filter('like');
+        $grid->column('serious_error', __('Lỗi nghiêm trọng'))->filter('like');
         $grid->column('document', __('Tệp đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
             foreach ($urls as $i => $url) {
@@ -55,15 +55,15 @@ class ScoreCardController extends AdminController
             }
             return $urlsHtml;
         });
-        $grid->column('note', __('Ghi chú'));
+        $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        });
+        })->filter('like');
 
-        $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100);
+        $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100)->filter('like');
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
