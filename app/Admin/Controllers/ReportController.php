@@ -175,8 +175,12 @@ class ReportController extends AdminController
                 $query->where('created_at', '<=', $data["to_date"]);
             }
             $rows = [];
-            $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE )
-            ->where("tdv_assistant", Admin::user()->id);
+            $query = Contract::where("branch_id", Admin::user()->branch_id)
+            ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
+            ->when(Admin::user()->roles[0]->slug === "bld", function ($query) {
+                return $query->where("tdv_assistant", Admin::user()->id);
+            });
+        
             if (!is_null(($data["from_date"]))) {
                 $query->where('created_at', '>=', $data["from_date"]);
             }

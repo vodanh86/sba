@@ -97,13 +97,17 @@ class PreAssessmentController extends AdminController
     protected function detail($id)
     {
         $show = new Show(PreAssessment::findOrFail($id));
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
 
         $show->field('id', __('Id'));
-        $show->field('contract_id', __('Mã hợp đồng'));
+        $show->field('contract.code', __('Mã hợp đồng'));
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
         });       
-        $show->field('finished_date', __('Ngày hoàn thành'));
+        $show->field('finished_date', __('Ngày hoàn thành'))->as($dateFormatter);
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
         $show->field('statusDetail.name', __('Trạng thái'));

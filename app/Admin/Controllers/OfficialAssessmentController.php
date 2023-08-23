@@ -104,15 +104,19 @@ class OfficialAssessmentController extends AdminController
     protected function detail($id)
     {
         $show = new Show(OfficialAssessment::findOrFail($id));
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('official_assessment.contract_id'));
         $show->field('certificate_code', __('Mã chứng thư'));
-        $show->field('certificate_date', __('Ngày chứng thư'));
+        $show->field('certificate_date', __('Ngày chứng thư'))->as($dateFormatter);
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
         });
-        $show->field('finished_date', __('Ngày hoàn thành'));
+        $show->field('finished_date', __('Ngày hoàn thành'))->as($dateFormatter);
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('assessment_type', __('Phương pháp thẩm định'))->as(function ($types) {
             if (!is_null($types)){
