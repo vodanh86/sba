@@ -15,3 +15,6 @@
 .report-result th{
     border: 1px solid black!important;
 }
+.box-body {
+    height: 400px;
+}
