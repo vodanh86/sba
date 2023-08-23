@@ -17,6 +17,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
 use Config;
+use DB;
 
 class ContractController extends AdminController
 {
@@ -337,18 +338,20 @@ class ContractController extends AdminController
                 }
             })->required();
         }
-        //$form->select('invitation_letter_id', __('contract.Invitation letter id'))->options(InvitationLetter::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id'))->setWidth(2, 2);
-        //$form->text('name', __('Sale phụ trách'));
         $form->date('created_date', __('Ngày hợp đồng'))->default(date('Y-m-d'))->required();
 
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
+            $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
+                Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id'));
             $form->text('id_number', __('Số CMND/CCCD'));
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
             $form->text('personal_address', __('Địa chỉ'));
             $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'));
             $form->text('issue_place', __('Nơi cấp'));
         })->when(2, function (Form $form) {
+            $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
+                Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id'));
             $form->text('tax_number', __('Mã số thuế'));
             $form->text('business_name', __('Tên doanh nghiệp'));
             $form->text('business_address', __('Địa chỉ doanh nghiệp'));
@@ -371,24 +374,18 @@ class ContractController extends AdminController
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
 
-        // $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_TDV)->pluck('name', 'id'));
-        if(Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus){
+          if(Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus){
             $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
         }else{
             $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         }
         
-        // $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_DDPL)->pluck('name', 'id'));
-        $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
 
         $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
-
         $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-
-        // $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereIn('id', Constant::USER_KSV)->pluck('name', 'id'));
-
 
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
@@ -407,6 +404,26 @@ class ContractController extends AdminController
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
             }
         });
+
+        $contracts = json_encode(Contract::where('branch_id', '=', Admin::user()->branch_id)->get()->keyBy("id"));
+        $script = <<<EOT
+        var contracts = $contracts;
+        $(document).on('change', ".selected_id_number, .selected_tax_number", function () {
+            var contract = contracts[this.value];
+            $("#tax_number").val(contract.tax_number);  
+            $("#business_name").val(contract.business_name);
+            $("#personal_address").val(contract.personal_address);
+            $("#business_address").val(contract.business_address);
+            $("#representative").val(contract.representative);
+            $("#position").val(contract.position);
+            $("#personal_name").val(contract.personal_name);
+            $("#id_number").val(contract.id_number);  
+            $("#issue_place").val(contract.issue_place);  
+            $("#issue_date").val(contract.issue_date); 
+        });
+        EOT;
+
+        Admin::script($script);
 
         return $form;
     }
