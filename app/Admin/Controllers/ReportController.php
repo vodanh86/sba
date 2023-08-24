@@ -177,7 +177,7 @@ class ReportController extends AdminController
             $rows = [];
             $query = Contract::where("branch_id", Admin::user()->branch_id)
             ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
-            ->when(Admin::user()->roles[0]->slug === "bld", function ($query) {
+            ->when(Admin::user()->roles[0]->slug !== "bld", function ($query) {
                 return $query->where("tdv_assistant", Admin::user()->id);
             });
         
