@@ -126,16 +126,17 @@ class ContractAcceptanceController extends AdminController
      */
     protected function detail($id)
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $show = new Show(ContractAcceptance::findOrFail($id));
 
         $show->field('id', __('Id'));
         $show->field('contract_id', __('Mã hợp đồng'));
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
-        });        $show->field('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        });
+        });        $show->field('date_acceptance', __('Ngày nghiệm thu'))->as($dateFormatter);
 
         $show->field('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
         $show->field('contract.tax_number', __('Mã số thuế'));
@@ -146,7 +147,7 @@ class ContractAcceptanceController extends AdminController
         $show->field('contract.personal_name', __('Họ và tên'));
         $show->field('contract.id_number', __('Số CMND/CCCD'));
         $show->field('contract.issue_place', __('Nơi cấp'));
-        $show->field('contract.issue_date', __('Ngày cấp'));
+        $show->field('contract.issue_date', __('Ngày cấp'))->as($dateFormatter);
 
         $show->field('export_bill', __('Xuất hoá đơn'))->as(function ($value) {
             return $value == 0 ? 'Có' : 'Không';

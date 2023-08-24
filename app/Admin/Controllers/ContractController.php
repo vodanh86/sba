@@ -85,9 +85,9 @@ class ContractController extends AdminController
         $grid = new Grid(new Contract());
 
         $grid->column('id', __('Id'));
-        $grid->column('code', __('Mã hợp đồng'));
+        $grid->column('code', __('Mã hợp đồng'))->filter('like');
         $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
-        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
+        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter)->filter('like');
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
         $grid->column('business_name', __('Tên doanh nghiệp'))->filter('like');
@@ -105,19 +105,19 @@ class ContractController extends AdminController
         $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->display($dateFormatter)->filter('like');
         $grid->column('to_date', __('Đến ngày'))->display($dateFormatter)->filter('like');
 
-        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
-        $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
+        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter)->filter('like');
+        $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter)->filter('like');
 
-        $grid->column('broker', __('Môi giới'));
-        $grid->column('source', __('Nguồn'));
-        $grid->column('sale', __('Sale'));
-        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser);
-        $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
-        $grid->column('assistant.name', __('Trợ lý tdv'));
+        $grid->column('broker', __('Môi giới'))->filter('like');
+        $grid->column('source', __('Nguồn'))->filter('like');
+        $grid->column('sale', __('Sale'))->filter('like');
+        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser)->filter('like');
+        $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser)->filter('like');
+        $grid->column('assistant.name', __('Trợ lý tdv'))->filter('like');
         $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
 
-        $grid->column('contact', __('Liên hệ'))->filter('like');
-        $grid->column('note', __('Ghi chú'))->filter('like');
+        $grid->column('contact', __('Liên hệ'))->filter('like')->filter('like');
+        $grid->column('note', __('Ghi chú'))->filter('like')->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
             foreach ($urls as $i => $url) {
@@ -185,13 +185,13 @@ class ContractController extends AdminController
                 $actions->disableDelete();
             }
         });
-        $grid->column('comment', __('Bình luận'))->action(AddContractComment::class)->width(250);
+        $grid->column('comment', __('Bình luận'))->action(AddContractComment::class)->width(250)->filter('like');
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
-        })->width(100);
+        })->width(100)->filter('like');
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
@@ -214,13 +214,16 @@ class ContractController extends AdminController
             $adminUser = AdminUser::find($tdvId);
             return $adminUser ? $adminUser->name : '';
         };
-
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $show = new Show(Contract::findOrFail($id));
 
         $show->field('id', __('Id'));
         $show->field('code', __('Mã hợp đồng'));
         $show->field('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
-        $show->field('created_date', __('Ngày hợp đồng'));
+        $show->field('created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('tax_number', __('Mã số thuế'));
         $show->field('business_name', __('Tên doanh nghiệp'));
@@ -231,14 +234,14 @@ class ContractController extends AdminController
         $show->field('id_number', __('Số CMND/CCCD'));
         $show->field('personal_name', __('Họ và tên'));
         $show->field('issue_place', __('Nơi cấp'));
-        $show->field('issue_date', __('Ngày cấp'));
+        $show->field('issue_date', __('Ngày cấp'))->as($dateFormatter);
         $show->field('property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
         });        
         $show->field('purpose', __('Mục đích thẩm định giá'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
-        $show->field('from_date', __('Thời gian thực hiện từ ngày'));
-        $show->field('to_date', __('Đến ngày'));
+        $show->field('from_date', __('Thời gian thực hiện từ ngày'))->as($dateFormatter);
+        $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('advance_fee', __('Tạm ứng'));
         $show->field('broker', __('Môi giới'));

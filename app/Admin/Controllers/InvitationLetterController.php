@@ -107,7 +107,10 @@ class InvitationLetterController extends AdminController
     protected function detail($id)
     {
         $show = new Show(InvitationLetter::findOrFail($id));
-
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
          
         $show->field('id', __('Id'));
         $show->field('code', __('Mã thư chào'));
@@ -115,8 +118,8 @@ class InvitationLetterController extends AdminController
         $show->field('property_type', __('Tài sản thẩm định giá'));
         $show->field('purpose', __('Mục đích thẩm định giá'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
-        $show->field('from_date', __('Từ ngày'));
-        $show->field('to_date', __('Đến ngày'));
+        $show->field('from_date', __('Từ ngày'))->as($dateFormatter);
+        $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('total_fee', __('Tổng phí'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });

@@ -105,12 +105,16 @@ class DoneContractController extends AdminController
             $adminUser = AdminUser::find($tdvId);
             return $adminUser ? $adminUser->name : '';
         };
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $show = new Show(ContractAcceptance::findOrFail($id));
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('Mã hợp đồng'));
         $show->field('contract.contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
-        $show->field('contract.created_date', __('Ngày hợp đồng'));
+        $show->field('contract.created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('contract.customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('contract.tax_number', __('Mã số thuế'));
         $show->field('contract.business_name', __('Tên doanh nghiệp'));
@@ -121,14 +125,14 @@ class DoneContractController extends AdminController
         $show->field('contract.id_number', __('Số CMND/CCCD'));
         $show->field('contract.personal_name', __('Họ và tên'));
         $show->field('contract.issue_place', __('Nơi cấp'));
-        $show->field('contract.issue_date', __('Ngày cấp'));
+        $show->field('contract.issue_date', __('Ngày cấp'))->as($dateFormatter);
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
         });       
         $show->field('contract.purpose', __('Mục đích thẩm định giá'));
         $show->field('contract.appraisal_date', __('Thời điểm thẩm định giá'));
-        $show->field('contract.from_date', __('Thời gian thực hiện từ ngày'));
-        $show->field('contract.to_date', __('Đến ngày'));
+        $show->field('contract.from_date', __('Thời gian thực hiện từ ngày'))->as($dateFormatter);
+        $show->field('contract.to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('contract.total_fee', __('Tổng phí dịch vụ'));
         $show->field('contract.advance_fee', __('Tạm ứng'));
         $show->field('contract.broker', __('Môi giới'));
