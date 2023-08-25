@@ -15,6 +15,6 @@
 .report-result th{
     border: 1px solid black!important;
 }
-.box-body {
-    height: 400px;
+.grid-box .box-body {
+    height: calc(100vh - 250px);
 }
