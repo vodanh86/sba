@@ -32,8 +32,8 @@ class Report extends Form
      */
     public function form()
     {
-        $this->date('from_date', 'Từ ngày')->width(2);
-        $this->date('to_date', 'Đến ngày')->width(2);
+        $this->date('from_date', 'Từ ngày')->format('DD-MM-YYYY')->width(2);
+        $this->date('to_date', 'Đến ngày')->format('DD-MM-YYYY')->width(2);
     }
 
     /**

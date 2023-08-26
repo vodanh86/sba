@@ -33,8 +33,8 @@ class AcReport extends Form
      */
     public function form()
     {
-        $this->date('from_date', 'Từ ngày')->width(2);
-        $this->date('to_date', 'Đến ngày')->width(2);
+        $this->date('from_date', 'Từ ngày')->format('DD-MM-YYYY')->width(2);
+        $this->date('to_date', 'Đến ngày')->format('DD-MM-YYYY')->width(2);
         $this->radio('type', 'Loại báo cáo')->options(['c' => 'Báo cáo chứng thư ', 'v'=> 'Báo cáo hồ sơ thẩm định'])->default('c');
     }
 
