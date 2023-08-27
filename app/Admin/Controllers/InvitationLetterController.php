@@ -30,6 +30,10 @@ class InvitationLetterController extends AdminController
      */
     protected function grid()
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $nextStatuses = array();
         $noneDoneStatus = Status::where("table", "invitation_letters")->where("done", 0)->get();
         $noneDonestatusIds = $noneDoneStatus->pluck('id');
@@ -52,7 +56,7 @@ class InvitationLetterController extends AdminController
         $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150)->filter('like');
         $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150)->filter('like');
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150)->filter('like');
-        $grid->column('from_date', __('Từ ngày'))->width(150)->filter('like');
+        $grid->column('from_date', __('Từ ngày'))->display($dateFormatter)->width(150)->filter('like');
         $grid->column('to_date', __('Đến ngày'))->width(150)->filter('like');
         $grid->column('total_fee', __('Tổng phí'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
