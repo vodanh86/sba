@@ -20,6 +20,7 @@ use App\Http\Models\AdminUser;
 use App\Http\Models\OfficialAssessment;
 use App\Http\Models\PreAssessment;
 use App\Http\Models\ScoreCard;
+use App\Http\Models\ValuationDocument;
 use App\Http\Models\ContractAcceptance;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
@@ -51,11 +52,11 @@ class ReportController extends AdminController
             if ($data["type"] == "l") {
                 $headers = ['Người tạo', 'Số lượng thư chào', 'Tổng phí dịch vụ'];
                 $query = InvitationLetter::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
                 $rows = [];
                 $users = AdminUser::pluck("name", "id")->toArray();
@@ -76,11 +77,11 @@ class ReportController extends AdminController
                 $sales = array();
                 $sum = [0, 0];
                 $query = Contract::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
                 $result = $query->get();
                 foreach ($result as $i => $row) {
@@ -108,11 +109,11 @@ class ReportController extends AdminController
                 $brokers = array();
                 $sum = [0, 0];
                 $query = Contract::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
                 $result = $query->get();
                 foreach ($result as $i => $row) {
@@ -168,11 +169,11 @@ class ReportController extends AdminController
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
             $headers = ['Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Tình trạng thực hiện','Ngày hoàn thành'];
             $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
-            if (!is_null(($data["from_date"]))) {
-                $query->where('created_at', '>=', $data["from_date"]);
+            if (!is_null(($data["formated_from_date"]))) {
+                $query->where('created_at', '>=', $data["formated_from_date"]);
             }
-            if (!is_null(($data["to_date"]))) {
-                $query->where('created_at', '<=', $data["to_date"]);
+            if (!is_null(($data["formated_to_date"]))) {
+                $query->where('created_at', '<=', $data["formated_to_date"]);
             }
             $rows = [];
             $query = Contract::where("branch_id", Admin::user()->branch_id)
@@ -181,11 +182,11 @@ class ReportController extends AdminController
                 return $query->where("tdv_assistant", Admin::user()->id);
             });
         
-            if (!is_null(($data["from_date"]))) {
-                $query->where('created_at', '>=', $data["from_date"]);
+            if (!is_null(($data["formated_from_date"]))) {
+                $query->where('created_at', '>=', $data["formated_from_date"]);
             }
-            if (!is_null(($data["to_date"]))) {
-                $query->where('created_at', '<=', $data["to_date"]);
+            if (!is_null(($data["formated_to_date"]))) {
+                $query->where('created_at', '<=', $data["formated_to_date"]);
             }
             $result = $query->get();
             $rows = [];
@@ -247,11 +248,11 @@ class ReportController extends AdminController
             $appraisers = array();
             $sum = 0;
             $query = Contract::where("branch_id", Admin::user()->branch_id);
-            if (!is_null(($data["from_date"]))) {
-                $query->where('created_at', '>=', $data["from_date"]);
+            if (!is_null(($data["formated_from_date"]))) {
+                $query->where('created_at', '>=', $data["formated_from_date"]);
             }
-            if (!is_null(($data["to_date"]))) {
-                $query->where('created_at', '<=', $data["to_date"]);
+            if (!is_null(($data["formated_to_date"]))) {
+                $query->where('created_at', '<=', $data["formated_to_date"]);
             }
             $result = $query->get();
             foreach ($result as $i => $row) {
@@ -319,8 +320,8 @@ class ReportController extends AdminController
                 "WHERE " .
                 "sba.score_cards.contract_id = sba.contracts.id " .
                 "AND sba.score_cards.branch_id = ? " .
-                "AND sba.score_cards.created_at >= '" . $data["from_date"] . "' " .
-                "AND sba.score_cards.created_at <= '" . $data["to_date"] . "' " .
+                "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
+                "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
                 "GROUP BY sba.contracts.tdv_assistant;" , array(Admin::user()->branch_id));
             foreach ($result as $i => $row) {
                 $rows[] = [
@@ -363,11 +364,11 @@ class ReportController extends AdminController
                 $headers = ['Số chứng thư','Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện'];
                 $users = AdminUser::pluck("name", "id")->toArray();
                 $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
                 $result = $query->get();
                 $rows = [];
@@ -379,11 +380,11 @@ class ReportController extends AdminController
             } else {
                 $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng'];
                 $query = ValuationDocument::where("branch_id", Admin::user()->branch_id);
-                if (!is_null(($data["from_date"]))) {
-                    $query->where('created_at', '>=', $data["from_date"]);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["to_date"]))) {
-                    $query->where('created_at', '<=', $data["to_date"]);
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
                 $result = $query->get();
                 $rows = [];

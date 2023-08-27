@@ -4,6 +4,8 @@ namespace App\Admin\Forms;
 
 use Encore\Admin\Widgets\Form;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Config;
 
 class BaReport extends Form
 {
@@ -23,8 +25,12 @@ class BaReport extends Form
      */
     public function handle(Request $request)
     {
+        $fromDate = Carbon::createFromFormat('d-m-Y', $request->get("from_date"))->timezone(Config::get('app.timezone'));
+        $toDate = Carbon::createFromFormat('d-m-Y', $request->get("to_date"))->timezone(Config::get('app.timezone'));
         $result = array("from_date" => $request->get("from_date"),
                         "to_date" => $request->get("to_date"),
+                        "formated_from_date" => $fromDate->format('Y-m-d'),
+                        "formated_to_date" => $toDate->format('Y-m-d'),
                         "type" => $request->get("type"));
         return back()->with(['result' => $result]);
     }
@@ -49,8 +55,8 @@ class BaReport extends Form
             return $data;
         }
         return [
-            'from_date' => date('Y-m'),
-            'to_date' => date("Y-m-d"),
+            'from_date' => date('01-m-Y'),
+            'to_date' => date("d-m-Y"),
         ];
     }
 }
