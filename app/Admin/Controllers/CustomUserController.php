@@ -32,7 +32,7 @@ class CustomUserController extends UserController
         $grid->column('id', 'ID')->sortable();
         $grid->column('username', trans('admin.username'))->filter('like');
         $grid->column('name', trans('admin.name'))->filter('like');
-        $grid->column('roles', trans('admin.roles'))->pluck('name')->label()->filter('like');
+        $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
         $grid->column('branch.branch_name', "Chi nhánh")->filter('like');
         $grid->column('created_at', trans('admin.created_at'));
         $grid->column('updated_at', trans('admin.updated_at'));
@@ -42,6 +42,14 @@ class CustomUserController extends UserController
                 $actions->disableDelete();
             }
         });
+        $grid->filter(function($filter){
+            $filter->where(function ($query) {
+                $query->whereHas('roles', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });   
+            }, 'Role');
+        });
+        
 
         $grid->tools(function (Grid\Tools $tools) {
             $tools->batch(function (Grid\Tools\BatchActions $actions) {
