@@ -267,37 +267,53 @@ class ContractAcceptanceController extends AdminController
 
         $script = <<<EOT
         $(function() {
-        var contractId = $(".contract_id").val();
-        $.get("$url",{q : contractId}, function (data) {
-            $(".property").val(data.property);
-            $(".customer_type").val(parseInt(data.customer_type)).change();
-            $("#tax_number").val(data.tax_number);  
-            $("#business_name").val(data.business_name);
-            $("#personal_address").val(data.personal_address);
-            $("#business_address").val(data.business_address);
-            $("#representative").val(data.representative);
-            $("#position").val(data.position);
-            $("#personal_name").val(data.personal_name);
-            $("#id_number").val(data.id_number);  
-            $("#issue_place").val(data.issue_place);  
-            $("#issue_date").val(data.issue_date); 
-        });
-        $(document).on('change', ".contract_id", function () {
-            $.get("$url",{q : this.value}, function (data) {
-                $(".property").val(data.property);
-                $(".customer_type").val(parseInt(data.customer_type)).change();
-                $("#tax_number").val(data.tax_number);  
-                $("#business_name").val(data.business_name);
-                $("#personal_address").val(data.personal_address);
-                $("#business_address").val(data.business_address);
-                $("#representative").val(data.representative);
-                $("#position").val(data.position);
-                $("#personal_name").val(data.personal_name);
-                $("#id_number").val(data.id_number);  
-                $("#issue_place").val(data.issue_place);  
-                $("#issue_date").val(data.issue_date); 
+            var contractId = $(".contract_id").val();
+            var contract;
+            function updateInfor() {
+                $(".property").val(contract.property);
+                $(".customer_type").val(parseInt(contract.customer_type)).change();
+                $("#tax_number").val(contract.tax_number);  
+                $("#business_name").val(contract.business_name);
+                $("#personal_address").val(contract.personal_address);
+                $("#business_address").val(contract.business_address);
+                $("#representative").val(contract.representative);
+                $("#position").val(contract.position);
+                $("#personal_name").val(contract.personal_name);
+                $("#id_number").val(contract.id_number);  
+                $("#issue_place").val(contract.issue_place);  
+                $("#issue_date").val(contract.issue_date); 
+                updateBill();
+            }
+            function updateBill(){
+                if($('.export_bill').val() == 0){
+                    if (contract) {
+                        if(contract.customer_type == 1){
+                            $(".buyer_name").val(contract.personal_name);
+                            $(".buyer_address").val(contract.personal_address);
+                        } else {
+                            $(".buyer_name").val(contract.business_name);
+                            $(".buyer_address").val(contract.business_address);
+                            $(".tax_number").val(contract.tax_number);
+                        }
+                        $(".bill_content").val('Phí dịch vụ TĐG theo HĐ số ' + contract.code + '/TĐG-SBA');
+                    }
+                } else {
+                    $(".buyer_name").val('');
+                }
+            }
+            $.get("$url",{q : contractId}, function (data) {
+                contract = data;
+                updateInfor();
             });
-        });
+            $(document).on('change', ".contract_id", function () {
+                $.get("$url",{q : this.value}, function (data) {
+                    contract = data;
+                    updateInfor();
+                });
+            });
+            $(document).on('change', ".export_bill", function () {
+                updateBill();
+            });
         });
         EOT;
 
