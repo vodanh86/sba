@@ -56,8 +56,7 @@ class InvitationLetterController extends AdminController
         $grid->column('property_type', __('Tài sản thẩm định giá'))->width(150)->filter('like');
         $grid->column('purpose', __('Mục đích thẩm định giá'))->width(150)->filter('like');
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->width(150)->filter('like');
-        $grid->column('from_date', __('Từ ngày'))->display($dateFormatter)->width(150)->filter('like');
-        $grid->column('to_date', __('Đến ngày'))->width(150)->filter('like');
+        $grid->column('working_days', __('Thời gian thực hiện (ngày)'))->filter('like');
         $grid->column('total_fee', __('Tổng phí'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150)->filter('like');
@@ -122,8 +121,7 @@ class InvitationLetterController extends AdminController
         $show->field('property_type', __('Tài sản thẩm định giá'));
         $show->field('purpose', __('Mục đích thẩm định giá'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
-        $show->field('from_date', __('Từ ngày'))->as($dateFormatter);
-        $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
+        $show->field('working_days', __('Thời gian thực hiện (ngày)'));
         $show->field('total_fee', __('Tổng phí'))->as(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         });
@@ -177,8 +175,7 @@ class InvitationLetterController extends AdminController
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'));
 
         $form->divider('3. Thời gian thực hiện');
-        $form->date('from_date', __('Từ ngày'))->default(date('Y-m-d'));
-        $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'));
+        $form->number('working_days', __('Thời gian thực hiện (ngày)'));
 
         $form->divider('4. Phí dịch vụ');
         $form->currency('total_fee', __('Tổng phí'))->symbol('VND');
