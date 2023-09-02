@@ -73,9 +73,9 @@ class ReportController extends AdminController
                 }
                 $rows[] = $sum;
             } else if($data["type"] == "c1") {
-                $headers = ['Sale','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ'];
+                $headers = ['Sale','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần'];
                 $sales = array();
-                $sum = [0, 0];
+                $sum = [0, 0, 0];
                 $query = Contract::where("branch_id", Admin::user()->branch_id);
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -85,29 +85,32 @@ class ReportController extends AdminController
                 }
                 $result = $query->get();
                 foreach ($result as $i => $row) {
-                    $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0,0], [0,0]], [[0,0], [0,0]], [[0,0]]];
+                    $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0,0,0], [0,0,0]], [[0,0,0], [0,0,0]], [[0,0,0]]];
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][0] ++;
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][1] += $row["total_fee"];
+                    $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][2] += $row["net_revenue"];
                     $currentVal[2][0][0] ++ ;
                     $currentVal[2][0][1] += $row["total_fee"];
+                    $currentVal[2][0][2] += $row["net_revenue"];
                     $sales[$row["sale"]] = $currentVal;
                     $sum[0] ++;
                     $sum[1] += $row["total_fee"];
+                    $sum[2] += $row["net_revenue"];
                 }
 
                 $rows = [];
                 foreach ($sales as $sale => $row) {
-                    $rows[] = [$sale, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1])];
-                    $rows[] = ["", "Sơ bộ", "Đã hoàn thành", $row[0][1][0], number_format($row[0][1][1])];
-                    $rows[] = ["", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1])];
-                    $rows[] = ["", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1])];
-                    $rows[] = ["Tổng", "", "", $row[2][0][0], number_format($row[2][0][1])];
+                    $rows[] = [$sale, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1]), number_format($row[0][0][2])];
+                    $rows[] = ["", "Sơ bộ", "Đã hoàn thành", $row[0][1][0], number_format($row[0][1][1]), number_format($row[0][1][2])];
+                    $rows[] = ["", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1]), number_format($row[1][0][2])];
+                    $rows[] = ["", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1]), number_format($row[1][1][2])];
+                    $rows[] = ["Tổng", "", "", $row[2][0][0], number_format($row[2][0][1]), number_format($row[2][0][2])];
                 }
-                $rows[] = ["Tổng cộng", "", "", $sum[0], number_format($sum[1])];
+                $rows[] = ["Tổng cộng", "", "", $sum[0], number_format($sum[1]), number_format($sum[2])];
             } else {
-                $headers = ['Môi giới','Loại hợp đồng', 'Số lượng hợp đồng', 'Tổng phí dịch vụ'];
+                $headers = ['Môi giới','Loại hợp đồng', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần'];
                 $brokers = array();
-                $sum = [0, 0];
+                $sum = [0, 0, 0];
                 $query = Contract::where("branch_id", Admin::user()->branch_id);
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -117,23 +120,26 @@ class ReportController extends AdminController
                 }
                 $result = $query->get();
                 foreach ($result as $i => $row) {
-                    $currentVal = array_key_exists($row["broker"], $brokers) ? $brokers[$row["broker"]] : [[0,0], [0,0], [0,0]];
+                    $currentVal = array_key_exists($row["broker"], $brokers) ? $brokers[$row["broker"]] : [[0,0,0], [0,0,0], [0,0,0]];
                     $currentVal[$row["contract_type"]][0] ++;
                     $currentVal[$row["contract_type"]][1] += $row["total_fee"];
+                    $currentVal[$row["contract_type"]][2] += $row["net_revenue"];
                     $currentVal[2][0] ++ ;
                     $currentVal[2][1] += $row["total_fee"];
+                    $currentVal[2][2] += $row["net_revenue"];
                     $brokers[$row["broker"]] = $currentVal;
                     $sum[0] ++;
                     $sum[1] += $row["total_fee"];
+                    $sum[2] += $row["net_revenue"];
                 }
 
                 $rows = [];
                 foreach ($brokers as $broker => $row) {
-                    $rows[] = [$broker, "Sơ bộ",  $row[0][0], number_format($row[0][1])];
-                    $rows[] = ["", "Chính thức", $row[1][0], number_format($row[1][1])];
-                    $rows[] = ["Tổng", "", $row[2][0], number_format($row[2][1])];
+                    $rows[] = [$broker, "Sơ bộ",  $row[0][0], number_format($row[0][1]), number_format($row[0][2])];
+                    $rows[] = ["", "Chính thức", $row[1][0], number_format($row[1][1]), number_format($row[1][2])];
+                    $rows[] = ["Tổng", "", $row[2][0], number_format($row[2][1]), number_format($row[2][2])];
                 }
-                $rows[] = ["Tổng cộng", "",  $sum[0], number_format($sum[1])];
+                $rows[] = ["Tổng cộng", "",  $sum[0], number_format($sum[1]), number_format($sum[2])];
             }
 
             $table = new Table($headers, $rows);
