@@ -400,7 +400,7 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->representative, $row->contract->property, 
+                    $rows[] = [$row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv, $users) ? $users[$row->contract->tdv] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property, 
                     $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type), 
                     Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
