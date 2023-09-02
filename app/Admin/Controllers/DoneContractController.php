@@ -74,6 +74,7 @@ class DoneContractController extends AdminController
                 $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
             }
             return $urlsHtml;        });
+        $grid->column('creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 

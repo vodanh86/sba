@@ -192,6 +192,7 @@ class ContractController extends AdminController
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
         })->width(100)->filter('like');
+        $grid->column('creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
@@ -261,6 +262,7 @@ class ContractController extends AdminController
             }
             return $urlsHtml;
         });
+        $show->field('creator.name', __('Người tạo'));
         $show->panel()
             ->tools(function ($tools) {
                 $tools->disableEdit();
@@ -340,6 +342,7 @@ class ContractController extends AdminController
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
             })->required();
+            $form->hidden('created_by')->default(Admin::user()->id);
         }
         $form->date('created_date', __('Ngày hợp đồng'))->default(date('Y-m-d'))->required();
 

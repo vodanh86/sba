@@ -28,6 +28,11 @@ class Contract extends Model
         return $this->belongsTo(Status::class, 'status');
     }
 
+    public function creator()
+    {
+        return $this->belongsTo(AdminUser::class, 'created_by');
+    }
+
     public function officialAssessments()
     {
         return $this->hasMany(OfficialAssessment::class);
