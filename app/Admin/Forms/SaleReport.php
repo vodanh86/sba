@@ -2,9 +2,12 @@
 
 namespace App\Admin\Forms;
 
+use Encore\Admin\Facades\Admin;
+use App\Admin\Controllers\Constant;
 use Encore\Admin\Widgets\Form;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Http\Models\Branch;
 use Config;
 
 class SaleReport extends Form
@@ -29,6 +32,7 @@ class SaleReport extends Form
         $toDate = Carbon::createFromFormat('d-m-Y', $request->get("to_date"))->timezone(Config::get('app.timezone'));
         $result = array("from_date" => $request->get("from_date"),
                         "to_date" => $request->get("to_date"),
+                        "branch_id" => $request->get("branch_id"),
                         "formated_from_date" => $fromDate->format('Y-m-d'),
                         "formated_to_date" => $toDate->format('Y-m-d 23:59:59'),
                         "type" => $request->get("type"));
@@ -42,6 +46,11 @@ class SaleReport extends Form
     {
         $this->date('from_date', 'Từ ngày')->format('DD-MM-YYYY')->width(2);
         $this->date('to_date', 'Đến ngày')->format('DD-MM-YYYY')->width(2);
+        if (Admin::user()->isRole(Constant::DIRECTOR_ROLE)){
+            $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->width(2);
+        } else {
+            $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->default(Admin::user()->branch_id)->readonly();
+        }
         $this->radio('type', 'Loại báo cáo')->options(['l' => 'Thư chào ', 'c1' => ' Hợp đồng theo sale', 'c2' => 'Hợp đồng theo môi giới'])->default('l');
     }
 

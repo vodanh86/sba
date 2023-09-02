@@ -13,6 +13,7 @@ use Encore\Admin\Widgets\Tab;
 use App\Http\Models\InvitationLetter;
 use App\Http\Models\Contract;
 use App\Http\Models\Status;
+use App\Http\Models\Branch;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use App\Exports\ReportExport;
@@ -50,8 +51,12 @@ class ReportController extends AdminController
         if ($data = session('result')) {
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
             if ($data["type"] == "l") {
-                $headers = ['Người tạo', 'Số lượng thư chào', 'Tổng phí dịch vụ'];
-                $query = InvitationLetter::where("branch_id", Admin::user()->branch_id);
+                $headers = ['Người tạo', 'Số lượng thư chào', 'Tổng phí dịch vụ', 'Chi nhánh'];
+                if (session('result')['branch_id']){
+                    $query = InvitationLetter::where("branch_id", session('result')['branch_id']);
+                } else {
+                    $query = InvitationLetter::query();
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -64,19 +69,24 @@ class ReportController extends AdminController
                 $result = $query->select([
                     "user_id",
                     DB::raw("COUNT(*) as count"),
-                    DB::raw("SUM(total_fee) as fee")
-                ])->groupBy(["user_id"])->get();
+                    DB::raw("SUM(total_fee) as fee"),
+                    "branch_id"
+                ])->groupBy(["user_id", "branch_id"])->get();
                 foreach ($result as $i => $row) {
-                    $rows[] = [!is_null($row["user_id"]) && array_key_exists($row["user_id"], $users) ? $users[$row["user_id"]] : "", $row["count"], number_format($row["fee"])];
+                    $rows[] = [!is_null($row["user_id"]) && array_key_exists($row["user_id"], $users) ? $users[$row["user_id"]] : "", $row["count"], number_format($row["fee"]), Branch::find($row['branch_id'])->branch_name];
                     $sum[1] += $row["count"];
                     $sum[2] += $row["fee"];
                 }
                 $rows[] = $sum;
             } else if($data["type"] == "c1") {
-                $headers = ['Sale','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần'];
+                $headers = ['Sale','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
                 $sales = array();
                 $sum = [0, 0, 0];
-                $query = Contract::where("branch_id", Admin::user()->branch_id);
+                if (session('result')['branch_id']){
+                    $query = Contract::where("branch_id", session('result')['branch_id']);
+                } else {
+                    $query = Contract::query();
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -92,6 +102,7 @@ class ReportController extends AdminController
                     $currentVal[2][0][0] ++ ;
                     $currentVal[2][0][1] += $row["total_fee"];
                     $currentVal[2][0][2] += $row["net_revenue"];
+                    $currentVal[3] = $row["branch_id"];
                     $sales[$row["sale"]] = $currentVal;
                     $sum[0] ++;
                     $sum[1] += $row["total_fee"];
@@ -100,18 +111,22 @@ class ReportController extends AdminController
 
                 $rows = [];
                 foreach ($sales as $sale => $row) {
-                    $rows[] = [$sale, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1]), number_format($row[0][0][2])];
-                    $rows[] = ["", "Sơ bộ", "Đã hoàn thành", $row[0][1][0], number_format($row[0][1][1]), number_format($row[0][1][2])];
-                    $rows[] = ["", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1]), number_format($row[1][0][2])];
-                    $rows[] = ["", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1]), number_format($row[1][1][2])];
-                    $rows[] = ["Tổng", "", "", $row[2][0][0], number_format($row[2][0][1]), number_format($row[2][0][2])];
+                    $rows[] = [$sale, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1]), number_format($row[0][0][2]), Branch::find($row[3])->branch_name];
+                    $rows[] = ["", "Sơ bộ", "Đã hoàn thành", $row[0][1][0], number_format($row[0][1][1]), number_format($row[0][1][2]), ""];
+                    $rows[] = ["", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1]), number_format($row[1][0][2]), ""];
+                    $rows[] = ["", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1]), number_format($row[1][1][2]), ""];
+                    $rows[] = ["Tổng", "", "", $row[2][0][0], number_format($row[2][0][1]), number_format($row[2][0][2]), ""];
                 }
                 $rows[] = ["Tổng cộng", "", "", $sum[0], number_format($sum[1]), number_format($sum[2])];
             } else {
-                $headers = ['Môi giới','Loại hợp đồng', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần'];
+                $headers = ['Môi giới','Loại hợp đồng', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
                 $brokers = array();
                 $sum = [0, 0, 0];
-                $query = Contract::where("branch_id", Admin::user()->branch_id);
+                if (session('result')['branch_id']){
+                    $query = Contract::where("branch_id", session('result')['branch_id']);
+                } else {
+                    $query = Contract::query();
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -127,6 +142,7 @@ class ReportController extends AdminController
                     $currentVal[2][0] ++ ;
                     $currentVal[2][1] += $row["total_fee"];
                     $currentVal[2][2] += $row["net_revenue"];
+                    $currentVal[3] = $row["branch_id"];
                     $brokers[$row["broker"]] = $currentVal;
                     $sum[0] ++;
                     $sum[1] += $row["total_fee"];
@@ -135,9 +151,9 @@ class ReportController extends AdminController
 
                 $rows = [];
                 foreach ($brokers as $broker => $row) {
-                    $rows[] = [$broker, "Sơ bộ",  $row[0][0], number_format($row[0][1]), number_format($row[0][2])];
-                    $rows[] = ["", "Chính thức", $row[1][0], number_format($row[1][1]), number_format($row[1][2])];
-                    $rows[] = ["Tổng", "", $row[2][0], number_format($row[2][1]), number_format($row[2][2])];
+                    $rows[] = [$broker, "Sơ bộ",  $row[0][0], number_format($row[0][1]), number_format($row[0][2]), Branch::find($row[3])->branch_name];
+                    $rows[] = ["", "Chính thức", $row[1][0], number_format($row[1][1]), number_format($row[1][2]), ""];
+                    $rows[] = ["Tổng", "", $row[2][0], number_format($row[2][1]), number_format($row[2][2]), ""];
                 }
                 $rows[] = ["Tổng cộng", "",  $sum[0], number_format($sum[1]), number_format($sum[2])];
             }
@@ -388,7 +404,7 @@ class ReportController extends AdminController
                     Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
             } else {
-                $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng'];
+                $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
                 if (session('result')['branch_id']){
                     $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
                 } else {
@@ -403,7 +419,7 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý"];
+                    $rows[] = [$row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $row->contract->branch->branch_name];
                 }
             }
 
