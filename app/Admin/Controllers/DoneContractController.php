@@ -32,6 +32,9 @@ class DoneContractController extends AdminController
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y');
         };
+        $moneyFormatter = function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        };
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
@@ -62,18 +65,15 @@ class DoneContractController extends AdminController
         })->width(150)->filter('like');
         $grid->column('delivery', __('Người chuyển'))->filter('like');
         $grid->column('recipient', __('Người nhận'))->filter('like');
-        $grid->column('advance_fee', __('Đã tạm ứng'))->display(function ($money) {
-            return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
-        $grid->column('official_fee', __('Còn phải thanh toán'))->display(function ($money) {
-            return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
+        $grid->column('advance_fee', __('Đã tạm ứng'))->display($moneyFormatter)->width(150)->filter('like');
+        $grid->column('official_fee', __('Còn phải thanh toán'))->display($moneyFormatter)->width(150)->filter('like');
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
             foreach($urls as $i => $url){
                 $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
             }
             return $urlsHtml;        });
+        $grid->column('contract.net_revenue', __('Doanh thu thuần'))->display($moneyFormatter);
         $grid->column('contract.creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);

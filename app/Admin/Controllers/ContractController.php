@@ -115,9 +115,9 @@ class ContractController extends AdminController
         $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser)->filter('like');
         $grid->column('assistant.name', __('Trợ lý tdv'))->filter('like');
         $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
-
-        $grid->column('contact', __('Liên hệ'))->filter('like')->filter('like');
-        $grid->column('note', __('Ghi chú'))->filter('like')->filter('like');
+        $grid->column('net_revenue', __('Doanh thu thuần'))->display($moneyFormatter)->filter('like');
+        $grid->column('contact', __('Liên hệ'))->filter('like');
+        $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($urls) {
             $urlsHtml = "";
             foreach ($urls as $i => $url) {
@@ -253,6 +253,7 @@ class ContractController extends AdminController
         $show->field('legal_representative', __('Đại diện pháp luật'))->as($convertIdToNameUser);
         $show->field('assistant.name', __('Trợ lý tdv'));
         $show->field('supervisor', __('Kiểm soát viên'))->as($convertIdToNameUser);
+        $show->field('net_revenue', __('Doanh thu thuần'));
         $show->field('contact', __('Liên hệ'));
         $show->field('note', __('Ghi chú'));
         $show->document(__('File đính kèm'))->unescape()->as(function ($value) {
@@ -392,7 +393,7 @@ class ContractController extends AdminController
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
         $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-
+        $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND');
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
         $form->textarea('note', __('Ghi chú'))->rows(5);
