@@ -67,6 +67,7 @@ abstract class Constant
 
 
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
+    const DIRECTOR_ROLE = 'bld';
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
     const TABLES = array("invitation_letters" => "invitation_letters", "pre_contracts" => "pre_contracts",
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",

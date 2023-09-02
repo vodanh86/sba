@@ -165,7 +165,7 @@ class ContractController extends AdminController
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
-            if (Admin::user()->roles[0]->slug === "bld"){
+            if (Admin::user()->isRole(Constant::DIRECTOR_ROLE)){
                 $actions->add(new ResetButton($actions->getKey()));
             }
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();

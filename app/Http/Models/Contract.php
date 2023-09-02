@@ -23,6 +23,11 @@ class Contract extends Model
         return $this->belongsTo(AdminUser::class, 'supervisor');
     }   
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }   
+
     public function statusDetail()
     {
         return $this->belongsTo(Status::class, 'status');

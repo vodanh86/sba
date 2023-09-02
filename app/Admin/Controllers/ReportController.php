@@ -184,7 +184,7 @@ class ReportController extends AdminController
             $rows = [];
             $query = Contract::where("branch_id", Admin::user()->branch_id)
             ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
-            ->when(Admin::user()->roles[0]->slug !== "bld", function ($query) {
+            ->when(Admin::user()->isRole(Constant::DIRECTOR_ROLE), function ($query) {
                 return $query->where("tdv_assistant", Admin::user()->id);
             });
         
@@ -367,9 +367,13 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             if ($data["type"] == "c") {
-                $headers = ['Số chứng thư','Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện'];
+                $headers = ['Số chứng thư','Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
                 $users = AdminUser::pluck("name", "id")->toArray();
-                $query = OfficialAssessment::where("branch_id", Admin::user()->branch_id);
+                if (session('result')['branch_id']){
+                    $query = OfficialAssessment::where("branch_id", session('result')['branch_id']);
+                } else {
+                    $query = OfficialAssessment::query();
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -379,13 +383,17 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$row->certificate_code, $row->certificate_date, $users[$row->performer], $row->contract->representative, $row->contract->property, $row->contract->purpose,
-                    $row->appraisal_date, join(', ', $row->assessment_type), 
-                    Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $users[$row->performer]];
+                    $rows[] = [$row->certificate_code, $row->certificate_date, array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->representative, $row->contract->property, 
+                    $row->contract->purpose, $row->appraisal_date, join(', ', $row->assessment_type), 
+                    Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
             } else {
                 $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng'];
-                $query = ValuationDocument::where("branch_id", Admin::user()->branch_id);
+                if (session('result')['branch_id']){
+                    $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
+                } else {
+                    $query = ValuationDocument::query();
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
