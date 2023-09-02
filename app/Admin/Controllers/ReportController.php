@@ -24,6 +24,7 @@ use App\Http\Models\ScoreCard;
 use App\Http\Models\ValuationDocument;
 use App\Http\Models\ContractAcceptance;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 use DB;
 
 class ReportController extends AdminController
@@ -399,8 +400,8 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$row->certificate_code, $row->certificate_date, array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->representative, $row->contract->property, 
-                    $row->contract->purpose, $row->appraisal_date, join(', ', $row->assessment_type), 
+                    $rows[] = [$row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->representative, $row->contract->property, 
+                    $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type), 
                     Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
             } else {
