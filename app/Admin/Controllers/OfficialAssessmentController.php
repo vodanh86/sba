@@ -43,12 +43,12 @@ class OfficialAssessmentController extends AdminController
         $grid = new Grid(new OfficialAssessment());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('official_assessment.contract_id'))->filter('like');
+        $grid->column('contract.code', __('official_assessment.contract_id'));
         $grid->column('certificate_code', __('Mã chứng thư'))->filter('like');
         $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter)->filter('like');
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150)->filter('like');
-        $grid->column('performerDetail.name', __('Người thực hiện'))->filter('like');
+        $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
             if (!is_null($types)){
                 return join(", ", $types);
@@ -72,8 +72,8 @@ class OfficialAssessmentController extends AdminController
             }
             return $urlsHtml;
         });
-        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
-        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150)->filter('like');
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderByDesc('id');
@@ -90,7 +90,21 @@ class OfficialAssessmentController extends AdminController
         });
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('contract.code', __('Mã hợp đồng'));
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('code', 'like', "%{$this->input}%");
+                });
+            }, 'Mã hợp đồng');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('property', 'like', "%{$this->input}%");
+                });
+            }, 'Tài sản thẩm định giá');
+            $filter->where(function ($query) {
+                $query->whereHas('performerDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Người thực hiện');
         });
         return $grid;
     }
