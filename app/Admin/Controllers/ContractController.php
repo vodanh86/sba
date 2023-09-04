@@ -87,7 +87,7 @@ class ContractController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'))->filter('like');
         $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
-        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter)->filter('like');
+        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
         $grid->column('business_name', __('Tên doanh nghiệp'))->filter('like');
@@ -111,9 +111,9 @@ class ContractController extends AdminController
         $grid->column('broker', __('Môi giới'))->filter('like');
         $grid->column('source', __('Nguồn'))->filter('like');
         $grid->column('sale', __('Sale'))->filter('like');
-        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser)->filter('like');
-        $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser)->filter('like');
-        $grid->column('assistant.name', __('Trợ lý tdv'))->filter('like');
+        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser);
+        $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
+        $grid->column('assistant.name', __('Trợ lý tdv'));
         $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
         $grid->column('net_revenue', __('Doanh thu thuần'))->display($moneyFormatter)->filter('like');
         $grid->column('contact', __('Liên hệ'))->filter('like');
@@ -165,13 +165,13 @@ class ContractController extends AdminController
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
-            if (Admin::user()->isRole(Constant::DIRECTOR_ROLE)){
+            if (Admin::user()->isRole(Constant::DIRECTOR_ROLE)) {
                 $actions->add(new ResetButton($actions->getKey()));
             }
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
-            
+
             if (
                 !in_array($actions->row->status, $editStatus)
             ) {
@@ -191,14 +191,34 @@ class ContractController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail ? $this->statusDetail->name : "";
-        })->width(100)->filter('like');
+        })->width(100);
         $grid->column('creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
-            $filter->like('code', 'Mã hợp đồng');
+            $filter->date('created_date', 'Ngày hợp đồng');
+            $filter->where(function ($query) {
+                $query->whereHas('assistant', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trợ lý');
+            $filter->where(function ($query) {
+                $query->whereHas('supervisorDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Kiểm soát viên');
+            $filter->where(function ($query) {
+                $query->whereHas('legalRepresentative', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Đại diện pháp luật');
+            $filter->where(function ($query) {
+                $query->whereHas('tdvDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Thẩm định viên');
         });
         return $grid;
     }
@@ -238,7 +258,7 @@ class ContractController extends AdminController
         $show->field('issue_date', __('Ngày cấp'))->as($dateFormatter);
         $show->field('property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
-        });        
+        });
         $show->field('purpose', __('Mục đích thẩm định giá'));
         $show->field('appraisal_date', __('Thời điểm thẩm định giá'));
         $show->field('from_date', __('Thời gian thực hiện từ ngày'))->as($dateFormatter);
@@ -322,7 +342,7 @@ class ContractController extends AdminController
             }
         } else {
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
-            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(Constant::PRE_CONTRACT_TYPE)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use($checkStatus) {
+            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(Constant::PRE_CONTRACT_TYPE)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -332,7 +352,7 @@ class ContractController extends AdminController
                 } else {
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
-            })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use($checkStatus) {
+            })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -350,7 +370,8 @@ class ContractController extends AdminController
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
             $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
-                Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id'));
+                Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+            );
             $form->text('id_number', __('Số CMND/CCCD'));
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
             $form->text('personal_address', __('Địa chỉ'));
@@ -358,7 +379,8 @@ class ContractController extends AdminController
             $form->text('issue_place', __('Nơi cấp'));
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
-                Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id'));
+                Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+            );
             $form->text('tax_number', __('Mã số thuế'));
             $form->text('business_name', __('Tên doanh nghiệp'));
             $form->text('business_address', __('Địa chỉ doanh nghiệp'));
@@ -381,13 +403,13 @@ class ContractController extends AdminController
         $form->text('source', __('Nguồn'));
         $form->text('sale', __('Sale'));
 
-          if(Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus){
+        if (Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus) {
             $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
-        }else{
+        } else {
             $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         }
-        
-         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+
+        $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
 
         $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);

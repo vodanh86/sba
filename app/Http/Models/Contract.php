@@ -13,6 +13,10 @@ class Contract extends Model
         return $this->belongsTo(InvitationLetter::class, 'invitation_letter_id');
     }
 
+    public function tdvDetail()
+    {
+        return $this->belongsTo(AdminUser::class, 'tdv');
+    } 
     public function assistant()
     {
         return $this->belongsTo(AdminUser::class, 'tdv_assistant');
@@ -21,7 +25,11 @@ class Contract extends Model
     public function supervisorDetail()
     {
         return $this->belongsTo(AdminUser::class, 'supervisor');
-    }   
+    }
+    public function legalRepresentative()
+    {
+        return $this->belongsTo(AdminUser::class, 'legal_representative');
+    }  
 
     public function branch()
     {
