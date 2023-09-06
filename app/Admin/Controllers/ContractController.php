@@ -372,18 +372,18 @@ class ContractController extends AdminController
             $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
                 Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
-            $form->text('id_number', __('Số CMND/CCCD'));
-            $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
-            $form->text('personal_address', __('Địa chỉ'));
-            $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'));
-            $form->text('issue_place', __('Nơi cấp'));
+            $form->text('id_number', __('Số CMND/CCCD'))->required();
+            $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'))->required();
+            $form->text('personal_address', __('Địa chỉ'))->required();
+            $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'))->required();
+            $form->text('issue_place', __('Nơi cấp'))->required();
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
                 Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
-            $form->text('tax_number', __('Mã số thuế'));
-            $form->text('business_name', __('Tên doanh nghiệp'));
-            $form->text('business_address', __('Địa chỉ doanh nghiệp'));
+            $form->text('tax_number', __('Mã số thuế'))->required();
+            $form->text('business_name', __('Tên doanh nghiệp'))->required();
+            $form->text('business_address', __('Địa chỉ doanh nghiệp'))->required();
             $form->text('representative', __('Người đại diện'));
             $form->text('position', __('Chức vụ'));
         })->required();
@@ -395,13 +395,14 @@ class ContractController extends AdminController
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
 
         $form->divider('4. Thông tin phí và thanh toán');
-        $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
+        $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND')->required();
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
 
         $form->divider('5. Thông tin phiếu giao việc');
         $form->text('broker', __('Môi giới'))->required();
-        $form->text('source', __('Nguồn'));
-        $form->text('sale', __('Sale'));
+        $form->text('source', __('Nguồn'))->required();
+        $form->text('sale', __('Sale'))->required();
+        $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND')->required();
 
         if (Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus) {
             $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
@@ -415,7 +416,6 @@ class ContractController extends AdminController
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
         $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-        $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND');
         $form->divider('6. Thông tin khác');
         $form->text('contact', __('liên hệ'));
         $form->textarea('note', __('Ghi chú'))->rows(5);
