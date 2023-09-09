@@ -5,7 +5,6 @@ use Illuminate\Routing\Router;
 Admin::routes();
 
 Route::resource('admin/auth/users', \App\Admin\Controllers\CustomUserController::class)->middleware(config('admin.route.middleware'));
-Route::resource('admin/auth/setting', \App\Admin\Controllers\CustomUserController::class)->middleware(config('admin.route.middleware'));
 
 Route::group([
     'prefix'        => config('admin.route.prefix'),
