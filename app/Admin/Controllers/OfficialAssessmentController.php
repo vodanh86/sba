@@ -45,9 +45,9 @@ class OfficialAssessmentController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
         $grid->column('certificate_code', __('Mã chứng thư'))->filter('like');
-        $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter)->filter('like');
+        $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter);
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
             if (!is_null($types)){
@@ -60,10 +60,10 @@ class OfficialAssessmentController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        })->filter('like');
+        });
         $grid->column('official_value', __('Giá trị chính thức'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
+        })->width(150);
         $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Document'))->display(function ($urls) {
             $urlsHtml = "";
@@ -72,8 +72,8 @@ class OfficialAssessmentController extends AdminController
             }
             return $urlsHtml;
         });
-        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150)->filter('like');
-        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderByDesc('id');
@@ -95,16 +95,26 @@ class OfficialAssessmentController extends AdminController
                     $query->where('code', 'like', "%{$this->input}%");
                 });
             }, 'Mã hợp đồng');
+            $filter->date('certificate_date', 'Ngày chứng thư');
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
                     $query->where('property', 'like', "%{$this->input}%");
                 });
             }, 'Tài sản thẩm định giá');
+            $filter->date('finished_date', 'Ngày hoàn thành');
             $filter->where(function ($query) {
                 $query->whereHas('performerDetail', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Người thực hiện');
+            $filter->where(function ($query) {
+                $query->whereHas('statusDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trạng thái');
+            $filter->equal('official_value', 'Giá trị chính thức')->integer();
+            $filter->date('created_at', 'Ngày tạo');
+            $filter->date('updated_at', 'Ngày cập nhật');
         });
         return $grid;
     }

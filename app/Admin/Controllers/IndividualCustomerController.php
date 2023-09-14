@@ -45,15 +45,15 @@ class IndividualCustomerController extends AdminController
         $grid->column('created_at', __('Ngày tạo'))->display(function ($createAt) {
             $carbonCreateAt = Carbon::parse($createAt)->timezone(Config::get('app.timezone'));
             return $carbonCreateAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        })->width(150)->filter('range', 'date');
         $grid->column('updated_at', __('Ngày cập nhật'))->display(function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
             return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150);
+        })->width(150)->filter('range', 'date');
         // callback after save
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('name', __('Họ và tên bên thuê dịch vụ'));
+            $filter->like('personal_name', __('Họ và tên bên thuê dịch vụ'));
             $filter->like('id_number', __('Số CMND/CCCD'));
         });
         return $grid;

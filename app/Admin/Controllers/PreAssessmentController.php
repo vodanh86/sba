@@ -46,7 +46,7 @@ class PreAssessmentController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
-        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'))->width(150);
         $grid->column('note', __('Chú ý'))->filter('like');
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
@@ -54,10 +54,10 @@ class PreAssessmentController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        })->width(200)->filter('like');
+        })->width(200);
         $grid->column('pre_value', __('Giá trị sơ bộ'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
+        })->width(150);
         $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
@@ -65,8 +65,8 @@ class PreAssessmentController extends AdminController
                 $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
             }
             return $urlsHtml;       });
-        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150)->filter('like');
-        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
+        $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
@@ -93,11 +93,20 @@ class PreAssessmentController extends AdminController
                     $query->where('property', 'like', "%{$this->input}%");
                 });
             }, 'Tài sản thẩm định giá');
+            $filter->date('finished_date', 'Ngày hoàn thành');
             $filter->where(function ($query) {
                 $query->whereHas('performerDetail', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Người thực hiện');
+            $filter->where(function ($query) {
+                $query->whereHas('statusDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trạng thái');
+            $filter->equal('pre_value', 'Giá trị sơ bộ')->integer();
+            $filter->date('created_at', 'Ngày tạo');
+            $filter->date('updated_at', 'Ngày cập nhật');
         });
         return $grid;
     }
