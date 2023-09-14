@@ -98,24 +98,25 @@ class ContractController extends AdminController
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('personal_name', __('Họ và tên'))->filter('like');
         $grid->column('issue_place', __('Nơi cấp'))->filter('like');
-        $grid->column('issue_date', __('Ngày cấp'))->display($dateFormatter)->filter('like');
+        $grid->column('issue_date', __('Ngày cấp'))->display($dateFormatter);
         $grid->column('property', __('Tài sản thẩm định giá'))->filter('like');
         $grid->column('purpose', __('Mục đích thẩm định giá'))->filter('like');
         $grid->column('appraisal_date', __('Thời điểm thẩm định giá'))->filter('like');
-        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->display($dateFormatter)->filter('like');
-        $grid->column('to_date', __('Đến ngày'))->display($dateFormatter)->filter('like');
+        $grid->column('from_date', __('Thời gian thực hiện từ ngày'))->display($dateFormatter);
+        $grid->column('to_date', __('Thời gian thực hiện đến ngày'))->display($dateFormatter);
 
-        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter)->filter('like');
-        $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter)->filter('like');
+        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
+        $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 
         $grid->column('broker', __('Môi giới'))->filter('like');
         $grid->column('source', __('Nguồn'))->filter('like');
         $grid->column('sale', __('Sale'))->filter('like');
-        $grid->column('tdv', __('Thẩm định viên'))->display($convertIdToNameUser);
+        $grid->column('tdv', __('Trưởng phòng nghiệp vụ'))->display($convertIdToNameUser);
         $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
+        $grid->column('tdv_migrate', __('Thẩm định viên'))->display($convertIdToNameUser);
         $grid->column('assistant.name', __('Trợ lý tdv'));
         $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
-        $grid->column('net_revenue', __('Doanh thu thuần'))->display($moneyFormatter)->filter('like');
+        $grid->column('net_revenue', __('Doanh thu thuần'))->display($moneyFormatter);
         $grid->column('contact', __('Liên hệ'))->filter('like');
         $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('document', __('File đính kèm'))->display(function ($urls) {
@@ -199,26 +200,44 @@ class ContractController extends AdminController
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->date('created_date', 'Ngày hợp đồng');
+            $filter->date('issue_date', 'Ngày cấp');
+            $filter->date('from_date', 'Thời gian thực hiện từ ngày');
+            $filter->date('to_date', 'Thời gian thực hiện đến ngày');
+            $filter->equal('total_fee', 'Tổng phí dịch vụ')->integer();
+            $filter->equal('advance_fee', 'Tạm ứng')->integer();
             $filter->where(function ($query) {
-                $query->whereHas('assistant', function ($query) {
+                $query->whereHas('tdvDetail', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
-            }, 'Trợ lý');
-            $filter->where(function ($query) {
-                $query->whereHas('supervisorDetail', function ($query) {
-                    $query->where('name', 'like', "%{$this->input}%");
-                });
-            }, 'Kiểm soát viên');
+            }, 'Trưởng phòng nghiệp vụ');
             $filter->where(function ($query) {
                 $query->whereHas('legalRepresentative', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Đại diện pháp luật');
             $filter->where(function ($query) {
-                $query->whereHas('tdvDetail', function ($query) {
+                $query->whereHas('assistant', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
-            }, 'Thẩm định viên');
+            }, 'Trợ lý tdv');
+            $filter->where(function ($query) {
+                $query->whereHas('supervisorDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Kiểm soát viên');
+            $filter->equal('net_revenue', 'Doanh thu thuần')->integer();
+            $filter->where(function ($query) {
+                $query->whereHas('statusDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trạng thái');
+            $filter->where(function ($query) {
+                $query->whereHas('creator', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Người tạo');
+            $filter->date('created_at', 'Ngày tạo');
+            $filter->date('updated_at', 'Ngày cập nhật');
         });
         return $grid;
     }
@@ -269,8 +288,9 @@ class ContractController extends AdminController
         $show->field('source', __('Nguồn'));
         $show->field('sale', __('Sale'));
 
-        $show->field('tdv', __('Thẩm định viên'))->as($convertIdToNameUser);
+        $show->field('tdv', __('Trưởng phòng nghiệp vụ'))->as($convertIdToNameUser);
         $show->field('legal_representative', __('Đại diện pháp luật'))->as($convertIdToNameUser);
+        $show->field('tdv_migrate', __('Thẩm định viên'))->as($convertIdToNameUser);
         $show->field('assistant.name', __('Trợ lý tdv'));
         $show->field('supervisor', __('Kiểm soát viên'))->as($convertIdToNameUser);
         $show->field('net_revenue', __('Doanh thu thuần'));
@@ -405,13 +425,16 @@ class ContractController extends AdminController
         $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND')->required();
 
         if (Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus) {
-            $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
+            $form->select('tdv', __('Trưởng phòng nghiệp vụ'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
         } else {
-            $form->select('tdv', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
+            $form->select('tdv', __('Trưởng phòng nghiệp vụ'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         }
 
         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-
+       
+        $form->select('tdv_migrate', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
+            $q->where('id', Constant::BUSINESS_STAFF);
+        })->pluck('name', 'id'));
         $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
@@ -431,6 +454,13 @@ class ContractController extends AdminController
         $form->saving(function (Form $form) {
             if ($form->isCreating()) {
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
+                $customerType = $form->customer_type;
+
+                if ($customerType == 1 && $form->id_number !== "" || $form->personal_name !== "" || $form->personal_address !== "") {
+                    throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
+                } elseif ($customerType == 2 && $form->tax_number !== "" || $form->business_name !== "" || $form->business_address !== "") {
+                    throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
+                }
             }
         });
 
