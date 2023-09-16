@@ -402,7 +402,7 @@ class ReportController extends AdminController
                 foreach ($result as $i => $row) {
                     $rows[] = [$row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv, $users) ? $users[$row->contract->tdv] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property, 
                     $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type), 
-                    Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
+                    number_format($row->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
             } else {
                 $headers = ['Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
