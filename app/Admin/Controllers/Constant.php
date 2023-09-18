@@ -62,10 +62,6 @@ abstract class Constant
     const PRE_CONTRACT_REQUIRE = 66;
     const OFFICIAL_CONTRACT_REQUIRE = 70;
 
-
-
-
-
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const DIRECTOR_ROLE = 'bld';
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
