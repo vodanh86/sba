@@ -358,7 +358,8 @@ class ReportController extends AdminController
             foreach ($result as $i => $row) {
                 $rows[] = [ $i + 1,
                     !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
-                    $row->count, $row->basic_error, $row->business_error, $row->serious_error, $row->score
+                    $row->count, is_null($row->basic_error) ? 0 : $row->basic_error, is_null($row->business_error) ? 0 : $row->business_error, 
+                    is_null($row->serious_error) ? 0 : $row->serious_error, $row->score
                 ];
             }
 
