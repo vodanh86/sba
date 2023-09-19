@@ -415,14 +415,14 @@ class ContractController extends AdminController
         $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
 
         $form->divider('4. Thông tin phí và thanh toán');
-        $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND')->required();
+        $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
 
         $form->divider('5. Thông tin phiếu giao việc');
         $form->text('broker', __('Môi giới'))->required();
         $form->text('source', __('Nguồn'))->required();
         $form->text('sale', __('Sale'))->required();
-        $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND')->required();
+        $form->currency('net_revenue', __('Doanh thu thuần'))->symbol('VND');
 
         if (Constant::PRE_CONTRACT_REQUIRE == $currentStatus || Constant::OFFICIAL_CONTRACT_REQUIRE == $currentStatus) {
             $form->select('tdv', __('Trưởng phòng nghiệp vụ'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->required();
@@ -455,7 +455,11 @@ class ContractController extends AdminController
             if ($form->isCreating()) {
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
                 $customerType = $form->customer_type;
-
+                $contractType = $form->contract_type;
+                
+                if($contractType == 1 && $form->total_fee !== "" || $form->net_revenue !== ""){
+                    throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
+                }
                 if ($customerType == 1 && $form->id_number !== "" || $form->personal_name !== "" || $form->personal_address !== "") {
                     throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
                 } elseif ($customerType == 2 && $form->tax_number !== "" || $form->business_name !== "" || $form->business_address !== "") {
