@@ -114,7 +114,7 @@ class ContractController extends AdminController
         $grid->column('tdv', __('Trưởng phòng nghiệp vụ'))->display($convertIdToNameUser);
         $grid->column('legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
         $grid->column('tdv_migrate', __('Thẩm định viên'))->display($convertIdToNameUser);
-        $grid->column('assistant.name', __('Trợ lý tdv'));
+        $grid->column('assistant.name', __('Trợ lý thẩm định viên'));
         $grid->column('supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
         $grid->column('net_revenue', __('Doanh thu thuần'))->display($moneyFormatter);
         $grid->column('contact', __('Liên hệ'))->filter('like');
@@ -219,7 +219,7 @@ class ContractController extends AdminController
                 $query->whereHas('assistant', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
                 });
-            }, 'Trợ lý tdv');
+            }, 'Trợ lý thẩm định viên');
             $filter->where(function ($query) {
                 $query->whereHas('supervisorDetail', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
@@ -291,7 +291,7 @@ class ContractController extends AdminController
         $show->field('tdv', __('Trưởng phòng nghiệp vụ'))->as($convertIdToNameUser);
         $show->field('legal_representative', __('Đại diện pháp luật'))->as($convertIdToNameUser);
         $show->field('tdv_migrate', __('Thẩm định viên'))->as($convertIdToNameUser);
-        $show->field('assistant.name', __('Trợ lý tdv'));
+        $show->field('assistant.name', __('Trợ lý thẩm định viên'));
         $show->field('supervisor', __('Kiểm soát viên'))->as($convertIdToNameUser);
         $show->field('net_revenue', __('Doanh thu thuần'));
         $show->field('contact', __('Liên hệ'));
@@ -362,7 +362,7 @@ class ContractController extends AdminController
             }
         } else {
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
-            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(Constant::PRE_CONTRACT_TYPE)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
+            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(0)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -431,16 +431,16 @@ class ContractController extends AdminController
         }
 
         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
-       
+
         $form->select('tdv_migrate', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
-        $form->select('tdv_assistant', __('Trợ lý tdv'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
+        $form->select('tdv_assistant', __('Trợ lý thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
         $form->select('supervisor', __('Kiểm soát viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->divider('6. Thông tin khác');
-        $form->text('contact', __('liên hệ'));
+        $form->text('contact', __('Liên hệ'));
         $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
@@ -456,21 +456,26 @@ class ContractController extends AdminController
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
-                
-                if($contractType == 1 && $form->total_fee !== "" || $form->net_revenue !== ""){
-                    throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
+                if ($customerType == 1) {
+                    if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
+                        throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
+                    }
+                } elseif ($customerType == 2) {
+                    if ($form->tax_number == "" || $form->business_name == "" || $form->business_address == "") {
+                        throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
+                    }
                 }
-                if ($customerType == 1 && $form->id_number !== "" || $form->personal_name !== "" || $form->personal_address !== "") {
-                    throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
-                } elseif ($customerType == 2 && $form->tax_number !== "" || $form->business_name !== "" || $form->business_address !== "") {
-                    throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
+                if ($contractType == 1) {
+                    if ($form->total_fee == "" || $form->net_revenue == "") {
+                        throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
+                    }
                 }
             }
         });
-
         $contracts = json_encode(Contract::where('branch_id', '=', Admin::user()->branch_id)->get()->keyBy("id"));
         $script = <<<EOT
         var contracts = $contracts;
+        var customerType;
         $(document).on('change', ".selected_id_number, .selected_tax_number", function () {
             var contract = contracts[this.value];
             $("#tax_number").val(contract.tax_number);  
@@ -483,6 +488,12 @@ class ContractController extends AdminController
             $("#id_number").val(contract.id_number);  
             $("#issue_place").val(contract.issue_place);  
             $("#issue_date").val(contract.issue_date); 
+        });
+        $(document).ready(function () {
+            customerType = $('select[name="customer_type"]').val();
+            $('select[name="customer_type"]').on('change', function () {
+                customerType = $(this).val();
+            });
         });
         EOT;
 
