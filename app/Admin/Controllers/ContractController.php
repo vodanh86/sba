@@ -432,9 +432,7 @@ class ContractController extends AdminController
 
         $form->select('legal_representative', __('Đại diện pháp luật'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
 
-        $form->select('tdv_migrate', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
-            $q->where('id', Constant::BUSINESS_STAFF);
-        })->pluck('name', 'id'));
+        $form->select('tdv_migrate', __('Thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->select('tdv_assistant', __('Trợ lý thẩm định viên'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->whereHas('roles', function ($q) {
             $q->where('id', Constant::BUSINESS_STAFF);
         })->pluck('name', 'id'));
