@@ -456,11 +456,11 @@ class ContractController extends AdminController
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
-                if ($customerType == 1) {
+                if ($contractType == 1 && $customerType == 1) {
                     if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
                         throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
                     }
-                } elseif ($customerType == 2) {
+                } elseif ($contractType == 1 && $customerType == 2) {
                     if ($form->tax_number == "" || $form->business_name == "" || $form->business_address == "") {
                         throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
                     }
