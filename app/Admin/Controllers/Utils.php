@@ -95,4 +95,11 @@ abstract class Utils
         }
         return "";
     }
+
+    public static function isSuperManager($id){
+        if ($id == 17 || $id == 18){
+            return true;
+        } 
+        return false;
+    }
 }
