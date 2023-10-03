@@ -20,4 +20,6 @@
 }
 .grid-box .box-body {
     height: calc(100vh - 250px);
+    -webkit-overflow-scrolling: touch;
+   /* overflow-y: scroll;*/
 }
