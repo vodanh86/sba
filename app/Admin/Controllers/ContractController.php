@@ -166,9 +166,10 @@ class ContractController extends AdminController
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
-            if (Admin::user()->isRole(Constant::DIRECTOR_ROLE)) {
+            if (Admin::user()->isRole(Constant::DIRECTOR_ROLE) && in_array(Admin::user()->id, Constant::ROLE_RESET_CONTRACT)) {
                 $actions->add(new ResetButton($actions->getKey()));
             }
+            
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
