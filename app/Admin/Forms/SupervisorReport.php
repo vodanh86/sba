@@ -30,7 +30,7 @@ class SupervisorReport extends Form
         $result = array("from_date" => $request->get("from_date"),
                         "to_date" => $request->get("to_date"),
                         "formated_from_date" => $fromDate->format('Y-m-d'),
-                        "formated_to_date" => $toDate->format('Y-m-d'));
+                        "formated_to_date" => $toDate->format('Y-m-d 23:59:59'));
         return back()->with(['result' => $result]);
     }
 
