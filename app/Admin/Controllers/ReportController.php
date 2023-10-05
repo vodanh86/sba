@@ -94,6 +94,7 @@ class ReportController extends AdminController
                 if (!is_null(($data["formated_to_date"]))) {
                     $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
+                $query->where('status', "<>", 6);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
                     $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0,0,0], [0,0,0]], [[0,0,0], [0,0,0]], [[0,0,0]]];
@@ -136,6 +137,7 @@ class ReportController extends AdminController
                 if (!is_null(($data["formated_to_date"]))) {
                     $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
+                $query->where('status', "<>", 6);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
                     $currentVal = array_key_exists($row["broker"], $brokers) ? $brokers[$row["broker"]] : [[0,0,0], [0,0,0], [0,0,0]];
@@ -295,13 +297,27 @@ class ReportController extends AdminController
             }
 
             $rows = [];
-            $count = 1;
+            $tmpRows = [];
+            $count = 0;
             foreach ($appraisers as $appraiser => $row) {
-                $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
-                $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
-                $rows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
-                $rows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
-                $rows[] = ["", "Tổng", "", "", $row[2]];
+                if (array_key_exists($appraiser, $users)){
+                    $count ++;
+                    $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
+                    $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
+                    $rows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
+                    $rows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
+                    $rows[] = ["", "Tổng", "", "", $row[2]];        
+                } else {
+                    $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
+                    $tmpRows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
+                    $tmpRows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
+                    $tmpRows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
+                    $tmpRows[] = ["", "Tổng", "", "", $row[2]];
+                }
+            }
+            if (count($tmpRows) > 0){
+                $tmpRows[0][0] = $count+1;
+                $rows = array_merge($rows, $tmpRows);
             }
             $rows[] = ["", "Tổng cộng", "",  "", $sum];
 
