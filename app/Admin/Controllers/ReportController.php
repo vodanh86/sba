@@ -410,7 +410,7 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$i + 1, $row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv, $users) ? $users[$row->contract->tdv] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property, 
+                    $rows[] = [$i + 1, $row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property, 
                     $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type), 
                     number_format($row->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
                 }
