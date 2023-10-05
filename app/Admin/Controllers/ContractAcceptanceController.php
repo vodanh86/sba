@@ -136,7 +136,8 @@ class ContractAcceptanceController extends AdminController
         $show->field('contract_id', __('Mã hợp đồng'));
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
-        });        $show->field('date_acceptance', __('Ngày nghiệm thu'))->as($dateFormatter);
+        });
+        $show->field('date_acceptance', __('Ngày nghiệm thu'))->as($dateFormatter);
 
         $show->field('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
         $show->field('contract.tax_number', __('Mã số thuế'));
@@ -207,18 +208,21 @@ class ContractAcceptanceController extends AdminController
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $contractId = $form->model()->find($id)->getOriginal("contract_id");
+            $contractsAll = Contract::where("branch_id", Admin::user()->branch_id)->pluck('code', 'id');
+            $form->select('contract_id', __('valuation_document.contract_id'))->options($contractsAll)->default($contractId)->required()->readonly();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_ACCEPTANCE_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->whereHas('scoreCards', function ($query) {
+                $query->where('status', 74);
+            })->whereDoesntHave('contractAcceptances')
+                ->pluck('code', 'id'))->required()
+                ->creationRules(['required', "unique:contract_acceptances"])
+                ->updateRules(['required', "unique:contract_acceptances,contract_id,{{id}}"]);
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::CONTRACT_INPUTTING_STATUS)->whereHas('scoreCards', function ($query) {
-            $query->where('status', 74);
-        })->whereDoesntHave('contractAcceptances')
-        ->pluck('code', 'id'))->required()
-        ->creationRules(['required', "unique:contract_acceptances"])
-        ->updateRules(['required', "unique:contract_acceptances,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->date('date_acceptance', __('Ngày nghiệm thu'));
 
