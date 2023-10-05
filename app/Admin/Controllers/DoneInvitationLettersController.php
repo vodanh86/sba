@@ -73,6 +73,9 @@ class DoneInvitationLettersController extends AdminController
             $filter->disableIdFilter();
             $filter->like('code', 'Mã thư chào');
         });
+        $grid->export(function ($export) {
+            $export->originalValue(['comment']);
+        });
         return $grid;
     }
 

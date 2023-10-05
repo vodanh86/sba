@@ -79,6 +79,9 @@ class ValuationDocumentController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
+        $grid->export(function ($export) {
+            $export->originalValue(['comment']);
+        });
         return $grid;
     }
 

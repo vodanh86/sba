@@ -240,6 +240,9 @@ class ContractController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
+        $grid->export(function ($export) {
+            $export->originalValue(['comment']);
+        });
         return $grid;
     }
 
