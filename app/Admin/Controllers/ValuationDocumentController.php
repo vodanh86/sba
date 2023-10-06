@@ -6,6 +6,7 @@ use App\Http\Models\ValuationDocument;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
+use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddValuationDocumentComment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
@@ -79,9 +80,7 @@ class ValuationDocumentController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", ValuationDocument::all()->toArray()));
         return $grid;
     }
 
