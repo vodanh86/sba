@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\InvitationLetter;
+use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddInvitationLetterComment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
@@ -98,9 +99,7 @@ class InvitationLetterController extends AdminController
             $filter->disableIdFilter();
             $filter->like('code', 'Mã thư chào');
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", InvitationLetter::all()->toArray()));
         return $grid;
     }
 

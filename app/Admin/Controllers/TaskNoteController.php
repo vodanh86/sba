@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Http\Models\TaskNote;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
+use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddTaskNoteComment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Controllers\AdminController;
@@ -76,9 +77,7 @@ class TaskNoteController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", TaskNote::all()->toArray()));
         return $grid;
     }
 

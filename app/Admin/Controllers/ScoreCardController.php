@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Document\AddScoreCardComment;
 use App\Http\Models\ScoreCard;
 use App\Http\Models\Contract;
+use App\Admin\Extensions\ExcelExporter;
 use App\Http\Models\OfficialAssessment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
@@ -82,9 +83,7 @@ class ScoreCardController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", ScoreCard::all()->toArray()));
         return $grid;
     }
 

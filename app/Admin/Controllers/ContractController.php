@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
 use Encore\Admin\Layout\Content;
+use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddContractComment;
 use App\Admin\Grid\ResetButton;
 use App\Http\Models\AdminUser;
@@ -240,9 +241,7 @@ class ContractController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", Contract::all()->toArray()));
         return $grid;
     }
 

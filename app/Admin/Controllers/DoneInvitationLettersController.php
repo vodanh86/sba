@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\InvitationLetter;
+use App\Admin\Extensions\ExcelExporter;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Status;
 use Encore\Admin\Facades\Admin;
@@ -73,9 +74,7 @@ class DoneInvitationLettersController extends AdminController
             $filter->disableIdFilter();
             $filter->like('code', 'Mã thư chào');
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", InvitationLetter::all()->toArray()));
         return $grid;
     }
 

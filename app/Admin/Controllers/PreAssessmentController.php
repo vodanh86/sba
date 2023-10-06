@@ -6,6 +6,7 @@ use App\Http\Models\PreAssessment;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
+use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddPreAssessmentComment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
@@ -108,9 +109,7 @@ class PreAssessmentController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", PreAssessment::all()->toArray()));
         return $grid;
     }
 

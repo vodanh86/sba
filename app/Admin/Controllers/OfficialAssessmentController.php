@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\OfficialAssessment;
+use App\Admin\Extensions\ExcelExporter;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
@@ -116,9 +117,7 @@ class OfficialAssessmentController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
-        });
+        $grid->exporter(new ExcelExporter("reports.xlsx", OfficialAssessment::all()->toArray()));
         return $grid;
     }
 
