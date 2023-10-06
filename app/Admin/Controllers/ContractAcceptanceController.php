@@ -45,10 +45,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'))->filter('like');
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->filter('like');
-        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display(function ($updatedAt) {
-            $carbonUpdatedAt = Carbon::parse($updatedAt);
-            return $carbonUpdatedAt->format('d/m/Y - H:i:s');
-        })->width(150)->filter('like');
+        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150)->filter('like');
 
         $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter('like');
         $grid->column('contract.tax_number', __('Mã số thuế'))->filter('like');
@@ -62,7 +59,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('contract.issue_date', __('Ngày cấp'))->filter('like');
 
         $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
-            return $value == 0 ? 'Không' : 'Có';
+            return $value == 0 ? 'Có' : 'Không';
         })->filter('like');
         $grid->column('buyer_name', __('Đơn vị mua'))->filter('like');
         $grid->column('buyer_address', __('Địa chỉ'))->filter('like');
@@ -114,9 +111,6 @@ class ContractAcceptanceController extends AdminController
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
-        });
-        $grid->export(function ($export) {
-            $export->originalValue(['comment']);
         });
         return $grid;
     }
