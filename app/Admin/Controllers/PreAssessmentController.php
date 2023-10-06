@@ -109,8 +109,16 @@ class PreAssessmentController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", PreAssessment::all()->toArray()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
+    }
+
+    protected function processData(){
+        $processedData = array();
+        foreach(PreAssessment::all() as $index=>$preAssessment){
+            $processedData[] = [$preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property];
+        }
+        return $processedData;
     }
 
     /**
