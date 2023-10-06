@@ -18,8 +18,8 @@ class WordController extends AdminController
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
         $document->setValue('address',  $contract->business_address);
         $document->setValue('taxNumber',  $contract->tax_number);
-        $document->saveAs(storage_path()."output.docx");
+        $document->saveAs(storage_path()."/output.docx");
 
-        return response()->file(storage_path()."output.docx");
+        return response()->file(storage_path()."/output.docx");
     }
 }
