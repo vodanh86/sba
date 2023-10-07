@@ -97,8 +97,8 @@ class ContractController extends AdminController
         $grid->column('representative', __('Người đại diện'))->filter('like');
         $grid->column('position', __('Chức vụ'))->filter('like');
         $grid->column('personal_address', __('Địa chỉ'))->filter('like');
-        $grid->column('print', __('In hợp đồng'))->display(function ($id) {
-            return "<a class=\"fa fa-print\" href='print-contract?id=".$id."' target='_blank'></a>";
+        $grid->column('print', __('In hợp đồng'))->display(function () {
+            return "<a class=\"fa fa-print\" href='print-contract?id=".$this->id."' target='_blank'></a>";
         });
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('personal_name', __('Họ và tên'))->filter('like');
