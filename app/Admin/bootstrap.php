@@ -22,6 +22,8 @@ use Encore\Admin\Facades\Admin as AdminFacade;
 
 Encore\Admin\Form::forget(['map', 'editor']);
 Admin::css(env('APP_URL').'/css/main.css');
+Admin::css("https://skywalkapps.github.io/bootstrap-notifications/stylesheets/bootstrap-notifications.css");
+Admin::js(env('APP_URL').'/js/pusher.min.js');
 Admin::favicon(env('APP_URL').'/favicon.ico');
 AdminFacade::navbar(function (\Encore\Admin\Widgets\Navbar $navbar) {
     $navbar->right(new \App\Admin\Extensions\Nav\Links());

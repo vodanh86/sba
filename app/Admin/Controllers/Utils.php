@@ -6,6 +6,8 @@ use App\Http\Models\StatusTransition;
 use Illuminate\Support\Facades\DB;
 use App\Http\Models\Status;
 use App\Http\Models\Branch;
+use App\Http\Models\Notification;
+use Pusher\Pusher;
 
 abstract class Utils
 {
@@ -32,6 +34,27 @@ abstract class Utils
 
     public static function getCreateRole($table){
         return StatusTransition::where(["table" => $table])->whereNull('status_id')->pluck('editors')->first()[0];
+    }
+
+    public static function sendNotification($userId, $table){
+
+        $data = array();
+        $data["userId"] = $userId;
+        $data["table"] = $table;
+        $data["count"] = Notification::where("user_id", $userId)->where("check", 0)->count();
+        $options = array(
+            'cluster' => 'ap1',
+            'encrypted' => true
+        );
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+
+        $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $data);
     }
 
     public static function generateCode($table, $branchId){

@@ -82,4 +82,6 @@ abstract class Constant
     const SCORE_CARD_TABLE = "score_cards";
     const CONTRACT_ACCEPTANCE_TABLE = "contract_acceptances";
     const VALUATION_DOCUMENT_TABLE = "valuation_documents";
+    const PUSHER_CHANNEL = "Notify";
+    const PUSHER_EVENT = "send-message";
 }

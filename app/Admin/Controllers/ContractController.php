@@ -8,6 +8,7 @@ use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddContractComment;
 use App\Admin\Grid\ResetButton;
 use App\Http\Models\AdminUser;
+use App\Http\Models\Notification;
 use App\Http\Models\PreAssessment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
@@ -476,6 +477,20 @@ class ContractController extends AdminController
                 }
             }
         });
+        $form->saved(function (Form $form) {
+            $users = array($form->model()->tdv, $form->model()->legal_representative, $form->model()->tdv_migrate, $form->model()->tdv_assistant, $form->model()->supervisor);
+            foreach($users as $i => $userId){
+                if ($userId){
+                    $notification = new Notification();
+                    $notification->user_id = $userId;
+                    $notification->table = "contracts";
+                    $notification->table_id = $form->model()->id;
+                    $notification->save();
+                    Utils::sendNotification($notification->user_id, $notification->table);
+                }
+            }
+        });
+
         $contracts = json_encode(Contract::where('branch_id', '=', Admin::user()->branch_id)->get()->keyBy("id"));
         $script = <<<EOT
         var contracts = $contracts;
