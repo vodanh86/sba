@@ -20,7 +20,7 @@
 }
 .grid-box .box-body {
     height: calc(100vh - 250px);
-    overflow: hidden!important;
+    overflow: auto!important;
 }
 @media (max-width:767px){
     .grid-box .box-body {
