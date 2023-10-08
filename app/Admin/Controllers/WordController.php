@@ -15,9 +15,13 @@ class WordController extends AdminController
     {
         $id = $request->input('id');
         $contract = Contract::find($id);
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
-        $document->setValue('address',  $contract->business_address);
-        $document->setValue('taxNumber',  $contract->tax_number);
+        if ($contract->customer_type == 1){
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDCN.docx");
+        } else {
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
+            $document->setValue('address',  $contract->business_address);
+            $document->setValue('taxNumber',  $contract->tax_number);
+        }
         $document->saveAs(storage_path()."/output.docx");
 
         return response()->file(storage_path()."/output.docx");
