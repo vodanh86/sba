@@ -120,10 +120,20 @@ class OfficialAssessmentController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", OfficialAssessment::all()->toArray()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
-
+    protected function processData(){
+        $processedData = array();
+        foreach(OfficialAssessment::all() as $index=>$officialAssessment){
+            $performerDetail = optional(AdminUser::find($officialAssessment->performer))->name;
+            $processedData[] = [$officialAssessment->id, $officialAssessment->contract->code, $officialAssessment->certificate_code, $officialAssessment->certificate_date, $officialAssessment->contract->property,
+                                $officialAssessment->finished_date, $performerDetail, $officialAssessment->assessment_type, $officialAssessment->note, $officialAssessment->statusDetail->name, $officialAssessment->official_value, 
+                                $officialAssessment->comment, $officialAssessment->created_at, $officialAssessment->updated_at
+                                ];
+        }
+        return $processedData;
+    }
     /**
      * Make a show builder.
      *

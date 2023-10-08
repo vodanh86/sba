@@ -83,10 +83,19 @@ class ScoreCardController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", ScoreCard::all()->toArray()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
-
+    protected function processData(){
+        $processedData = array();
+        foreach(ScoreCard::all() as $index=>$scoreCard){
+            $processedData[] = [$scoreCard->id, $scoreCard->contract->code, $scoreCard->contract->property, $scoreCard->score, $scoreCard->basic_error, $scoreCard->business_error,
+                                $scoreCard->serious_error, $scoreCard->note, $scoreCard->statusDetail->name,
+                                $scoreCard->comment, $scoreCard->created_at, $scoreCard->updated_at
+                                ];
+        }
+        return $processedData;
+    }
     /**
      * Make a show builder.
      *
