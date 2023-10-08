@@ -174,7 +174,7 @@ class ContractController extends AdminController
             if (Admin::user()->isRole(Constant::DIRECTOR_ROLE) && in_array(Admin::user()->id, Constant::ROLE_RESET_CONTRACT)) {
                 $actions->add(new ResetButton($actions->getKey()));
             }
-            
+
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             $preAssessment = PreAssessment::where('contract_id', $actions->row->id)->first();
@@ -245,8 +245,34 @@ class ContractController extends AdminController
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", Contract::all()->toArray()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
+    }
+
+    protected function processData()
+    {
+        $processedData = array();
+        foreach (Contract::all() as $index => $contract) {
+            $contractType = Constant::CONTRACT_TYPE[$contract->contract_type];
+            $customerType = Constant::CUSTOMER_TYPE[$contract->customer_type];
+            $tdv = optional(AdminUser::find($contract->tdv))->name;
+            $legalRepresentative = optional(AdminUser::find($contract->legal_representative))->name;
+            $tdvMigrate = optional(AdminUser::find($contract->tdv_migrate))->name;
+            $assistant = optional(AdminUser::find($contract->tdv_assistant))->name;
+            $supervisor = optional(AdminUser::find($contract->supervisor))->name;
+            $creator = optional(AdminUser::find($contract->created_by))->name;
+            $processedData[] = [$contract->id, $contract->code, $contractType, $contract->created_date, $customerType,
+                                $contract->tax_number, $contract->business_name, $contract->business_address, $contract->representative,
+                                $contract->position, $contract->personal_address, $contract->print, $contract->id_number,
+                                $contract->personal_name, $contract->issue_place, $contract->issue_date, $contract->property,
+                                $contract->purpose, $contract->appraisal_date, $contract->from_date, $contract->to_date,
+                                $contract->total_fee, $contract->advance_fee, $contract->broker, $contract->source,
+                                $tdv, $legalRepresentative, $tdvMigrate, $assistant, $supervisor, $contract->net_revenue,
+                                $contract->contact, $contract->note, $contract->comment, $contract->statusDetail->name, $creator, $contract->created_at, 
+                                $contract->updated_at
+                                ];
+        }
+        return $processedData;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\ExcelExporter;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Status;
 use Encore\Admin\Facades\Admin;
@@ -91,9 +92,24 @@ class DoneContractController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
-
+    protected function processData(){
+        $processedData = array();
+        foreach(ContractAcceptance::all() as $index=>$contractAcceptance){
+            $creator = optional(AdminUser::find($contractAcceptance->created_by))->name;
+            $processedData[] = [$contractAcceptance->id, $contractAcceptance->contract->code, $contractAcceptance->contract->property, $contractAcceptance->date_acceptance, $contractAcceptance->contract->customer_type, 
+                                $contractAcceptance->contract->tax_number,$contractAcceptance->contract->business_name, $contractAcceptance->contract->personal_address, $contractAcceptance->contract->representative,
+                                $contractAcceptance->contract->position, $contractAcceptance->contract->personal_name, $contractAcceptance->contract->id_number, $contractAcceptance->contract->issue_place, $contractAcceptance->contract->issue_date,
+                                $contractAcceptance->export_bill, $contractAcceptance->buyer_name, $contractAcceptance->buyer_address, $contractAcceptance->tax_number, $contractAcceptance->bill_content,
+                                $contractAcceptance->total_fee, $contractAcceptance->delivery, $contractAcceptance->recipient, $contractAcceptance->advance_fee, $contractAcceptance->official_fee,
+                                $contractAcceptance->contract->net_revenue, $creator,
+                                $contractAcceptance->created_at, $contractAcceptance->updated_at
+                                ];
+        }
+        return $processedData;
+    }
     /**
      * Make a show builder.
      *

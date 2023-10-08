@@ -116,7 +116,10 @@ class PreAssessmentController extends AdminController
     protected function processData(){
         $processedData = array();
         foreach(PreAssessment::all() as $index=>$preAssessment){
-            $processedData[] = [$preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property];
+            $performerDetail = optional(AdminUser::find($preAssessment->performer))->name;
+            $processedData[] = [$preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property, $preAssessment->finished_date, $performerDetail,
+                                $preAssessment->note, $preAssessment->comment, $preAssessment->statusDetail->name, $preAssessment->pre_value, $preAssessment->created_at, $preAssessment->updated_at
+                                ];
         }
         return $processedData;
     }
