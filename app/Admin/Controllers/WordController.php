@@ -50,7 +50,7 @@ class WordController extends AdminController
     public function createContractAcceptance(Request $request)
     {
         $id = $request->input('id');
-        $officialAssessment = co::find($id);
+        $contractAcceptance = ContractAcceptance::find($id);
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-BBNT.docx");
         $document->saveAs(storage_path()."/output.docx");
 
