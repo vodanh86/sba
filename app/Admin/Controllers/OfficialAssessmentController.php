@@ -73,6 +73,9 @@ class OfficialAssessmentController extends AdminController
             }
             return $urlsHtml;
         });
+        $grid->column('print', __('In chứng thư'))->display(function () {
+            return "<a class=\"fa fa-print\" href='print-official-assessment?id=".$this->id."' target='_blank'></a>";
+        });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 

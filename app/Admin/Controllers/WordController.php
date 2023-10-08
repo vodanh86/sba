@@ -6,6 +6,7 @@ use Encore\Admin\Controllers\AdminController;
 use Illuminate\Http\Request;
 use App\Http\Models\Contract;
 use App\Http\Models\InvitationLetter;
+use App\Http\Models\OfficialAssessment;
 
 class WordController extends AdminController
 {
@@ -30,6 +31,16 @@ class WordController extends AdminController
         $id = $request->input('id');
         $invitationLetter = InvitationLetter::find($id);
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-TCG.docx");
+        $document->saveAs(storage_path()."/output.docx");
+
+        return response()->file(storage_path()."/output.docx");
+    }
+
+    public function createOfficialAssessment(Request $request)
+    {
+        $id = $request->input('id');
+        $officialAssessment = OfficialAssessment::find($id);
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-CT.docx");
         $document->saveAs(storage_path()."/output.docx");
 
         return response()->file(storage_path()."/output.docx");

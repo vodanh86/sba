@@ -65,7 +65,7 @@ class InvitationLetterController extends AdminController
         $grid->column('advance_fee', __('Tạm ứng'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150)->filter('like');
-        $grid->column('print', __('In hợp đồng'))->display(function () {
+        $grid->column('print', __('In thư mời'))->display(function () {
             return "<a class=\"fa fa-print\" href='print-invitation-letter?id=".$this->id."' target='_blank'></a>";
         });
         $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
