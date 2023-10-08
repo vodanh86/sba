@@ -16,6 +16,7 @@ Route::group([
     $router->get('/print-contract', 'WordController@createContract');
     $router->get('/print-invitation-letter', 'WordController@createInvitationLetter');
     $router->get('/print-official-assessment', 'WordController@createOfficialAssessment');
+    $router->get('/print-contract-acceptance', 'WordController@createContractAcceptance');
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/sale-reports', 'ReportController@saleReport');
     $router->get('/ba-reports', 'ReportController@baReport');

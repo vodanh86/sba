@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Models\Contract;
 use App\Http\Models\InvitationLetter;
 use App\Http\Models\OfficialAssessment;
+use App\Http\Models\ContractAcceptance;
 
 class WordController extends AdminController
 {
@@ -41,6 +42,16 @@ class WordController extends AdminController
         $id = $request->input('id');
         $officialAssessment = OfficialAssessment::find($id);
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-CT.docx");
+        $document->saveAs(storage_path()."/output.docx");
+
+        return response()->file(storage_path()."/output.docx");
+    }
+
+    public function createContractAcceptance(Request $request)
+    {
+        $id = $request->input('id');
+        $officialAssessment = co::find($id);
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-BBNT.docx");
         $document->saveAs(storage_path()."/output.docx");
 
         return response()->file(storage_path()."/output.docx");

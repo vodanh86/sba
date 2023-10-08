@@ -85,7 +85,9 @@ class ContractAcceptanceController extends AdminController
             return $urlsHtml;
         });
         $grid->column('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class)->width(150)->filter('like');
-
+        $grid->column('print', __('In nghiệm thu'))->display(function () {
+            return "<a class=\"fa fa-print\" href='print-contract-acceptance?id=".$this->id."' target='_blank'></a>";
+        });
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
