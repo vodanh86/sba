@@ -4,10 +4,8 @@ namespace App\Admin\Controllers;
 
 use Encore\Admin\Controllers\AdminController;
 use Illuminate\Http\Request;
-use Encore\Admin\Form;
-use Encore\Admin\Grid;
-use Encore\Admin\Show;
 use App\Http\Models\Contract;
+use App\Http\Models\InvitationLetter;
 
 class WordController extends AdminController
 {
@@ -22,6 +20,16 @@ class WordController extends AdminController
             $document->setValue('address',  $contract->business_address);
             $document->setValue('taxNumber',  $contract->tax_number);
         }
+        $document->saveAs(storage_path()."/output.docx");
+
+        return response()->file(storage_path()."/output.docx");
+    }
+
+    public function createInvitationLetter(Request $request)
+    {
+        $id = $request->input('id');
+        $invitationLetter = InvitationLetter::find($id);
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-TCG.docx");
         $document->saveAs(storage_path()."/output.docx");
 
         return response()->file(storage_path()."/output.docx");

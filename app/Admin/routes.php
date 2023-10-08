@@ -14,6 +14,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/print-contract', 'WordController@createContract');
+    $router->get('/print-invitation-letter', 'WordController@createInvitationLetter');
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/sale-reports', 'ReportController@saleReport');
     $router->get('/ba-reports', 'ReportController@baReport');
