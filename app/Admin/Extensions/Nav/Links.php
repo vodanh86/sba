@@ -13,10 +13,7 @@ class Links
     $appKey = env('PUSHER_APP_KEY');
     $userId = Admin::user()->id;
     $count = Notification::where("user_id", $userId)->where("check", 0)->count();
-    $url = "#";
-    if ($count > 0){
-        $url = env('APP_URL').'/'.Notification::where("user_id", $userId)->where("check", 0)->first()->table;
-    }
+    $url = env('APP_URL')."/admin/notifications";
         return 
             <<<HTML
                 <li class="dropdown user user-menu dropdown-notifications">
