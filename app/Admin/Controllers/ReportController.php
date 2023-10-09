@@ -94,7 +94,8 @@ class ReportController extends AdminController
                 if (!is_null(($data["formated_to_date"]))) {
                     $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
-                $query->where('status', "<>", 6);
+
+                $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
                     $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0,0,0], [0,0,0]], [[0,0,0], [0,0,0]], [[0,0,0]]];
@@ -287,6 +288,7 @@ class ReportController extends AdminController
             if (!is_null(($data["formated_to_date"]))) {
                 $query->where('created_at', '<=', $data["formated_to_date"]);
             }
+            $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
             $result = $query->get();
             foreach ($result as $i => $row) {
                 $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0,0], [0,0], 0];
