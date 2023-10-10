@@ -487,6 +487,7 @@ class ContractController extends AdminController
                 $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
+                $statusContract = $form->status;
                 if ($contractType == 1 && $customerType == 1) {
                     if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
                         throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
@@ -499,6 +500,10 @@ class ContractController extends AdminController
                 if ($contractType == 1) {
                     if ($form->total_fee == "" || $form->net_revenue == "") {
                         throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
+                    }
+                }elseif ($contractType == 1 && $statusContract == 70){
+                    if($form->supervisor == ""){
+                        throw new \Exception('Chưa phân công kiểm soát chất lượng');
                     }
                 }
             }
