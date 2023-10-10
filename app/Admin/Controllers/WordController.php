@@ -20,19 +20,23 @@ class WordController extends AdminController
             $name = 'SBA-HDCN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDCN.docx");
             $document->setValue('personal_name',  $contract->personal_name);
-            $document->setValue('address',  $contract->address);
+            $document->setValue('address',  $contract->business_address);
             $document->setValue('id_number',  $contract->id_number);
             $document->setValue('issue_place',  $contract->issue_place);
             $document->setValue('purpose',  $contract->purpose);
             $document->setValue('total_fee',  $contract->total_fee);
+            $document->setValue('total_fee_words',  Utils::numberToWords($contract->total_fee));
             $document->setValue('appraisal_date',  $contract->appraisal_date);
         } else {
             $name = 'SBA-HDDN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
+            $document->setValue('business_name',  $contract->business_name);
             $document->setValue('address',  $contract->business_address);
             $document->setValue('taxNumber',  $contract->tax_number);
             $document->setValue('purpose',  $contract->purpose);
+            $document->setValue('property',  $contract->property);
             $document->setValue('total_fee',  $contract->total_fee);
+            $document->setValue('total_fee_words',  Utils::numberToWords($contract->total_fee));
             $document->setValue('representative',  $contract->representative);
             $document->setValue('position',  $contract->position);
             $document->setValue('appraisal_date',  $contract->appraisal_date);
