@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\StatusTransition;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use App\Http\Models\Status;
 use App\Http\Models\Branch;
@@ -13,30 +14,32 @@ abstract class Utils
 {
     public static function getAvailbleStatus(string $table, string $role, string $permission)
     {
-        return StatusTransition::where(["table" => $table])->where($permission, 'LIKE', '%'.$role.'%')->pluck('status_id')->toArray();
+        return StatusTransition::where(["table" => $table])->where($permission, 'LIKE', '%' . $role . '%')->pluck('status_id')->toArray();
     }
 
     public static function getAvailbleStatusInTables(array $tables, string $role, string $permission)
     {
-        return StatusTransition::whereIn("table", $tables)->where($permission, 'LIKE', '%'.$role.'%')->pluck('status_id')->toArray();
+        return StatusTransition::whereIn("table", $tables)->where($permission, 'LIKE', '%' . $role . '%')->pluck('status_id')->toArray();
     }
 
     public static function getNextStatuses(string $table, string $role)
     {
         $nextStatuses = array();
         $statuses = StatusTransition::where(["table" => $table])->where("approvers", 'LIKE', '%' . $role . '%')->whereIn("approve_type", [1, 2])->get();
-        foreach($statuses as $key =>$status){
+        foreach ($statuses as $key => $status) {
             $nextStatuses[$status->status_id] = Status::find($status->status_id)->name;
             $nextStatuses[$status->next_status_id] = Status::find($status->next_status_id)->name;
         }
         return $nextStatuses;
     }
 
-    public static function getCreateRole($table){
+    public static function getCreateRole($table)
+    {
         return StatusTransition::where(["table" => $table])->whereNull('status_id')->pluck('editors')->first()[0];
     }
 
-    public static function sendNotification($userId, $table){
+    public static function sendNotification($userId, $table)
+    {
 
         $data = array();
         $data["userId"] = $userId;
@@ -57,43 +60,46 @@ abstract class Utils
         $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $data);
     }
 
-    public static function generateCode($table, $branchId){
+    public static function generateCode($table, $branchId)
+    {
         $code = DB::table($table)
-        ->select(DB::raw('code'))
-        ->where('branch_id', $branchId)
-        ->where('code', 'like', '%'.date('ym').'%')
-        ->orderByDesc('id')
-        ->first();
+            ->select(DB::raw('code'))
+            ->where('branch_id', $branchId)
+            ->where('code', 'like', '%' . date('ym') . '%')
+            ->orderByDesc('id')
+            ->first();
         $branchCode = Branch::find($branchId)->code;
-        if ($code){
+        if ($code) {
             $currentIndex = substr($code->code, 1, 7);
-            return "S".($currentIndex + 1).".$branchCode";
+            return "S" . ($currentIndex + 1) . ".$branchCode";
         }
-        return "S".date('ym')."001.$branchCode";
+        return "S" . date('ym') . "001.$branchCode";
     }
 
-    public static function generateInvitationCode($table){
+    public static function generateInvitationCode($table)
+    {
         $code = DB::table($table)
-        ->select(DB::raw('code'))
-        ->where('code', 'like', '%'.date('ym').'%')
-        ->orderByDesc('id')
-        ->first();
-        if ($code){
+            ->select(DB::raw('code'))
+            ->where('code', 'like', '%' . date('ym') . '%')
+            ->orderByDesc('id')
+            ->first();
+        if ($code) {
             $currentIndex = substr($code->code, 1, 7);
-            return "A".($currentIndex + 1);
+            return "A" . ($currentIndex + 1);
         }
-        return "A".date('ym')."001";
+        return "A" . date('ym') . "001";
     }
 
-    public static function checkContractStatus($contract) {
+    public static function checkContractStatus($contract)
+    {
         if ($contract->contract_type == Constant::PRE_CONTRACT_TYPE) {
-            foreach ($contract->preAssessments as $i=>$preAssessment) {
+            foreach ($contract->preAssessments as $i => $preAssessment) {
                 if (Status::find($preAssessment->status)->done == 1) {
                     return 1;
                 }
-            }   
+            }
         } else {
-            foreach ($contract->contractAcceptances as $i=>$contractAcceptance) {
+            foreach ($contract->contractAcceptances as $i => $contractAcceptance) {
                 if (Status::find($contractAcceptance->status)->done == 1) {
                     return 1;
                 }
@@ -102,15 +108,16 @@ abstract class Utils
         return 0;
     }
 
-    public static function checkContractEndDate($contract) {
+    public static function checkContractEndDate($contract)
+    {
         if ($contract->contract_type == Constant::PRE_CONTRACT_TYPE) {
-            foreach ($contract->preAssessments as $i=>$preAssessment) {
+            foreach ($contract->preAssessments as $i => $preAssessment) {
                 if (Status::find($preAssessment->status)->done == 1) {
                     return Status::find($preAssessment->status)->finished_date;
                 }
-            }   
+            }
         } else {
-            foreach ($contract->contractAcceptances as $i=>$contractAcceptance) {
+            foreach ($contract->contractAcceptances as $i => $contractAcceptance) {
                 if (Status::find($contractAcceptance->status)->done == 1) {
                     return $contract->to_date;
                 }
@@ -119,35 +126,38 @@ abstract class Utils
         return "";
     }
 
-    public static function isSuperManager($id){
-        if ($id == 17 || $id == 18){
+    public static function isSuperManager($id)
+    {
+        if ($id == 17 || $id == 18) {
             return true;
-        } 
+        }
         return false;
     }
-    public static function numberToWords($number) {
+    public static function numberToWords($number)
+    {
         $units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
         $teens = ['', 'mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
         $tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
         $hundreds = ['', 'một trăm', 'hai trăm', 'ba trăm', 'bốn trăm', 'năm trăm', 'sáu trăm', 'bảy trăm', 'tám trăm', 'chín trăm'];
-        function convertHundred($number, $units, $teens, $tens, $hundreds) {
+        function convertHundred($number, $units, $teens, $tens, $hundreds)
+        {
             $result = '';
-    
+
             if ($number > 99) {
                 $result .= $hundreds[floor($number / 100)] . ' ';
                 $number %= 100;
             }
-    
+
             if ($number > 9 && $number < 20) {
                 $result .= $teens[$number - 10];
             } else {
                 $result .= $tens[floor($number / 10)] . ' ';
                 $result .= $units[$number % 10];
             }
-    
+
             return $result;
         }
-    
+
         if ($number == 0) {
             return 'Không';
         }
@@ -156,23 +166,31 @@ abstract class Utils
         $millions = floor(($number - $billions * 1000000000) / 1000000);
         $thousands = floor(($number - $billions * 1000000000 - $millions * 1000000) / 1000);
         $remainder = $number - $billions * 1000000000 - $millions * 1000000 - $thousands * 1000;
-    
+
         if ($billions > 0) {
             $result .= convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
         }
-    
+
         if ($millions > 0) {
             $result .= convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
         }
-    
+
         if ($thousands > 0) {
             $result .= convertHundred($thousands, $units, $teens, $tens, $hundreds) . ' nghìn ';
         }
-    
+
         if ($remainder > 0) {
             $result .= convertHundred($remainder, $units, $teens, $tens, $hundreds);
         }
-    
+
         return $result;
+    }
+    public static function generateDate()
+    {
+        $today = new DateTime();
+        $day = $today->format('d');
+        $month = $today->format('m');
+        $year = $today->format('Y');
+        return 'Ngày:' . $day . 'Tháng:' . $month . 'Năm:' . $year;
     }
 }

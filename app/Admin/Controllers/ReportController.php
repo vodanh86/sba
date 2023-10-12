@@ -197,7 +197,7 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
-            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Tình trạng thực hiện','Ngày hoàn thành'];
+            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện','Ngày hoàn thành'];
             $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
             if (!is_null(($data["formated_from_date"]))) {
                 $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -222,6 +222,18 @@ class ReportController extends AdminController
             $rows = [];
             $count = 1;
             foreach ($result as $row) {
+                $preAssessment = PreAssessment::where("contract_id", "=", $row->id)->first();
+                $convertIdToNameUser = AdminUser::find($row->tdv);
+                if ($preAssessment) {
+                    $finishedDate = $preAssessment->finished_date;
+                } else {
+                    $finishedDate = null;
+                }    
+                if($convertIdToNameUser){
+                    $name = $convertIdToNameUser->name;
+                }else{
+                    $name = null;
+                }
                 if (Utils::checkContractStatus($row) == 0){
                     $rows[] = [
                         $count,
@@ -229,8 +241,10 @@ class ReportController extends AdminController
                         $row->broker,
                         $row->property,
                         $row->purpose,
+                        $name,
                         "Đang xử lý",
-                        ""
+                        $finishedDate,
+
                     ];
                 } else {
                     $endDate = "";
@@ -240,8 +254,10 @@ class ReportController extends AdminController
                         $row->broker,
                         $row->property,
                         $row->purpose,
+                        $name,
                         "Đã hoàn thành",
-                        Utils::checkContractEndDate($row)
+                        $finishedDate,
+                        // Utils::checkContractEndDate($row)
                     ];
                 }
                 $count ++;
