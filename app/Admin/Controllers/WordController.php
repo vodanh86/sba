@@ -18,8 +18,11 @@ class WordController extends AdminController
         
         if ($contract->customer_type == 1){
             $name = 'SBA-HDCN-' . $contract->code;
+            $today = Utils::generateDate();
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDCN.docx");
+            $document->setValue('code',  $contract->code);
             $document->setValue('personal_name',  $contract->personal_name);
+            $document->setValue('today',  $today);
             $document->setValue('address',  $contract->business_address);
             $document->setValue('id_number',  $contract->id_number);
             $document->setValue('issue_place',  $contract->issue_place);
@@ -29,7 +32,10 @@ class WordController extends AdminController
             $document->setValue('appraisal_date',  $contract->appraisal_date);
         } else {
             $name = 'SBA-HDDN-' . $contract->code;
+            $today = Utils::generateDate();
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
+            $document->setValue('code',  $contract->code);
+            $document->setValue('today',  $today);
             $document->setValue('business_name',  $contract->business_name);
             $document->setValue('address',  $contract->business_address);
             $document->setValue('taxNumber',  $contract->tax_number);
@@ -51,9 +57,13 @@ class WordController extends AdminController
     public function createInvitationLetter(Request $request)
     {
         $id = $request->input('id');
+        $today = Utils::generateDate();
         $invitationLetter = InvitationLetter::find($id);
         $name = 'SBA'. '-' . 'TCG' . '-' . $invitationLetter->code;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-TCG.docx");
+        $document->setValue('code',  $invitationLetter->code);
+        $document->setValue('today',  $today);
+        $document->setValue('business_name',  $invitationLetter->customer_name);
         $document->setValue('property_type',  $invitationLetter->property_type);
         $document->setValue('purpose',  $invitationLetter->purpose);
         $document->setValue('appraisal_date',  $invitationLetter->appraisal_date);
@@ -67,9 +77,12 @@ class WordController extends AdminController
     public function createOfficialAssessment(Request $request)
     {
         $id = $request->input('id');
+        $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
         $name = 'SBA'. '-' . 'CT' . '-' . $officialAssessment->contract->code;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-CT.docx");
+        $document->setValue('code',  $officialAssessment->contract->code);
+        $document->setValue('today',  $today);
         $document->setValue('customer_name',  $officialAssessment->contract->customer_name);
         $document->setValue('address',  $officialAssessment->contract->address);
         $document->setValue('id_number',  $officialAssessment->contract->id_number);
@@ -86,9 +99,14 @@ class WordController extends AdminController
     public function createContractAcceptance(Request $request)
     {
         $id = $request->input('id');
+        $today = Utils::generateDate();
         $contractAcceptance = ContractAcceptance::find($id);
         $name = 'SBA'. '-' . 'BBNT' . '-' . $contractAcceptance->contract->code;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-BBNT.docx");
+        $document->setValue('code',  $contractAcceptance->contract->code);
+        $document->setValue('today',  $today);
+        $document->setValue('appraisal_date',  $contractAcceptance->contract->appraisal_date);
+        $document->setValue('business_name',  $contractAcceptance->contract->business_name);
         $document->setValue('address',  $contractAcceptance->contract->address);
         $document->setValue('tax_number',  $contractAcceptance->tax_number);
         $document->setValue('representative',  $contractAcceptance->contract->representative);
