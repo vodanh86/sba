@@ -27,13 +27,17 @@ class IndividualCustomerController extends AdminController
      */
     protected function grid()
     {
+        $dateFormatter = function ($updatedAt) {
+            $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
+            return $carbonUpdatedAt->format('d/m/Y');
+        };
         $grid = new Grid(new Contract());
 
         $grid->column('personal_name', __('Họ và tên bên thuê dịch vụ'))->filter('like');
         $grid->column('personal_address', __('Địa chỉ'))->filter('like');
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('issue_place', __('Nơi cấp'))->filter('like');
-        $grid->column('issue_date', __('Ngày cấp'))->filter('range', 'date');
+        $grid->column('issue_date', __('Ngày cấp'))->filter('range', 'date')->display($dateFormatter);
         
         $grid->model()->whereNotNull(["personal_name", "personal_address", "id_number", "issue_place", "issue_date"]);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where("customer_type", "=", "1")->orderBy('id', 'desc');
@@ -74,7 +78,7 @@ class IndividualCustomerController extends AdminController
         $show->field('personal_address', __('Địa chỉ'));
         $show->field('id_number', __('Số CMND/CCCD'));
         $show->field('issue_place', __('Nơi cấp'));
-        $show->field('issue_date', __('Ngày cấp'));
+        $show->field('issue_date', __('Ngày cấp'))->format('DD-MM-YYYY');
         $show->panel()
         ->tools(function ($tools) {
             $tools->disableEdit();
