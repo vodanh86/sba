@@ -199,7 +199,7 @@ class PreAssessmentController extends AdminController
         ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
 
-        $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+        $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));

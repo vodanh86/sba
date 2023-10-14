@@ -418,7 +418,7 @@ class ContractController extends AdminController
             })->required();
             $form->hidden('created_by')->default(Admin::user()->id);
         }
-        $form->date('created_date', __('Ngày hợp đồng'))->default(date('Y-m-d'))->required();
+        $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
 
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
@@ -428,7 +428,7 @@ class ContractController extends AdminController
             $form->text('id_number', __('Số CMND/CCCD'));
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
             $form->text('personal_address', __('Địa chỉ'));
-            $form->date('issue_date', __('Ngày cấp'))->default(date('Y-m-d'));
+            $form->date('issue_date', __('Ngày cấp'))->format('DD-MM-YYYY');
             $form->text('issue_place', __('Nơi cấp'));
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
@@ -444,8 +444,8 @@ class ContractController extends AdminController
         $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
         $form->text('appraisal_date', __('Thời điểm thẩm định giá'))->required();
-        $form->date('from_date', __('Thời gian thực hiện từ ngày'))->default(date('Y-m-d'))->required();
-        $form->date('to_date', __('Đến ngày'))->default(date('Y-m-d'))->required();
+        $form->date('from_date', __('Thời gian thực hiện từ ngày'))->format('DD-MM-YYYY')->required();
+        $form->date('to_date', __('Đến ngày'))->format('DD-MM-YYYY')->required();
 
         $form->divider('4. Thông tin phí và thanh toán');
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');

@@ -219,7 +219,7 @@ class OfficialAssessmentController extends AdminController
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('certificate_date', __('Ngày chứng thư'));
-        $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
+        $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->multipleSelect('assessment_type', __('Phương pháp thẩm định'))->options(Constant::ASSESSMENT_TYPE)->setWidth(5, 2)->required();
