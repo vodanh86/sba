@@ -219,8 +219,13 @@ class PreAssessmentController extends AdminController
             $dateFields = ['finished_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
-                $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
-                $form->input($field, $formattedDate);
+                if (!empty($value)) {
+                    try {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                        $form->input($field, $formattedDate);
+                    } catch (\Exception $e) {
+                    }
+                }
             }
         });
         $script = <<<EOT
