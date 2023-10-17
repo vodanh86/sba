@@ -215,7 +215,14 @@ class PreAssessmentController extends AdminController
         }
         // $url = 'https://valuation.sba.net.vn/api/contract';
         $url = env('APP_URL') . '/api/contract';
-        
+        $form->saving(function (Form $form) {
+            $dateFields = ['finished_date'];
+            foreach ($dateFields as $field) {
+                $value = $form->input($field);
+                $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                $form->input($field, $formattedDate);
+            }
+        });
         $script = <<<EOT
         $(function() {
             var contractId = $(".contract_id").val();

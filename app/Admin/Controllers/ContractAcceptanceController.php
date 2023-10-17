@@ -44,20 +44,20 @@ class ContractAcceptanceController extends AdminController
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Mã hợp đồng'))->filter('like');
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->filter('like');
+        $grid->column('contract.code', __('Mã hợp đồng'));
+        $grid->column('contract.property', __('Tài sản thẩm định giá'));
         $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150)->filter('like');
 
         $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter('like');
-        $grid->column('contract.tax_number', __('Mã số thuế'))->filter('like');
-        $grid->column('contract.business_name', __('Tên doanh nghiệp'))->filter('like');
-        $grid->column('contract.personal_address', __('Địa chỉ'))->filter('like');
-        $grid->column('contract.representative', __('Người đại diện'))->filter('like');
-        $grid->column('contract.position', __('Chức vụ'))->filter('like');
-        $grid->column('contract.personal_name', __('Họ và tên'))->filter('like');
-        $grid->column('contract.id_number', __('Số CMND/CCCD'))->filter('like');
-        $grid->column('contract.issue_place', __('Nơi cấp'))->filter('like');
-        $grid->column('contract.issue_date', __('Ngày cấp'))->filter('like');
+        $grid->column('contract.tax_number', __('Mã số thuế'));
+        $grid->column('contract.business_name', __('Tên doanh nghiệp'));
+        $grid->column('contract.personal_address', __('Địa chỉ'));
+        $grid->column('contract.representative', __('Người đại diện'));
+        $grid->column('contract.position', __('Chức vụ'));
+        $grid->column('contract.personal_name', __('Họ và tên'));
+        $grid->column('contract.id_number', __('Số CMND/CCCD'));
+        $grid->column('contract.issue_place', __('Nơi cấp'));
+        $grid->column('contract.issue_date', __('Ngày cấp'));
 
         $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
             return $value == 0 ? 'Có' : 'Không';
@@ -111,10 +111,72 @@ class ContractAcceptanceController extends AdminController
             }
         });
 
-        $grid->filter(function ($filter) {
+        $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('contract.code', __('Mã hợp đồng'));
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('code', 'like', "%{$this->input}%");
+                });
+            }, 'Mã hợp đồng');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('tax_number', 'like', "%{$this->input}%");
+                });
+            }, 'Mã số thuế');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('business_name', 'like', "%{$this->input}%");
+                });
+            }, 'Tên doanh nghiệp');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('personal_address', 'like', "%{$this->input}%");
+                });
+            }, 'Địa chỉ');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('representative', 'like', "%{$this->input}%");
+                });
+            }, 'Người đại diện');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('position', 'like', "%{$this->input}%");
+                });
+            }, 'Chức vụ');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('personal_name', 'like', "%{$this->input}%");
+                });
+            }, 'Họ và tên');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('id_number', 'like', "%{$this->input}%");
+                });
+            }, 'Số CMND/CCCD');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('issue_place', 'like', "%{$this->input}%");
+                });
+            }, 'Nơi cấp');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('issue_date', 'like', "%{$this->input}%");
+                });
+            }, 'Ngày cấp');
+            $filter->where(function ($query) {
+                $query->whereHas('performerDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Người thực hiện');
+            $filter->where(function ($query) {
+                $query->whereHas('statusDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trạng thái');
+            $filter->date('created_at', 'Ngày tạo');
+            $filter->date('updated_at', 'Ngày cập nhật');
         });
+
         $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
