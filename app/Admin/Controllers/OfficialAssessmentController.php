@@ -220,7 +220,7 @@ class OfficialAssessmentController extends AdminController
             ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
-        $form->date('certificate_date', __('Ngày chứng thư'));
+        $form->date('certificate_date', __('Ngày chứng thư'))->format('DD-MM-YYYY');
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
 
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
@@ -237,11 +237,16 @@ class OfficialAssessmentController extends AdminController
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
         $form->saving(function (Form $form) {
-            $dateFields = ['finished_date'];
+            $dateFields = ['finished_date', 'certificate_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
-                $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
-                $form->input($field, $formattedDate);
+                if (!empty($value)) {
+                    try {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                        $form->input($field, $formattedDate);
+                    } catch (\Exception $e) {
+                    }
+                }
             }
         });
         // $url = 'http://127.0.0.1:8000/api/contract';
