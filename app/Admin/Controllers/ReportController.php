@@ -23,6 +23,7 @@ use App\Http\Models\PreAssessment;
 use App\Http\Models\ScoreCard;
 use App\Http\Models\ValuationDocument;
 use App\Http\Models\ContractAcceptance;
+use Illuminate\Support\Facades\Config;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use DB;
@@ -53,7 +54,7 @@ class ReportController extends AdminController
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
             if ($data["type"] == "l") {
                 $headers = ['STT', 'Người tạo', 'Số lượng thư chào', 'Tổng phí dịch vụ', 'Chi nhánh'];
-                if (session('result')['branch_id']){
+                if (session('result')['branch_id']) {
                     $query = InvitationLetter::where("branch_id", session('result')['branch_id']);
                 } else {
                     $query = InvitationLetter::query();
@@ -74,16 +75,16 @@ class ReportController extends AdminController
                     "branch_id"
                 ])->groupBy(["user_id", "branch_id"])->get();
                 foreach ($result as $i => $row) {
-                    $rows[] = [$i+1, !is_null($row["user_id"]) && array_key_exists($row["user_id"], $users) ? $users[$row["user_id"]] : "", $row["count"], number_format($row["fee"]), Branch::find($row['branch_id'])->branch_name];
+                    $rows[] = [$i + 1, !is_null($row["user_id"]) && array_key_exists($row["user_id"], $users) ? $users[$row["user_id"]] : "", $row["count"], number_format($row["fee"]), Branch::find($row['branch_id'])->branch_name];
                     $sum[2] += $row["count"];
                     $sum[3] += $row["fee"];
                 }
                 $rows[] = $sum;
-            } else if($data["type"] == "c1") {
-                $headers = ['STT', 'Sale','Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
+            } else if ($data["type"] == "c1") {
+                $headers = ['STT', 'Sale', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
                 $sales = array();
                 $sum = [0, 0, 0];
-                if (session('result')['branch_id']){
+                if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id']);
                 } else {
                     $query = Contract::query();
@@ -98,16 +99,16 @@ class ReportController extends AdminController
                 $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
-                    $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0,0,0], [0,0,0]], [[0,0,0], [0,0,0]], [[0,0,0]]];
-                    $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][0] ++;
+                    $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]], [[0, 0, 0]]];
+                    $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][0]++;
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][1] += $row["total_fee"];
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][2] += $row["net_revenue"];
-                    $currentVal[2][0][0] ++ ;
+                    $currentVal[2][0][0]++;
                     $currentVal[2][0][1] += $row["total_fee"];
                     $currentVal[2][0][2] += $row["net_revenue"];
                     $currentVal[3] = $row["branch_id"];
                     $sales[$row["sale"]] = $currentVal;
-                    $sum[0] ++;
+                    $sum[0]++;
                     $sum[1] += $row["total_fee"];
                     $sum[2] += $row["net_revenue"];
                 }
@@ -120,14 +121,14 @@ class ReportController extends AdminController
                     $rows[] = ["", "", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1]), number_format($row[1][0][2]), ""];
                     $rows[] = ["", "", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1]), number_format($row[1][1][2]), ""];
                     $rows[] = ["", "Tổng", "", "", $row[2][0][0], number_format($row[2][0][1]), number_format($row[2][0][2]), ""];
-                    $count ++;
+                    $count++;
                 }
                 $rows[] = ["", "Tổng cộng", "", "", $sum[0], number_format($sum[1]), number_format($sum[2])];
             } else {
                 $headers = ['STT', 'Môi giới', 'Loại hợp đồng', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
                 $brokers = array();
                 $sum = [0, 0, 0];
-                if (session('result')['branch_id']){
+                if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id']);
                 } else {
                     $query = Contract::query();
@@ -141,16 +142,16 @@ class ReportController extends AdminController
                 $query->where('status', "<>", 6);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
-                    $currentVal = array_key_exists($row["broker"], $brokers) ? $brokers[$row["broker"]] : [[0,0,0], [0,0,0], [0,0,0]];
-                    $currentVal[$row["contract_type"]][0] ++;
+                    $currentVal = array_key_exists($row["broker"], $brokers) ? $brokers[$row["broker"]] : [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+                    $currentVal[$row["contract_type"]][0]++;
                     $currentVal[$row["contract_type"]][1] += $row["total_fee"];
                     $currentVal[$row["contract_type"]][2] += $row["net_revenue"];
-                    $currentVal[2][0] ++ ;
+                    $currentVal[2][0]++;
                     $currentVal[2][1] += $row["total_fee"];
                     $currentVal[2][2] += $row["net_revenue"];
                     $currentVal[3] = $row["branch_id"];
                     $brokers[$row["broker"]] = $currentVal;
-                    $sum[0] ++;
+                    $sum[0]++;
                     $sum[1] += $row["total_fee"];
                     $sum[2] += $row["net_revenue"];
                 }
@@ -161,7 +162,7 @@ class ReportController extends AdminController
                     $rows[] = [$count, $broker, "Sơ bộ",  $row[0][0], number_format($row[0][1]), number_format($row[0][2]), Branch::find($row[3])->branch_name];
                     $rows[] = ["", "", "Chính thức", $row[1][0], number_format($row[1][1]), number_format($row[1][2]), ""];
                     $rows[] = ["", "Tổng", "", $row[2][0], number_format($row[2][1]), number_format($row[2][2]), ""];
-                    $count ++;
+                    $count++;
                 }
                 $rows[] = ["", "Tổng cộng", "",  $sum[0], number_format($sum[1]), number_format($sum[2])];
             }
@@ -175,7 +176,7 @@ class ReportController extends AdminController
             Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table.'</div>');
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
             $content->row($tab);
         }
 
@@ -197,7 +198,7 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
-            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện','Ngày hoàn thành'];
+            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành'];
             $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
             if (!is_null(($data["formated_from_date"]))) {
                 $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -207,11 +208,16 @@ class ReportController extends AdminController
             }
             $rows = [];
             $query = Contract::where("branch_id", Admin::user()->branch_id)
-            ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
-            ->when(!Admin::user()->isRole(Constant::DIRECTOR_ROLE), function ($query) {
-                return $query->where("tdv_assistant", Admin::user()->id);
-            });
-        
+                ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
+                ->when(!Admin::user()->isRole(Constant::DIRECTOR_ROLE), function ($query) {
+                    return $query->where("tdv_assistant", Admin::user()->id);
+                })
+                ->where(function ($query) {
+                    $query->where('status', '!=', 6)
+                        ->orWhere('status', '!=', 64);
+                });
+
+
             if (!is_null(($data["formated_from_date"]))) {
                 $query->where('created_at', '>=', $data["formated_from_date"]);
             }
@@ -222,19 +228,22 @@ class ReportController extends AdminController
             $rows = [];
             $count = 1;
             foreach ($result as $row) {
+                $dateFormatter = function ($finishedDate) {
+                    $carbonFinishedDate = Carbon::parse($finishedDate)->timezone(Config::get('app.timezone'));
+                    return $carbonFinishedDate->format('d/m/Y');
+                };
                 $preAssessment = PreAssessment::where("contract_id", "=", $row->id)->first();
-                $convertIdToNameUser = AdminUser::find($row->tdv);
-                if ($preAssessment) {
-                    $finishedDate = $preAssessment->finished_date;
-                } else {
-                    $finishedDate = null;
-                }    
-                if($convertIdToNameUser){
+                $officialAssessment = OfficialAssessment::where("contract_id", "=", $row->id)->first();
+                $convertIdToNameUser = AdminUser::find($row->tdv_assistant);
+                $finishedDatePreAssessment = $preAssessment ? $dateFormatter($preAssessment->finished_date) : null;
+                $finishedDateOfficialAssessment = $officialAssessment ? $dateFormatter($officialAssessment->finished_date) : null;
+                $finishedDate =  $data["type"] == "prev" ? $finishedDatePreAssessment : $finishedDateOfficialAssessment;
+                if ($convertIdToNameUser) {
                     $name = $convertIdToNameUser->name;
-                }else{
+                } else {
                     $name = null;
                 }
-                if (Utils::checkContractStatus($row) == 0){
+                if (Utils::checkContractStatus($row) == 0) {
                     $rows[] = [
                         $count,
                         $row->code,
@@ -260,7 +269,7 @@ class ReportController extends AdminController
                         // Utils::checkContractEndDate($row)
                     ];
                 }
-                $count ++;
+                $count++;
             }
 
             $table = new Table($headers, $rows);
@@ -272,14 +281,14 @@ class ReportController extends AdminController
             Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table.'</div>');
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
             $content->row($tab);
         }
 
         return $content;
     }
 
-       /**
+    /**
      * Index interface.
      *
      * @param Content $content
@@ -307,24 +316,24 @@ class ReportController extends AdminController
             $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
             $result = $query->get();
             foreach ($result as $i => $row) {
-                $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0,0], [0,0], 0];
-                $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)] ++;
-                $currentVal[2] ++;
+                $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0, 0], [0, 0], 0];
+                $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)]++;
+                $currentVal[2]++;
                 $appraisers[$row["tdv_assistant"]] = $currentVal;
-                $sum ++;
+                $sum++;
             }
 
             $rows = [];
             $tmpRows = [];
             $count = 0;
             foreach ($appraisers as $appraiser => $row) {
-                if (array_key_exists($appraiser, $users)){
-                    $count ++;
+                if (array_key_exists($appraiser, $users)) {
+                    $count++;
                     $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
                     $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
                     $rows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
                     $rows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
-                    $rows[] = ["", "Tổng", "", "", $row[2]];        
+                    $rows[] = ["", "Tổng", "", "", $row[2]];
                 } else {
                     $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
                     $tmpRows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
@@ -333,8 +342,8 @@ class ReportController extends AdminController
                     $tmpRows[] = ["", "Tổng", "", "", $row[2]];
                 }
             }
-            if (count($tmpRows) > 0){
-                $tmpRows[0][0] = $count+1;
+            if (count($tmpRows) > 0) {
+                $tmpRows[0][0] = $count + 1;
                 $rows = array_merge($rows, $tmpRows);
             }
             $rows[] = ["", "Tổng cộng", "",  "", $sum];
@@ -348,7 +357,7 @@ class ReportController extends AdminController
             Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table.'</div>');
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
             $content->row($tab);
         }
 
@@ -388,11 +397,12 @@ class ReportController extends AdminController
                 "AND sba.score_cards.branch_id = ? " .
                 "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
                 "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
-                "GROUP BY sba.contracts.tdv_assistant;" , array(Admin::user()->branch_id));
+                "GROUP BY sba.contracts.tdv_assistant;", array(Admin::user()->branch_id));
             foreach ($result as $i => $row) {
-                $rows[] = [ $i + 1,
+                $rows[] = [
+                    $i + 1,
                     !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
-                    $row->count, is_null($row->basic_error) ? 0 : $row->basic_error, is_null($row->business_error) ? 0 : $row->business_error, 
+                    $row->count, is_null($row->basic_error) ? 0 : $row->basic_error, is_null($row->business_error) ? 0 : $row->business_error,
                     is_null($row->serious_error) ? 0 : $row->serious_error, $row->score
                 ];
             }
@@ -406,14 +416,14 @@ class ReportController extends AdminController
             Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table.'</div>');
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
             $content->row($tab);
         }
 
         return $content;
     }
 
-           /**
+    /**
      * Index interface.
      *
      * @param Content $content
@@ -430,7 +440,7 @@ class ReportController extends AdminController
             if ($data["type"] == "c") {
                 $headers = ['STT', 'Số chứng thư', 'Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
                 $users = AdminUser::pluck("name", "id")->toArray();
-                if (session('result')['branch_id']){
+                if (session('result')['branch_id']) {
                     $query = OfficialAssessment::where("branch_id", session('result')['branch_id']);
                 } else {
                     $query = OfficialAssessment::query();
@@ -444,13 +454,15 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$i + 1, $row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property, 
-                    $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type), 
-                    number_format($row->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name];
+                    $rows[] = [
+                        $i + 1, $row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property,
+                        $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type),
+                        number_format($row->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name
+                    ];
                 }
             } else {
-                $headers = ['STT', 'Số hợp đồng','Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
-                if (session('result')['branch_id']){
+                $headers = ['STT', 'Số hợp đồng', 'Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
+                if (session('result')['branch_id']) {
                     $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
                 } else {
                     $query = ValuationDocument::query();
@@ -464,7 +476,7 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$i +1, $row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $row->contract->branch->branch_name];
+                    $rows[] = [$i + 1, $row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $row->contract->branch->branch_name];
                 }
             }
 
@@ -477,7 +489,7 @@ class ReportController extends AdminController
             Excel::store($export, 'public/files/report.xlsx');
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table.'</div>');
+                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
             $content->row($tab);
         }
 

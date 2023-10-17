@@ -507,6 +507,12 @@ class ContractController extends AdminController
                     }
                 }
             }
+            $dateFields = ['created_date', 'issue_date', 'from_date', 'to_date'];
+            foreach ($dateFields as $field) {
+                $value = $form->input($field);
+                $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                $form->input($field, $formattedDate);
+            }
         });
         $form->saved(function (Form $form) {
             $users = array($form->model()->tdv, $form->model()->legal_representative, $form->model()->tdv_migrate, $form->model()->tdv_assistant, $form->model()->supervisor);

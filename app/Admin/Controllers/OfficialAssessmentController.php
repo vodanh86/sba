@@ -51,7 +51,7 @@ class OfficialAssessmentController extends AdminController
         $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('assessment_type', __('Phưong pháp thẩm định'))->display(function ($types) {
-            if (!is_null($types)){
+            if (!is_null($types)) {
                 return join(", ", $types);
             }
         })->filter('like');
@@ -68,20 +68,20 @@ class OfficialAssessmentController extends AdminController
         $grid->column('comment', __('Bình luận'))->action(AddOfficialAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Document'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
             return $urlsHtml;
         });
         $grid->column('print', __('In chứng thư'))->display(function () {
-            return "<a class=\"fa fa-print\" href='print-official-assessment?id=".$this->id."' target='_blank'></a>";
+            return "<a class=\"fa fa-print\" href='print-official-assessment?id=" . $this->id . "' target='_blank'></a>";
         });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderByDesc('id');
-        if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
@@ -92,7 +92,7 @@ class OfficialAssessmentController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
@@ -123,14 +123,16 @@ class OfficialAssessmentController extends AdminController
         $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
-    protected function processData(){
+    protected function processData()
+    {
         $processedData = array();
-        foreach(OfficialAssessment::all() as $index=>$officialAssessment){
+        foreach (OfficialAssessment::all() as $index => $officialAssessment) {
             $performerDetail = optional(AdminUser::find($officialAssessment->performer))->name;
-            $processedData[] = [$officialAssessment->id, $officialAssessment->contract->code, $officialAssessment->certificate_code, $officialAssessment->certificate_date, $officialAssessment->contract->property,
-                                $officialAssessment->finished_date, $performerDetail, $officialAssessment->assessment_type, $officialAssessment->note, $officialAssessment->statusDetail->name, $officialAssessment->official_value, 
-                                $officialAssessment->comment, $officialAssessment->created_at, $officialAssessment->updated_at
-                                ];
+            $processedData[] = [
+                $officialAssessment->id, $officialAssessment->contract->code, $officialAssessment->certificate_code, $officialAssessment->certificate_date, $officialAssessment->contract->property,
+                $officialAssessment->finished_date, $performerDetail, $officialAssessment->assessment_type, $officialAssessment->note, $officialAssessment->statusDetail->name, $officialAssessment->official_value,
+                $officialAssessment->comment, $officialAssessment->created_at, $officialAssessment->updated_at
+            ];
         }
         return $processedData;
     }
@@ -158,7 +160,7 @@ class OfficialAssessmentController extends AdminController
         $show->field('finished_date', __('Ngày hoàn thành'))->as($dateFormatter);
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('assessment_type', __('Phương pháp thẩm định'))->as(function ($types) {
-            if (!is_null($types)){
+            if (!is_null($types)) {
                 return join(", ", $types);
             }
         });
@@ -171,8 +173,8 @@ class OfficialAssessmentController extends AdminController
         $show->field('comment', __('Bình luận'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
             return $urlsHtml;
         });
@@ -180,10 +182,10 @@ class OfficialAssessmentController extends AdminController
         $show->field('updated_at', __('Ngày cập nhật'));
 
         $show->panel()
-        ->tools(function ($tools) {
-            $tools->disableEdit();
-            $tools->disableDelete();
-        });
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
         return $show;
     }
 
@@ -200,9 +202,9 @@ class OfficialAssessmentController extends AdminController
             $id = request()->route()->parameter('official_assessment');
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
-            $nextStatuses = StatusTransition::where(["table" => Constant::OFFICIAL_ASSESS_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $nextStatuses = StatusTransition::where(["table" => Constant::OFFICIAL_ASSESS_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
-            foreach($nextStatuses as $nextStatus){
+            foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
@@ -212,10 +214,10 @@ class OfficialAssessmentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)
-        ->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()
-        ->creationRules(['required', "unique:official_assessments"])
-        ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
+            ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)
+            ->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()
+            ->creationRules(['required', "unique:official_assessments"])
+            ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('certificate_date', __('Ngày chứng thư'));
@@ -234,9 +236,17 @@ class OfficialAssessmentController extends AdminController
         } else {
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
+        $form->saving(function (Form $form) {
+            $dateFields = ['finished_date'];
+            foreach ($dateFields as $field) {
+                $value = $form->input($field);
+                $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                $form->input($field, $formattedDate);
+            }
+        });
         // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';
-        
+
         $script = <<<EOT
         $(function() {
             var contractId = $(".contract_id").val();
