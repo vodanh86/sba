@@ -43,8 +43,8 @@ class ScoreCardController extends AdminController
 
         $grid = new Grid(new ScoreCard());
         $grid->column('id', __('Id'));
-        $grid->column('contract.code', __('Mã hợp đồng'))->filter('like');
-        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150)->filter('like');
+        $grid->column('contract.code', __('Mã hợp đồng'));
+        $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
         $grid->column('score', __('Điểm'))->filter('like');
         $grid->column('basic_error', __('Lỗi cơ bản'))->filter('like');
         $grid->column('business_error', __('Lỗi nghiệp vụ'))->filter('like');
@@ -62,7 +62,7 @@ class ScoreCardController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        })->filter('like');
+        });
 
         $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100)->filter('like');
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
@@ -81,18 +81,34 @@ class ScoreCardController extends AdminController
         });
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
-            $filter->like('contract.code', __('Mã hợp đồng'));
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('code', 'like', "%{$this->input}%");
+                });
+            }, 'Mã hợp đồng');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
+                    $query->where('property', 'like', "%{$this->input}%");
+                });
+            }, 'Tài sản thẩm định giá');
+            $filter->where(function ($query) {
+                $query->whereHas('statusDetail', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Trạng thái');
         });
         $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
-    protected function processData(){
+    protected function processData()
+    {
         $processedData = array();
-        foreach(ScoreCard::all() as $index=>$scoreCard){
-            $processedData[] = [$scoreCard->id, $scoreCard->contract->code, $scoreCard->contract->property, $scoreCard->score, $scoreCard->basic_error, $scoreCard->business_error,
-                                $scoreCard->serious_error, $scoreCard->note, $scoreCard->statusDetail->name,
-                                $scoreCard->comment, $scoreCard->created_at, $scoreCard->updated_at
-                                ];
+        foreach (ScoreCard::all() as $index => $scoreCard) {
+            $processedData[] = [
+                $scoreCard->id, $scoreCard->contract->code, $scoreCard->contract->property, $scoreCard->score, $scoreCard->basic_error, $scoreCard->business_error,
+                $scoreCard->serious_error, $scoreCard->note, $scoreCard->statusDetail->name,
+                $scoreCard->comment, $scoreCard->created_at, $scoreCard->updated_at
+            ];
         }
         return $processedData;
     }
@@ -169,8 +185,8 @@ class ScoreCardController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))->options($avaiContracts)->required()
-        ->creationRules(['required', "unique:score_cards"])
-        ->updateRules(['required', "unique:score_cards,contract_id,{{id}}"]);
+            ->creationRules(['required', "unique:score_cards"])
+            ->updateRules(['required', "unique:score_cards,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->number('score', __('Điểm'));
         $form->number('basic_error', __('Lỗi cơ bản'));

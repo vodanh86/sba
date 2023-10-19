@@ -207,7 +207,9 @@ class ReportController extends AdminController
                 $query->where('created_at', '<=', $data["formated_to_date"]);
             }
             $rows = [];
-            $query = Contract::where("branch_id", Admin::user()->branch_id)
+            $query = Contract::when(Admin::user()->id !== 17 && Admin::user()->id !== 18 && Admin::user()->id !== 65, function ($query) {
+                $query->where("branch_id", Admin::user()->branch_id);
+            })
                 ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
                 ->when(!Admin::user()->isRole(Constant::DIRECTOR_ROLE), function ($query) {
                     return $query->where("tdv_assistant", Admin::user()->id);
@@ -306,7 +308,9 @@ class ReportController extends AdminController
             $users = AdminUser::pluck("name", "id")->toArray();
             $appraisers = array();
             $sum = 0;
-            $query = Contract::where("branch_id", Admin::user()->branch_id);
+            $query = Contract::when(Admin::user()->id !== 17 && Admin::user()->id !== 18 && Admin::user()->id !== 65, function ($query) {
+                $query->where("branch_id", Admin::user()->branch_id);
+            });
             if (!is_null(($data["formated_from_date"]))) {
                 $query->where('created_at', '>=', $data["formated_from_date"]);
             }
