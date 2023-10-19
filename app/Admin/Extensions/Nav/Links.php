@@ -37,14 +37,11 @@ class Links
                     var notificationsWrapper   = $('.dropdown-notifications');
                     var notificationsCountElem = notificationsWrapper.find('i[data-count]');
                     var notifications          = notificationsWrapper.find('.notif-count');
-
                     $( document ).ready(function() {
-
                         var pusher = new Pusher("$appKey", {
                             cluster: 'ap1',
                             encrypted: true
                         });
-
                         // Subscribe to the channel we specified in our Laravel Event
                         var channel = pusher.subscribe('Notify');
                         // Bind a function to a Event (the full Laravel class)

@@ -252,7 +252,11 @@ class ContractController extends AdminController
     protected function processData()
     {
         $processedData = array();
-        foreach (Contract::all() as $index => $contract) {
+        $contracts = Contract::all();
+        if(!Utils::isSuperManager(Admin::user()->id)) {
+            $contracts = Contract::where('branch_id', Admin::user()->branch_id)->get();
+        }
+        foreach ($contracts as $index => $contract) {
             $contractType = Constant::CONTRACT_TYPE[$contract->contract_type];
             $customerType = Constant::CUSTOMER_TYPE[$contract->customer_type];
             $tdv = optional(AdminUser::find($contract->tdv))->name;
