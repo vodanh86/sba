@@ -15,6 +15,5 @@ class Notification extends Model
 
 	protected $hidden = [
     ];
-
 	protected $guarded = [];
 }

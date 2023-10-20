@@ -523,19 +523,22 @@ class ContractController extends AdminController
                 }
             }
         });
-        $form->saved(function (Form $form) {
-            $users = array($form->model()->tdv, $form->model()->legal_representative, $form->model()->tdv_migrate, $form->model()->tdv_assistant, $form->model()->supervisor);
-            foreach($users as $i => $userId){
-                if ($userId){
-                    $notification = new Notification();
-                    $notification->user_id = $userId;
-                    $notification->table = "contracts";
-                    $notification->table_id = $form->model()->id;
-                    $notification->save();
-                    Utils::sendNotification($notification->user_id, $notification->table);
-                }
-            }
-        });
+        // $form->saved(function (Form $form) {
+        //     $users = array($form->model()->tdv, $form->model()->legal_representative, $form->model()->tdv_migrate, $form->model()->tdv_assistant, $form->model()->supervisor);
+        //     foreach($users as $i => $userId){
+        //         if ($userId && $form->model()->status == 66){
+        //             $notification = new Notification();
+        //             $notification->user_id = $userId;
+        //             $notification->table = "contracts";
+        //             $notification->table_id = $form->model()->id;
+        //             $notification->content = $form->model()->status == 66
+        //             ? "Hợp đồng số {$form->model()->code} chờ phân công/phê duyệt"
+        //             : '';
+        //             $notification->save();
+        //             Utils::sendNotification($notification->user_id, $notification->table);
+        //         }
+        //     }
+        // });
 
         $contracts = json_encode(Contract::where('branch_id', '=', Admin::user()->branch_id)->get()->keyBy("id"));
         $script = <<<EOT

@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Spatie\ShortSchedule\ShortSchedule;
 
 class Kernel extends ConsoleKernel
 {
@@ -26,7 +27,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
     }
-
+    protected function shortSchedule(ShortSchedule $shortSchedule)
+    {
+        $shortSchedule->command('api:call')->everySeconds(5);
+    }
     /**
      * Register the commands for the application.
      *

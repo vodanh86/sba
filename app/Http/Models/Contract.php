@@ -82,6 +82,22 @@ class Contract extends Model
     {
         return is_null($documents) ? [] : json_decode($documents, true);
     }
+    public function getCreatedDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+    }
+    public function getIssueDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+    }
+    public function getFromDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+    }
+    public function getToDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+    }
 
 	protected $hidden = [
     ];
