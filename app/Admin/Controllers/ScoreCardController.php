@@ -96,6 +96,8 @@ class ScoreCardController extends AdminController
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Trạng thái');
+            $filter->date('created_at', 'Ngày tạo');
+            $filter->date('updated_at', 'Ngày cập nhật');
         });
         $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
@@ -196,6 +198,7 @@ class ScoreCardController extends AdminController
         $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
+        $form->hidden('created_by')->default(Admin::user()->id);
 
         // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';

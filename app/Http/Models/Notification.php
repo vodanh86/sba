@@ -12,9 +12,12 @@ class Notification extends Model
     {
         return $this->belongsTo(AdminUser::class, 'user_id');
     }
+    public function userSend()
+    {
+        return $this->belongsTo(AdminUser::class, 'user_send');
+    }
 
 	protected $hidden = [
     ];
-
 	protected $guarded = [];
 }

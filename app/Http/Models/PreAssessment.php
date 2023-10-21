@@ -39,4 +39,8 @@ class PreAssessment extends Model
     {
         return is_null($documents) ? [] : json_decode($documents, true);
     }
+    public function getFinishedDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y');
+    }
 }

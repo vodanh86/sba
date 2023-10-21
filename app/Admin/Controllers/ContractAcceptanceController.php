@@ -46,7 +46,7 @@ class ContractAcceptanceController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
         $grid->column('contract.property', __('Tài sản thẩm định giá'));
-        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150)->filter('like');
+        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150);
 
         $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter('like');
         $grid->column('contract.tax_number', __('Mã số thuế'));
@@ -61,7 +61,7 @@ class ContractAcceptanceController extends AdminController
 
         $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
             return $value == 0 ? 'Có' : 'Không';
-        })->filter('like');
+        });
         $grid->column('buyer_name', __('Đơn vị mua'))->filter('like');
         $grid->column('buyer_address', __('Địa chỉ'))->filter('like');
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -74,10 +74,10 @@ class ContractAcceptanceController extends AdminController
         $grid->column('recipient', __('Người nhận'))->filter('like');
         $grid->column('advance_fee', __('Đã tạm ứng'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
+        })->width(150);
         $grid->column('official_fee', __('Còn phải thanh toán'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
+        })->width(150);
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
             foreach ($urls as $i => $url) {
@@ -94,7 +94,7 @@ class ContractAcceptanceController extends AdminController
                 return $column->editable('select', $nextStatuses);
             }
             return $this->statusDetail->name;
-        })->filter('like');
+        });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
@@ -118,6 +118,29 @@ class ContractAcceptanceController extends AdminController
                     $query->where('code', 'like', "%{$this->input}%");
                 });
             }, 'Mã hợp đồng');
+            $filter->where(function ($query) {
+                $dates = explode(' - ', $this->input);
+                if (count($dates) == 2) {
+                    $startDate = Carbon::createFromFormat('d/m/Y', $dates[0])->startOfDay();
+                    $endDate = Carbon::createFromFormat('d/m/Y', $dates[1])->endOfDay();
+                    $query->whereBetween('date_acceptance', [$startDate, $endDate]);
+                }
+            }, 'Ngày nghiệm thu')->date();
+            $filter->where(function ($query) {
+                if ($this->input == '1') {
+                    $query->whereHas('contract', function ($query) {
+                        $query->where('customer_type', 1);
+                    });
+                } elseif ($this->input == '2') {
+                    $query->whereHas('contract', function ($query) {
+                        $query->where('customer_type', 2);
+                    });
+                }
+            }, 'Loại khách')->radio([
+                ''  => 'Tất cả',
+                '1' => 'Khách hàng cá nhân',
+                '2' => 'Khách hàng doanh nghiệp',
+            ]);
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
                     $query->where('tax_number', 'like', "%{$this->input}%");
@@ -164,10 +187,24 @@ class ContractAcceptanceController extends AdminController
                 });
             }, 'Ngày cấp');
             $filter->where(function ($query) {
-                $query->whereHas('performerDetail', function ($query) {
-                    $query->where('name', 'like', "%{$this->input}%");
-                });
-            }, 'Người thực hiện');
+                if ($this->input == 'yes') {
+                    $query->where('export_bill', 0);
+                } elseif ($this->input == 'no') {
+                    $query->where('export_bill', 1);
+                }
+            }, 'Xuất hoá đơn')->radio([
+                ''   => 'Tất cả',
+                'yes' => 'Có',
+                'no'  => 'Không',
+            ]);
+            $filter->where(function ($query) {
+                $input = str_replace(',', '', $this->input);
+                $query->where('advance_fee', '=', $input);
+            }, 'Đã tạm ứng');
+            $filter->where(function ($query) {
+                $input = str_replace(',', '', $this->input);
+                $query->where('official_fee', '=', $input);
+            }, 'Còn phải thanh toán');
             $filter->where(function ($query) {
                 $query->whereHas('statusDetail', function ($query) {
                     $query->where('name', 'like', "%{$this->input}%");
