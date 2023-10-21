@@ -11,6 +11,10 @@ class NotificationController extends Controller
 {
     public function index()
     {
+        $convertIdToNameUser = function ($userId) {
+            $adminUser = AdminUser::find($userId);
+            return $adminUser ? $adminUser->name : '';
+        };
         $notifications = Notification::where('status', 0)->get();
         foreach ($notifications as $notification) {
             $options = array(
@@ -23,9 +27,10 @@ class NotificationController extends Controller
                 env('PUSHER_APP_ID'),
                 $options
             );
-            $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $notification);
             $notification['status'] = 1;
             $notification->save();
+            $notification['user_send'] =  $convertIdToNameUser($notification->user_send);
+            $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $notification);
         }
         return response()->json(200);
     }

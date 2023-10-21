@@ -28,8 +28,10 @@ class NotificationController extends AdminController
     {
         $grid = new Grid(new Notification());
 
-        $grid->column('user.name', __('User id'));
-        $grid->column('table', __('Nội dung'));
+        $grid->column('user.name', __('User nhận'));
+        $grid->column('userSend.name', __('User gửi'));
+        $grid->column('table', __('Bảng menu'));
+        $grid->column('content', __('Nội dung'));
         $grid->column('table_id', __('Trình trạng'))->display(function () {
             return $this->check == 0 ? "Chưa xem" : "Đã xem";
         });

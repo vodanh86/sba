@@ -37,7 +37,7 @@ class Links
                             </div>
                         </div>
                         <div class="media-body">
-                            <strong class="notification-title">Gửi {$convertIdToNameUser($notify->user_id)}</strong>
+                            <strong class="notification-title">Gửi từ: {$convertIdToNameUser($notify->user_send)}</strong>
                             <p class="notification-desc">$notify->content</p>
                             <div class="notification-meta">
                                 <small class="timestamp">$notify->created_at</small>
@@ -142,7 +142,7 @@ class Links
                                             </div>
                                         </div>
                                         <div class="media-body">
-                                            <strong class="notification-title">Gửi {$convertIdToNameUser(`+data.user_id+`)}</strong>
+                                            <strong class="notification-title">Gửi từ: `+data.user_send+`</strong>
                                                 <p class="notification-desc">`+data.content+`</p>
                                                 <div class="notification-meta">
                                                     <small class="timestamp">{$formattedCreatedAt(`+data.created_at+`)}</small>

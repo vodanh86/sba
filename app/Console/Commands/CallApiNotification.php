@@ -39,7 +39,8 @@ class CallApiNotification extends Command
     public function handle()
     {
         $client = new Client();
-        $response = $client->get('http://127.0.0.1:8000/api/notifications');
+        $url = env('APP_URL');
+        $response = $client->get($url . '/api/notifications');
         if ($response->getStatusCode() === 200) {
             $this->info('API call successful');
         } else {
