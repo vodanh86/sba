@@ -15,7 +15,7 @@ class NotificationController extends Controller
             $adminUser = AdminUser::find($userId);
             return $adminUser ? $adminUser->name : '';
         };
-        $notifications = Notification::where('status', 0)->get();
+        $notifications = Notification::where('status', 0)->limit(20)->get();
         foreach ($notifications as $notification) {
             $options = array(
                 'cluster' => 'ap1',
@@ -29,8 +29,10 @@ class NotificationController extends Controller
             );
             $notification['status'] = 1;
             $notification->save();
-            $notification['user_send'] =  $convertIdToNameUser($notification->user_send);
+
+            $notification['user_send'] = $convertIdToNameUser($notification->user_send);
             $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $notification);
+            usleep(500000);
         }
         return response()->json(200);
     }
@@ -42,12 +44,10 @@ class NotificationController extends Controller
         if ($notification && $notification->check == 0) {
             $notification->check = 1;
             $notification->save();
-
             $options = [
                 'cluster' => 'ap1',
                 'encrypted' => true,
             ];
-
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),

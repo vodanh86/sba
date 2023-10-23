@@ -50,7 +50,7 @@ class PreAssessmentController extends AdminController
         $grid->column('finished_date', __('Ngày hoàn thành'))->display($dateFormatter)->width(150);
         $grid->column('performerDetail.name', __('Người thực hiện'))->width(150);
         $grid->column('note', __('Chú ý'))->filter('like');
-        $grid->column('status',__('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
+        $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
             }
@@ -59,19 +59,20 @@ class PreAssessmentController extends AdminController
         $grid->column('pre_value', __('Giá trị sơ bộ'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150);
-        $grid->column('comment',__('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150)->filter('like');
+        $grid->column('comment', __('Ghi chú'))->action(AddPreAssessmentComment::class)->width(150)->filter('like');
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;       });
+            return $urlsHtml;
+        });
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
-        if (Utils::getCreateRole(Constant::PRE_ASSESS_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::PRE_ASSESS_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus) {
@@ -82,7 +83,7 @@ class PreAssessmentController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
@@ -113,13 +114,15 @@ class PreAssessmentController extends AdminController
         return $grid;
     }
 
-    protected function processData(){
+    protected function processData()
+    {
         $processedData = array();
-        foreach(PreAssessment::all() as $index=>$preAssessment){
+        foreach (PreAssessment::all() as $index => $preAssessment) {
             $performerDetail = optional(AdminUser::find($preAssessment->performer))->name;
-            $processedData[] = [$preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property, $preAssessment->finished_date, $performerDetail,
-                                $preAssessment->note, $preAssessment->comment, $preAssessment->statusDetail->name, $preAssessment->pre_value, $preAssessment->created_at, $preAssessment->updated_at
-                                ];
+            $processedData[] = [
+                $preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property, $preAssessment->finished_date, $performerDetail,
+                $preAssessment->note, $preAssessment->comment, $preAssessment->statusDetail->name, $preAssessment->pre_value, $preAssessment->created_at, $preAssessment->updated_at
+            ];
         }
         return $processedData;
     }
@@ -142,7 +145,7 @@ class PreAssessmentController extends AdminController
         $show->field('contract.code', __('Mã hợp đồng'));
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
             return "<textarea style='width: 100%; height: 200px;' readonly>$property</textarea>";
-        });       
+        });
         $show->field('finished_date', __('Ngày hoàn thành'))->as($dateFormatter);
         $show->field('performerDetail.name', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
@@ -154,18 +157,19 @@ class PreAssessmentController extends AdminController
         $show->field('comment', __('Ghi chú'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;        });
+            return $urlsHtml;
+        });
         $show->field('created_at', __('Ngày tạo'));
         $show->field('updated_at', __('Ngày cập nhật'));
 
         $show->panel()
-        ->tools(function ($tools) {
-            $tools->disableEdit();
-            $tools->disableDelete();
-        });
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
         return $show;
     }
 
@@ -182,9 +186,9 @@ class PreAssessmentController extends AdminController
             $id = request()->route()->parameter('pre_assessment');
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
-            $nextStatuses = StatusTransition::where(["table" => Constant::PRE_ASSESS_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $nextStatuses = StatusTransition::where(["table" => Constant::PRE_ASSESS_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
-            foreach($nextStatuses as $nextStatus){
+            foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
@@ -193,10 +197,19 @@ class PreAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
-        ->where('contract_type', '=', Constant::PRE_CONTRACT_TYPE)->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()
-        ->creationRules(['required', "unique:pre_assessments"])
-        ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
+        $form->select('contract_id', __('valuation_document.contract_id'))
+            ->options(
+                Contract::where("branch_id", Admin::user()->branch_id)
+                    ->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
+                    ->where('contract_type', Constant::PRE_CONTRACT_TYPE)
+                    ->where('tdv_assistant', Admin::user()->id)
+                    ->whereNotIn('id', PreAssessment::pluck('contract_id')->all())
+                    ->pluck('code', 'id')
+            )
+            ->required()
+            ->creationRules(['required', "unique:pre_assessments"])
+            ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
+
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
 
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');

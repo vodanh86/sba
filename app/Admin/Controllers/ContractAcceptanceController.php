@@ -333,6 +333,7 @@ class ContractAcceptanceController extends AdminController
             })->whereDoesntHave('contractAcceptances')
                 ->pluck('code', 'id'))->required()
                 ->creationRules(['required', "unique:contract_acceptances"])
+                ->whereNotIn('id', ContractAcceptance::pluck('contract_id')->all())
                 ->updateRules(['required', "unique:contract_acceptances,contract_id,{{id}}"]);
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
@@ -377,6 +378,7 @@ class ContractAcceptanceController extends AdminController
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
+        $form->hidden('created_by')->default(Admin::user()->id);
 
 
         $url = env('APP_URL') . '/api/contract';

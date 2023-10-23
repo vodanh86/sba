@@ -213,9 +213,16 @@ class OfficialAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         }
-        $form->select('contract_id', __('valuation_document.contract_id'))->options(Contract::where("branch_id", Admin::user()->branch_id)
-            ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)->where('status', Constant::CONTRACT_INPUTTING_STATUS)
-            ->where('tdv_assistant', '=', Admin::user()->id)->pluck('code', 'id'))->required()
+        $form->select('contract_id', __('valuation_document.contract_id'))
+            ->options(
+                Contract::where("branch_id", Admin::user()->branch_id)
+                    ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
+                    ->where('status', Constant::CONTRACT_INPUTTING_STATUS)
+                    ->where('tdv_assistant', '=', Admin::user()->id)
+                    ->whereNotIn('id', OfficialAssessment::pluck('contract_id')->all())
+                    ->pluck('code', 'id')
+            )
+            ->required()
             ->creationRules(['required', "unique:official_assessments"])
             ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();

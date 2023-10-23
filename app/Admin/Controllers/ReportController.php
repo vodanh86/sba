@@ -197,80 +197,89 @@ class ReportController extends AdminController
             ->row(new BaReport());
 
         if ($data = session('result')) {
-            // If there is data returned from the backend, take it out of the session and display it at the bottom of the form
             $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành'];
-            $query = PreAssessment::where("branch_id", Admin::user()->branch_id);
-            if (!is_null(($data["formated_from_date"]))) {
-                $query->where('created_at', '>=', $data["formated_from_date"]);
-            }
-            if (!is_null(($data["formated_to_date"]))) {
-                $query->where('created_at', '<=', $data["formated_to_date"]);
-            }
-            $rows = [];
-            $query = Contract::when(Admin::user()->id !== 17 && Admin::user()->id !== 18 && Admin::user()->id !== 65, function ($query) {
-                $query->where("branch_id", Admin::user()->branch_id);
-            })
-                ->where("contract_type", $data["type"] == "prev" ? Constant::PRE_CONTRACT_TYPE : Constant::OFFICIAL_CONTRACT_TYPE)
-                ->when(!Admin::user()->isRole(Constant::DIRECTOR_ROLE), function ($query) {
-                    return $query->where("tdv_assistant", Admin::user()->id);
-                })
-                ->where(function ($query) {
-                    $query->where('status', '!=', 6)
-                        ->orWhere('status', '!=', 64);
-                });
-
-
-            if (!is_null(($data["formated_from_date"]))) {
-                $query->where('created_at', '>=', $data["formated_from_date"]);
-            }
-            if (!is_null(($data["formated_to_date"]))) {
-                $query->where('created_at', '<=', $data["formated_to_date"]);
+            if($data["type"] == "prev"){
+                $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", Constant::PRE_CONTRACT_TYPE);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
+                }
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
+                }
+            }else{
+                $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", Constant::OFFICIAL_CONTRACT_TYPE);
+                if (!is_null(($data["formated_from_date"]))) {
+                    $query->where('created_at', '>=', $data["formated_from_date"]);
+                }
+                if (!is_null(($data["formated_to_date"]))) {
+                    $query->where('created_at', '<=', $data["formated_to_date"]);
+                }
             }
             $result = $query->get();
             $rows = [];
             $count = 1;
             foreach ($result as $row) {
-                $dateFormatter = function ($finishedDate) {
-                    $carbonFinishedDate = Carbon::parse($finishedDate)->timezone(Config::get('app.timezone'));
-                    return $carbonFinishedDate->format('d/m/Y');
+                $dateFormatter = function ($type, $contractId) {
+                    $finishedDate = null;
+                    if ($type == "prev") {
+                        $preAssessment = PreAssessment::where("contract_id", "=", $contractId)->first();
+                        if ($preAssessment) {
+                            $finishedDate = $preAssessment->finished_date;
+                        }
+                    } else {
+                        $officialAssessment = OfficialAssessment::where("contract_id", "=", $contractId)->first();
+                        if ($officialAssessment) {
+                            $finishedDate = $officialAssessment->finished_date;
+                        }
+                    }
+                
+                    if ($finishedDate) {
+                        $carbonFinishedDate = Carbon::parse($finishedDate)->timezone(Config::get('app.timezone'));
+                        return $carbonFinishedDate->format('d/m/Y');
+                    }
+                    return "";
                 };
-                $preAssessment = PreAssessment::where("contract_id", "=", $row->id)->first();
-                $officialAssessment = OfficialAssessment::where("contract_id", "=", $row->id)->first();
+                if($data["type"] == "prev"){
+                    $preAssessment = PreAssessment::where("contract_id", "=", $row->id)->first();
+                    if ($preAssessment) {
+                        $status = Status::where("id", "=", $preAssessment->status)->where("table", "pre_assessments")->first()->done;
+                        if($status == 1){
+                            $status = "Hoàn thành";
+                        }else{
+                            $status = "Chưa hoàn thành";
+                        }
+                    } else {
+                        $status = "Chưa giao nhiệm vụ";
+                    }
+                }else{
+                    $officialAssessment = OfficialAssessment::where("contract_id", $row->id)->first();
+                    if ($officialAssessment) {
+                        $status = Status::where("id", "=", $officialAssessment->status)->where("table", "official_assessments")->first()->done;
+                        if($status == 1){
+                            $status = "Hoàn thành";
+                        }else{
+                            $status = "Chưa hoàn thành";
+                        }
+                    } else {
+                        $status = "Chưa giao nhiệm vụ";
+                    }
+                }
                 $convertIdToNameUser = AdminUser::find($row->tdv_assistant);
-                $finishedDatePreAssessment = $preAssessment ? $dateFormatter($preAssessment->finished_date) : null;
-                $finishedDateOfficialAssessment = $officialAssessment ? $dateFormatter($officialAssessment->finished_date) : null;
-                $finishedDate =  $data["type"] == "prev" ? $finishedDatePreAssessment : $finishedDateOfficialAssessment;
                 if ($convertIdToNameUser) {
                     $name = $convertIdToNameUser->name;
                 } else {
                     $name = null;
                 }
-                if (Utils::checkContractStatus($row) == 0) {
-                    $rows[] = [
-                        $count,
-                        $row->code,
-                        $row->broker,
-                        $row->property,
-                        $row->purpose,
-                        $name,
-                        "Đang xử lý",
-                        $finishedDate,
-
-                    ];
-                } else {
-                    $endDate = "";
-                    $rows[] = [
-                        $count,
-                        $row->code,
-                        $row->broker,
-                        $row->property,
-                        $row->purpose,
-                        $name,
-                        "Đã hoàn thành",
-                        $finishedDate,
-                        // Utils::checkContractEndDate($row)
-                    ];
-                }
+                $rows[] = [
+                    $count,
+                    $row->code,
+                    $row->broker,
+                    $row->property,
+                    $row->purpose,
+                    $name,
+                    $status,
+                    $dateFormatter($data["type"], $row->id),
+                ];
                 $count++;
             }
 
@@ -319,6 +328,7 @@ class ReportController extends AdminController
             }
             $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
             $result = $query->get();
+            
             foreach ($result as $i => $row) {
                 $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0, 0], [0, 0], 0];
                 $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)]++;
@@ -445,9 +455,9 @@ class ReportController extends AdminController
                 $headers = ['STT', 'Số chứng thư', 'Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
                 $users = AdminUser::pluck("name", "id")->toArray();
                 if (session('result')['branch_id']) {
-                    $query = OfficialAssessment::where("branch_id", session('result')['branch_id']);
+                    $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
                 } else {
-                    $query = OfficialAssessment::query();
+                    $query = ValuationDocument::query();
                 }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -458,10 +468,11 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
+                    $officialAssessment = OfficialAssessment::where("contract_id", "=", $row->contract_id)->first();
                     $rows[] = [
-                        $i + 1, $row->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property,
-                        $row->contract->purpose, $row->contract->appraisal_date, join(', ', $row->assessment_type),
-                        number_format($row->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name
+                        $i + 1, $officialAssessment->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property,
+                        $row->contract->purpose, $row->contract->appraisal_date, join(', ', $officialAssessment->assessment_type),
+                        number_format($officialAssessment->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name
                     ];
                 }
             } else {
