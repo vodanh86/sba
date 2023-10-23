@@ -84,7 +84,9 @@ class Links
                 </a>
                 <div class="dropdown-container">
                     <div class="dropdown-toolbar">
-                        <h3 class="dropdown-toolbar-title">Thông báo (<span class="notif-count">$count</span>)</h3>
+                        <h3 class="dropdown-toolbar-title">Thông báo (<span class="notif-count">
+                            $count
+                        </span>)</h3>
                     </div>
                     <div class="notification-container">
                         $listContent
@@ -131,8 +133,8 @@ class Links
                             var cards = document.querySelectorAll(".card")
                             if (data.user_id == $userId && data.check !== 1){
                                 var existingNotifications = notificationsContent.html();
-                                notificationsCountElem.attr('data-count',cards.length);
-                                notificationsWrapper.find('.notif-count').text(cards.length);
+                                notificationsCountElem.attr('data-count',cards.length + 1);
+                                notificationsWrapper.find('.notif-count').text(cards.length + 1);
                                 var newNotificationHtml = `
                                 <div class="card" style="cursor: pointer;" data-notification-id="`+data.id+`">
                                     <a class="card-body" href="$urlBase/`+data.table+`/`+data.table_id+`" onclick="updateCheckNotification(`+data.id+`)">
