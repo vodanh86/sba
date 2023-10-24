@@ -333,7 +333,6 @@ class ContractAcceptanceController extends AdminController
             })->whereDoesntHave('contractAcceptances')
                 ->pluck('code', 'id'))->required()
                 ->creationRules(['required', "unique:contract_acceptances"])
-                ->whereNotIn('id', ContractAcceptance::pluck('contract_id')->all())
                 ->updateRules(['required', "unique:contract_acceptances,contract_id,{{id}}"]);
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();

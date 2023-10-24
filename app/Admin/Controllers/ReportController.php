@@ -447,7 +447,7 @@ class ReportController extends AdminController
     public function accountantManagerReport(Content $content)
     {
         $content
-            ->title('Báo cáo')
+            ->title('Báo cáo chứng thư phát hành')
             ->row(new AcReport());
 
         if ($data = session('result')) {
@@ -455,9 +455,9 @@ class ReportController extends AdminController
                 $headers = ['STT', 'Số chứng thư', 'Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
                 $users = AdminUser::pluck("name", "id")->toArray();
                 if (session('result')['branch_id']) {
-                    $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
+                    $query = ContractAcceptance::where("branch_id", session('result')['branch_id'])->where("status", 35);
                 } else {
-                    $query = ValuationDocument::query();
+                    $query = ContractAcceptance::query();
                 }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -472,15 +472,15 @@ class ReportController extends AdminController
                     $rows[] = [
                         $i + 1, $officialAssessment->certificate_code, Carbon::parse($row->certificate_date)->format('d/m/Y'), array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", $row->contract->property,
                         $row->contract->purpose, $row->contract->appraisal_date, join(', ', $officialAssessment->assessment_type),
-                        number_format($officialAssessment->official_value), array_key_exists($row->performer, $users) ? $users[$row->performer] : "", $row->contract->branch->branch_name
+                        number_format($officialAssessment->official_value), array_key_exists($officialAssessment->performer, $users) ? $users[$officialAssessment->performer] : "", $row->contract->branch->branch_name
                     ];
                 }
             } else {
                 $headers = ['STT', 'Số hợp đồng', 'Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
                 if (session('result')['branch_id']) {
-                    $query = ValuationDocument::where("branch_id", session('result')['branch_id']);
+                    $query = ContractAcceptance::where("branch_id", session('result')['branch_id'])->where("status", 35);
                 } else {
-                    $query = ValuationDocument::query();
+                    $query = ContractAcceptance::query();
                 }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
