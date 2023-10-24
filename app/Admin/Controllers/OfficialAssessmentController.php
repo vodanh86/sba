@@ -207,13 +207,24 @@ class OfficialAssessmentController extends AdminController
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $form->select('contract_id', __('valuation_document.contract_id'))
+            ->options(
+                Contract::where("branch_id", Admin::user()->branch_id)
+                    ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
+                    ->where('status', Constant::CONTRACT_INPUTTING_STATUS)
+                    ->where('tdv_assistant', '=', Admin::user()->id)
+                    ->pluck('code', 'id')
+            )
+            ->required()
+            ->readOnly()
+            ->creationRules(['required', "unique:official_assessments"])
+            ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::OFFICIAL_ASSESS_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
-        }
-        $form->select('contract_id', __('valuation_document.contract_id'))
+            $form->select('contract_id', __('valuation_document.contract_id'))
             ->options(
                 Contract::where("branch_id", Admin::user()->branch_id)
                     ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
@@ -225,6 +236,7 @@ class OfficialAssessmentController extends AdminController
             ->required()
             ->creationRules(['required', "unique:official_assessments"])
             ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
+        }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
         $form->date('certificate_date', __('Ngày chứng thư'))->format('DD-MM-YYYY');
