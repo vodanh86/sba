@@ -51,7 +51,7 @@ class AcReport extends Form
         } else {
             $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->default(Admin::user()->branch_id)->readonly();
         }
-        $this->radio('type', 'Loại báo cáo')->options(['c' => 'Báo cáo chứng thư ', 'v'=> 'Báo cáo hồ sơ thẩm định'])->default('c');
+        $this->radio('type', 'Loại báo cáo')->options(['c' => 'Báo cáo chứng thư phát hành', 'v'=> 'Báo cáo hồ sơ thẩm định'])->default('c');
     }
 
     /**
