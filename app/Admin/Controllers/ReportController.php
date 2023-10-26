@@ -197,7 +197,7 @@ class ReportController extends AdminController
             ->row(new BaReport());
 
         if ($data = session('result')) {
-            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành', 'chi nhánh'];
+            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành', 'Chi nhánh'];
             if($data["type"] == "prev"){
                 if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id'])->where("contract_type", Constant::PRE_CONTRACT_TYPE);
@@ -322,7 +322,7 @@ class ReportController extends AdminController
             ->row(new Report());
 
         if ($data = session('result')) {
-            $headers = ['STT', 'Người thực hiện', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'chi nhánh'];
+            $headers = ['STT', 'Người thực hiện', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Chi nhánh'];
             $users = AdminUser::pluck("name", "id")->toArray();
             $branches = AdminUser::pluck("branch_id", "id")->toArray();
             $appraisers = array();
@@ -404,16 +404,18 @@ class ReportController extends AdminController
             ->row(new SupervisorReport());
 
         if ($data = session('result')) {
-            $headers = ['STT', 'Người thực hiện', 'Số lượng hợp đồng chính thức', 'Số lỗi cơ bản', 'Số lỗi nghiệp vụ', 'Số lỗi nghiêm trọng', 'Số điểm'];
+            $headers = ['STT', 'Người thực hiện', 'Số lượng hợp đồng chính thức', 'Số lỗi cơ bản', 'Số lỗi nghiệp vụ', 'Số lỗi nghiêm trọng', 'Số điểm', 'Chi nhánh'];
             $rows = [];
             $users = AdminUser::pluck("name", "id")->toArray();
-            $result = DB::select("SELECT " .
+            if (session('result')['branch_id']) {
+                $result = DB::select("SELECT " .
                 "sba.contracts.tdv_assistant, " .
                 "COUNT(*) AS count, " .
                 "SUM(sba.score_cards.score) AS score, " .
                 "SUM(sba.score_cards.basic_error) AS basic_error, " .
                 "SUM(sba.score_cards.business_error) AS business_error, " .
-                "SUM(sba.score_cards.serious_error) AS serious_error " .
+                "SUM(sba.score_cards.serious_error) AS serious_error,
+                sba.contracts.branch_id " .
                 "FROM " .
                 "sba.score_cards, " .
                 "sba.contracts " .
@@ -422,13 +424,31 @@ class ReportController extends AdminController
                 "AND sba.score_cards.branch_id = ? " .
                 "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
                 "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
-                "GROUP BY sba.contracts.tdv_assistant;", array(Admin::user()->branch_id));
+                "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;", array(session('result')['branch_id']));
+            } else {
+                $result = DB::select("SELECT " .
+                "sba.contracts.tdv_assistant, " .
+                "COUNT(*) AS count, " .
+                "SUM(sba.score_cards.score) AS score, " .
+                "SUM(sba.score_cards.basic_error) AS basic_error, " .
+                "SUM(sba.score_cards.business_error) AS business_error, " .
+                "SUM(sba.score_cards.serious_error) AS serious_error, " .
+                "sba.contracts.branch_id " .
+                "FROM " .
+                "sba.score_cards, " .
+                "sba.contracts " .
+                "WHERE " .
+                "sba.score_cards.contract_id = sba.contracts.id " .
+                "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
+                "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
+                "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;");
+            }
             foreach ($result as $i => $row) {
                 $rows[] = [
                     $i + 1,
                     !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
                     $row->count, is_null($row->basic_error) ? 0 : $row->basic_error, is_null($row->business_error) ? 0 : $row->business_error,
-                    is_null($row->serious_error) ? 0 : $row->serious_error, $row->score
+                    is_null($row->serious_error) ? 0 : $row->serious_error, $row->score, Branch::find($row->branch_id)->branch_name
                 ];
             }
 
