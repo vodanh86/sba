@@ -52,7 +52,7 @@ class SaleReport extends Form
         } else {
             $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->default(Admin::user()->branch_id)->readonly();
         }
-        $this->radio('type', 'Loại báo cáo')->options(['l' => 'Thư chào ', 'c1' => ' Hợp đồng theo sale', 'c2' => 'Hợp đồng theo môi giới'])->default('l');
+        $this->radio('type', 'Loại báo cáo')->options(['l' => 'Thư chào ', 'c1' => ' Hợp đồng theo nguồn', 'c2' => 'Hợp đồng theo môi giới'])->default('l');
     }
 
     /**

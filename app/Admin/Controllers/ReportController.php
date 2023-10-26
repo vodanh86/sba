@@ -81,8 +81,8 @@ class ReportController extends AdminController
                 }
                 $rows[] = $sum;
             } else if ($data["type"] == "c1") {
-                $headers = ['STT', 'Sale', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
-                $sales = array();
+                $headers = ['STT', 'Nguồn', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'Tổng phí dịch vụ', 'Tổng doanh thu thuần', 'Chi nhánh'];
+                $sources = array();
                 $sum = [0, 0, 0];
                 if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id']);
@@ -99,7 +99,7 @@ class ReportController extends AdminController
                 $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
                 $result = $query->get();
                 foreach ($result as $i => $row) {
-                    $currentVal = array_key_exists($row["sale"], $sales) ? $sales[$row["sale"]] : [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]], [[0, 0, 0]]];
+                    $currentVal = array_key_exists($row["source"], $sources) ? $sources[$row["source"]] : [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]], [[0, 0, 0]]];
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][0]++;
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][1] += $row["total_fee"];
                     $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)][2] += $row["net_revenue"];
@@ -107,7 +107,7 @@ class ReportController extends AdminController
                     $currentVal[2][0][1] += $row["total_fee"];
                     $currentVal[2][0][2] += $row["net_revenue"];
                     $currentVal[3] = $row["branch_id"];
-                    $sales[$row["sale"]] = $currentVal;
+                    $sources[$row["source"]] = $currentVal;
                     $sum[0]++;
                     $sum[1] += $row["total_fee"];
                     $sum[2] += $row["net_revenue"];
@@ -115,8 +115,8 @@ class ReportController extends AdminController
 
                 $rows = [];
                 $count = 1;
-                foreach ($sales as $sale => $row) {
-                    $rows[] = [$count, $sale, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1]), number_format($row[0][0][2]), Branch::find($row[3])->branch_name];
+                foreach ($sources as $source => $row) {
+                    $rows[] = [$count, $source, "Sơ bộ", "Đang xử lý", $row[0][0][0], number_format($row[0][0][1]), number_format($row[0][0][2]), Branch::find($row[3])->branch_name];
                     $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", $row[0][1][0], number_format($row[0][1][1]), number_format($row[0][1][2]), ""];
                     $rows[] = ["", "", "Chính thức", "Đang xử lý", $row[1][0][0], number_format($row[1][0][1]), number_format($row[1][0][2]), ""];
                     $rows[] = ["", "", "Chính thức", "Đã hoàn thành", $row[1][1][0], number_format($row[1][1][1]), number_format($row[1][1][2]), ""];
