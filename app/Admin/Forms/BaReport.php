@@ -43,7 +43,7 @@ class BaReport extends Form
     {
         $this->date('from_date', 'Từ ngày')->format('DD-MM-YYYY')->width(2);
         $this->date('to_date', 'Đến ngày')->format('DD-MM-YYYY')->width(2);
-        if (true || Admin::user()->isRole(Constant::DIRECTOR_ROLE) && Utils::isSuperManager(Admin::user()->id)){
+        if (Admin::user()->isRole(Constant::DIRECTOR_ROLE) && Utils::isSuperManager(Admin::user()->id)){
             $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->width(2);
         } else {
             $this->select('branch_id', 'Chi nhánh')->options(Branch::all()->pluck('branch_name', 'id'))->default(Admin::user()->branch_id)->readonly();

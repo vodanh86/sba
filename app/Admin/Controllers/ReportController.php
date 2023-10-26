@@ -322,20 +322,22 @@ class ReportController extends AdminController
             ->row(new Report());
 
         if ($data = session('result')) {
-            $headers = ['STT', 'Người thực hiện', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng'];
+            $headers = ['STT', 'Người thực hiện', 'Loại hợp đồng', 'Tình trạng thực hiện', 'Số lượng hợp đồng', 'chi nhánh'];
             $users = AdminUser::pluck("name", "id")->toArray();
+            $branches = AdminUser::pluck("branch_id", "id")->toArray();
             $appraisers = array();
             $sum = 0;
-            $query = Contract::when(Admin::user()->id !== 17 && Admin::user()->id !== 18 && Admin::user()->id !== 65, function ($query) {
-                $query->where("branch_id", Admin::user()->branch_id);
-            });
+            if (session('result')['branch_id']) {
+                $query = Contract::where("branch_id", session('result')['branch_id'])->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
+            } else {
+                $query = Contract::where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
+            }
             if (!is_null(($data["formated_from_date"]))) {
                 $query->where('created_at', '>=', $data["formated_from_date"]);
             }
             if (!is_null(($data["formated_to_date"]))) {
                 $query->where('created_at', '<=', $data["formated_to_date"]);
             }
-            $query->where('status', "<>", Constant::OFFICIAL_CONTRACT_INIT);
             $result = $query->get();
             
             foreach ($result as $i => $row) {
@@ -352,13 +354,13 @@ class ReportController extends AdminController
             foreach ($appraisers as $appraiser => $row) {
                 if (array_key_exists($appraiser, $users)) {
                     $count++;
-                    $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
+                    $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
                     $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
                     $rows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
                     $rows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
                     $rows[] = ["", "Tổng", "", "", $row[2]];
                 } else {
-                    $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0]];
+                    $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
                     $tmpRows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
                     $tmpRows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
                     $tmpRows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
