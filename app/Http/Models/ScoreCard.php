@@ -34,4 +34,9 @@ class ScoreCard extends Model
     {
         return is_null($documents) ? [] : json_decode($documents, true);
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(AdminUser::class, 'creator_id');
+    } 
 }
