@@ -197,9 +197,13 @@ class ReportController extends AdminController
             ->row(new BaReport());
 
         if ($data = session('result')) {
-            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành'];
+            $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành', 'chi nhánh'];
             if($data["type"] == "prev"){
-                $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", Constant::PRE_CONTRACT_TYPE);
+                if (session('result')['branch_id']) {
+                    $query = Contract::where("branch_id", session('result')['branch_id'])->where("contract_type", Constant::PRE_CONTRACT_TYPE);
+                } else {
+                    $query = Contract::where("contract_type", Constant::PRE_CONTRACT_TYPE);
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -207,7 +211,11 @@ class ReportController extends AdminController
                     $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
             }else{
-                $query = Contract::where("branch_id", Admin::user()->branch_id)->where("contract_type", Constant::OFFICIAL_CONTRACT_TYPE);
+                if (session('result')['branch_id']) {
+                    $query = Contract::where("branch_id", session('result')['branch_id'])->where("contract_type", Constant::OFFICIAL_CONTRACT_TYPE);
+                } else {
+                    $query = Contract::where("contract_type", Constant::OFFICIAL_CONTRACT_TYPE);
+                }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
                 }
@@ -279,6 +287,7 @@ class ReportController extends AdminController
                     $name,
                     $status,
                     $dateFormatter($data["type"], $row->id),
+                    Branch::find($row->branch_id)->branch_name
                 ];
                 $count++;
             }
