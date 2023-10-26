@@ -9,6 +9,7 @@ use App\Admin\Extensions\ExcelExporter;
 use App\Http\Models\OfficialAssessment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
+use App\Http\Models\AdminUser;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -65,6 +66,7 @@ class ScoreCardController extends AdminController
         });
 
         $grid->column('comment', __('Bình luận'))->action(AddScoreCardComment::class)->width(100)->filter('like');
+        $grid->column('creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
@@ -96,6 +98,11 @@ class ScoreCardController extends AdminController
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Trạng thái');
+            $filter->where(function ($query) {
+                $query->whereHas('creator', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+            }, 'Người tạo');
             $filter->date('created_at', 'Ngày tạo');
             $filter->date('updated_at', 'Ngày cập nhật');
         });
@@ -196,6 +203,7 @@ class ScoreCardController extends AdminController
         $form->number('business_error', __('Lỗi nghiệp vụ'));
         $form->number('serious_error', __('Lỗi nghiêm trọng'));
         $form->multipleFile('document', __('Tài liệu'))->removable();
+        $form->select('creator_id', __('Người tạo'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'))->default(Admin::user()->id);
         $form->textarea('note', __('Ghi chú'))->rows(5);
         $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
