@@ -191,6 +191,6 @@ abstract class Utils
         $day = $today->format('d');
         $month = $today->format('m');
         $year = $today->format('Y');
-        return 'Ngày:' . $day . 'Tháng:' . $month . 'Năm:' . $year;
+        return 'ngày: ' . $day . ' - tháng: ' . $month . ' - năm: ' . $year;
     }
 }

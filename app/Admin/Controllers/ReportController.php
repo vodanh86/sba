@@ -256,7 +256,9 @@ class ReportController extends AdminController
                         }else{
                             $status = "Chưa hoàn thành";
                         }
-                    } else {
+                    } else if($row->status == 65) {
+                        $status = "Đã giao nhiệm vụ";
+                    } else{
                         $status = "Chưa giao nhiệm vụ";
                     }
                 }else{
@@ -268,7 +270,9 @@ class ReportController extends AdminController
                         }else{
                             $status = "Chưa hoàn thành";
                         }
-                    } else {
+                    } else if($row->status == 65) {
+                        $status = "Đã giao nhiệm vụ";
+                    } else{
                         $status = "Chưa giao nhiệm vụ";
                     }
                 }
