@@ -47,7 +47,9 @@ class DoneInvitationLettersController extends AdminController
         $grid->column('total_fee', __('Tổng phí'))->display(function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         })->width(150)->filter('like');
-
+        $grid->column('print', __('In thư mời'))->display(function () {
+            return "<a class=\"fa fa-print\" href='print-invitation-letter?id=".$this->id."' target='_blank'></a>";
+        });
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', $doneStatus->id);
         $grid->model()->orderBy('id', 'desc');
         
