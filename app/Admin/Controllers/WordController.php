@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Http\Models\AdminUser;
 use Encore\Admin\Controllers\AdminController;
 use Illuminate\Http\Request;
 use App\Http\Models\Contract;
@@ -82,6 +83,13 @@ class WordController extends AdminController
 
     public function createOfficialAssessment(Request $request)
     {
+        $moneyFormatter = function ($money) {
+            return number_format($money, 2, ',', ' ');
+        };
+        $convertIdToNameUser = function ($userId) {
+            $adminUser = AdminUser::find($userId);
+            return $adminUser ? mb_strtoupper($adminUser->name, 'UTF-8') : '';
+        };
         $id = $request->input('id');
         $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
@@ -89,14 +97,18 @@ class WordController extends AdminController
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
         $document->setValue('code',  $officialAssessment->contract->code);
         $document->setValue('today',  $today);
-        $document->setValue('customer_name',  $officialAssessment->contract->customer_name);
-        $document->setValue('address',  $officialAssessment->contract->address);
+        $document->setValue('personal_name',  $officialAssessment->contract->personal_name);
+        $document->setValue('address',  $officialAssessment->contract->personal_address);
         $document->setValue('id_number',  $officialAssessment->contract->id_number);
         $document->setValue('issue_place',  $officialAssessment->contract->issue_place);
         $document->setValue('issue_date',  $officialAssessment->contract->issue_date);
         $document->setValue('property',  $officialAssessment->contract->property);
         $document->setValue('appraisal_date',  $officialAssessment->contract->appraisal_date);
         $document->setValue('purpose',  $officialAssessment->contract->purpose);
+        $document->setValue('official_value',  $moneyFormatter($officialAssessment->official_value));
+        $document->setValue('official_value_words',  Utils::numberToWords($officialAssessment->official_value));
+        $document->setValue('supervisor',  $convertIdToNameUser($officialAssessment->contract->supervisor));
+        $document->setValue('legal_representative',  $convertIdToNameUser($officialAssessment->contract->legal_representative));
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
         return response()->download($outputPath, "$name.docx");;
