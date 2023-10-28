@@ -19,9 +19,9 @@ class WordController extends AdminController
         $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ');
         };
-        if ($contract->customer_type == 1){
+        if ($contract->customer_type == 1) {
             $name = 'SBA-HDCN-' . $contract->code;
-            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDCN.docx");
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDCN.docx");
             $document->setValue('code',  $contract->code);
             $document->setValue('personal_name',  $contract->personal_name);
             $document->setValue('address',  $contract->personal_address);
@@ -35,7 +35,7 @@ class WordController extends AdminController
             $document->setValue('today',  $today);
         } else {
             $name = 'SBA-HDDN-' . $contract->code;
-            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-HDDN.docx");
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDDN.docx");
             $document->setValue('code',  $contract->code);
             $document->setValue('business_name',  $contract->business_name);
             $document->setValue('address',  $contract->business_address);
@@ -49,12 +49,12 @@ class WordController extends AdminController
             $document->setValue('appraisal_date',  $contract->appraisal_date);
             $document->setValue('today',  $today);
         }
-    
+
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
         return response()->download($outputPath, "$name.docx");
     }
-    
+
 
     public function createInvitationLetter(Request $request)
     {
@@ -64,8 +64,8 @@ class WordController extends AdminController
         $id = $request->input('id');
         $today = Utils::generateDate();
         $invitationLetter = InvitationLetter::find($id);
-        $name = 'SBA'. '-' . 'TCG' . '-' . $invitationLetter->code;
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-TCG.docx");
+        $name = 'SBA' . '-' . 'TCG' . '-' . $invitationLetter->code;
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-TCG.docx");
         $document->setValue('code',  $invitationLetter->code);
         $document->setValue('today',  $today);
         $document->setValue('business_name',  $invitationLetter->customer_name);
@@ -73,6 +73,7 @@ class WordController extends AdminController
         $document->setValue('purpose',  $invitationLetter->purpose);
         $document->setValue('appraisal_date',  $invitationLetter->appraisal_date);
         $document->setValue('total_fee',  $moneyFormatter($invitationLetter->total_fee));
+        $document->setValue('total_fee_words',  Utils::numberToWords($invitationLetter->total_fee));
         $document->setValue('working_days',  $invitationLetter->working_days);
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
@@ -84,8 +85,8 @@ class WordController extends AdminController
         $id = $request->input('id');
         $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
-        $name = 'SBA'. '-' . 'CT' . '-' . $officialAssessment->contract->code;
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-CT.docx");
+        $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code;
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
         $document->setValue('code',  $officialAssessment->contract->code);
         $document->setValue('today',  $today);
         $document->setValue('customer_name',  $officialAssessment->contract->customer_name);
@@ -110,27 +111,33 @@ class WordController extends AdminController
         $today = Utils::generateDate();
         $contractAcceptance = ContractAcceptance::find($id);
         $taxFee = $contractAcceptance->total_fee / 100 * 8;
-        $name = 'SBA'. '-' . 'BBNT' . '-' . $contractAcceptance->contract->code;
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path()."/template/SBA-BBNT.docx");
-        $document->setValue('code',  $contractAcceptance->contract->code);
-        $document->setValue('today',  $today);
-        $document->setValue('appraisal_date',  $contractAcceptance->contract->appraisal_date);
-        if($contractAcceptance->contract->customer_type == 2){
+        if ($contractAcceptance->contract->customer_type == 2) {
+            $name = 'SBA' . '-' . 'BBNTDN' . '-' . $contractAcceptance->contract->code;
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-BBNT.docx");
+            $document->setValue('code',  $contractAcceptance->contract->code);
+            $document->setValue('today',  $today);
+            $document->setValue('appraisal_date',  $contractAcceptance->contract->appraisal_date);
             $document->setValue('business_name',  $contractAcceptance->contract->business_name);
             $document->setValue('address',  $contractAcceptance->contract->business_address);
             $document->setValue('representative',  $contractAcceptance->contract->representative);
-        }else{
-            $document->setValue('business_name',  $contractAcceptance->contract->personal_name);
-            $document->setValue('address',  $contractAcceptance->contract->personal_address);
-            $document->setValue('representative',  $contractAcceptance->contract->personal_name);
+            $document->setValue('position',  $contractAcceptance->contract->position);
+            $document->setValue('tax_number',  $contractAcceptance->tax_number);
+            $document->setValue('total_fee',  $$moneyFormatter($contractAcceptance->total_fee));
+            $document->setValue('tax_fee',  $moneyFormatter($taxFee));
+            $document->setValue('advance_fee',  $moneyFormatter($contractAcceptance->advance_fee));
+            $document->setValue('official_fee',  $moneyFormatter($contractAcceptance->official_fee));
+            $document->setValue('official_fee_words',  Utils::numberToWords($contractAcceptance->official_fee));
+        } else {
+            $name = 'SBA' . '-' . 'BBNTCN' . '-' . $contractAcceptance->contract->code;
+            $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-BBNTCN.docx");
+            $document->setValue('code',  $contractAcceptance->contract->code);
+            $document->setValue('today',  $today);
+            $document->setValue('property',  $contractAcceptance->contract->property);
+            $document->setValue('personal_name',  $contractAcceptance->contract->personal_name);
+            $document->setValue('personal_address',  $contractAcceptance->contract->personal_address);
+            $document->setValue('id_number',  $contractAcceptance->contract->id_number);
+            $document->setValue('sale',  $contractAcceptance->contract->sale);
         }
-        $document->setValue('position',  $contractAcceptance->contract->position);
-        $document->setValue('tax_number',  $contractAcceptance->tax_number);
-        $document->setValue('total_fee',  $$moneyFormatter($contractAcceptance->total_fee));
-        $document->setValue('tax_fee',  $moneyFormatter($taxFee));
-        $document->setValue('advance_fee',  $moneyFormatter($contractAcceptance->advance_fee));
-        $document->setValue('official_fee',  $moneyFormatter($contractAcceptance->official_fee));
-        $document->setValue('official_fee_words',  Utils::numberToWords($contractAcceptance->official_fee));
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
         return response()->download($outputPath, "$name.docx");;

@@ -15,7 +15,7 @@ class NotificationController extends Controller
             $adminUser = AdminUser::find($userId);
             return $adminUser ? $adminUser->name : '';
         };
-        $notifications = Notification::where('status', 0)->limit(20)->get();
+        $notifications = Notification::where('status', 0)->get()->orderBy('id', 'desc');
         foreach ($notifications as $notification) {
             $options = array(
                 'cluster' => 'ap1',
