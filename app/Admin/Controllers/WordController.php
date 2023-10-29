@@ -107,7 +107,7 @@ class WordController extends AdminController
         $document->setValue('purpose',  $officialAssessment->contract->purpose);
         $document->setValue('official_value',  $moneyFormatter($officialAssessment->official_value));
         $document->setValue('official_value_words',  Utils::numberToWords($officialAssessment->official_value));
-        $document->setValue('supervisor',  $convertIdToNameUser($officialAssessment->contract->supervisor));
+        $document->setValue('supervisor',  $convertIdToNameUser($officialAssessment->contract->tdv_migrate));  //Tham dinh vien
         $document->setValue('legal_representative',  $convertIdToNameUser($officialAssessment->contract->legal_representative));
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
