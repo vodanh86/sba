@@ -183,7 +183,7 @@ abstract class Utils
             $result .= convertHundred($remainder, $units, $teens, $tens, $hundreds);
         }
 
-        return $result;
+        return $result . ' đồng';
     }
     public static function generateDate()
     {
