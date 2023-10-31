@@ -198,7 +198,7 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             $headers = ['STT', 'Mã hợp đồng', 'Môi giới', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Chuyên viên nghiệp vụ', 'Tình trạng thực hiện', 'Ngày hoàn thành', 'Chi nhánh'];
-            if($data["type"] == "prev"){
+            if ($data["type"] == "prev") {
                 if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id'])->where("contract_type", Constant::PRE_CONTRACT_TYPE);
                 } else {
@@ -210,7 +210,7 @@ class ReportController extends AdminController
                 if (!is_null(($data["formated_to_date"]))) {
                     $query->where('created_at', '<=', $data["formated_to_date"]);
                 }
-            }else{
+            } else {
                 if (session('result')['branch_id']) {
                     $query = Contract::where("branch_id", session('result')['branch_id'])->where("contract_type", Constant::OFFICIAL_CONTRACT_TYPE);
                 } else {
@@ -232,48 +232,55 @@ class ReportController extends AdminController
                     if ($type == "prev") {
                         $preAssessment = PreAssessment::where("contract_id", "=", $contractId)->first();
                         if ($preAssessment) {
-                            $finishedDate = $preAssessment->finished_date;
+                            $status = Status::where("id", "=", $preAssessment->status)->where("table", "pre_assessments")->first()->done;
+                            if ($status == 1) {
+                                $finishedDate = $preAssessment->finished_date;
+                            }
                         }
                     } else {
                         $officialAssessment = OfficialAssessment::where("contract_id", "=", $contractId)->first();
                         if ($officialAssessment) {
-                            $finishedDate = $officialAssessment->finished_date;
+                            $status = Status::where("id", "=", $officialAssessment->status)->where("table", "pre_assessments")->first()->done;
+                            if ($status == 1) {
+                                $finishedDate = $officialAssessment->finished_date;
+                            }
                         }
                     }
-                
                     if ($finishedDate) {
                         $carbonFinishedDate = Carbon::parse($finishedDate)->timezone(Config::get('app.timezone'));
                         return $carbonFinishedDate->format('d/m/Y');
                     }
                     return "";
                 };
-                if($data["type"] == "prev"){
-                    $preAssessment = PreAssessment::where("contract_id", "=", $row->id)->first();
-                    if ($preAssessment) {
-                        $status = Status::where("id", "=", $preAssessment->status)->where("table", "pre_assessments")->first()->done;
-                        if($status == 1){
-                            $status = "Hoàn thành";
-                        }else{
+                if ($data["type"] == "prev") {
+                    $preAssessment = PreAssessment::where("contract_id", $row->id)->first();
+                    $status = null;
+                    if ($row->tdv_assistant == "") {
+                        $status = "Chưa giao nhiệm vụ";
+                    } elseif ($preAssessment) {
+                        $preAssessmentStatus = Status::where("id", $preAssessment->status)->where("table", "pre_assessments")->first();
+                        if ($preAssessmentStatus && $preAssessmentStatus->done == 1) {
+                            $status = "Đã hoàn thành";
+                        } else {
                             $status = "Chưa hoàn thành";
                         }
-                    } else if($row->status == 65) {
-                        $status = "Đã giao nhiệm vụ";
-                    } else{
-                        $status = "Chưa giao nhiệm vụ";
+                    }else{
+                        $status = "Chưa hoàn thành";
                     }
-                }else{
+                } else {
                     $officialAssessment = OfficialAssessment::where("contract_id", $row->id)->first();
-                    if ($officialAssessment) {
-                        $status = Status::where("id", "=", $officialAssessment->status)->where("table", "official_assessments")->first()->done;
-                        if($status == 1){
-                            $status = "Hoàn thành";
-                        }else{
+                    $status = null;
+                    if ($row->tdv_assistant == "") {
+                        $status = "Chưa giao nhiệm vụ";
+                    } elseif ($officialAssessment) {
+                        $officialAssessmentStatus = Status::where("id", $officialAssessment->status)->where("table", "pre_assessments")->first();
+                        if ($officialAssessmentStatus && $officialAssessmentStatus->done == 1) {
+                            $status = "Đã hoàn thành";
+                        } else {
                             $status = "Chưa hoàn thành";
                         }
-                    } else if($row->status == 65) {
-                        $status = "Đã giao nhiệm vụ";
-                    } else{
-                        $status = "Chưa giao nhiệm vụ";
+                    }else{
+                        $status = "Chưa hoàn thành";
                     }
                 }
                 $convertIdToNameUser = AdminUser::find($row->tdv_assistant);
@@ -343,7 +350,7 @@ class ReportController extends AdminController
                 $query->where('created_at', '<=', $data["formated_to_date"]);
             }
             $result = $query->get();
-            
+
             foreach ($result as $i => $row) {
                 $currentVal = array_key_exists($row["tdv_assistant"], $appraisers) ? $appraisers[$row["tdv_assistant"]] : [[0, 0], [0, 0], 0];
                 $currentVal[$row["contract_type"]][Utils::checkContractStatus($row)]++;
@@ -413,39 +420,39 @@ class ReportController extends AdminController
             $users = AdminUser::pluck("name", "id")->toArray();
             if (session('result')['branch_id']) {
                 $result = DB::select("SELECT " .
-                "sba.contracts.tdv_assistant, " .
-                "COUNT(*) AS count, " .
-                "SUM(sba.score_cards.score) AS score, " .
-                "SUM(sba.score_cards.basic_error) AS basic_error, " .
-                "SUM(sba.score_cards.business_error) AS business_error, " .
-                "SUM(sba.score_cards.serious_error) AS serious_error,
+                    "sba.contracts.tdv_assistant, " .
+                    "COUNT(*) AS count, " .
+                    "SUM(sba.score_cards.score) AS score, " .
+                    "SUM(sba.score_cards.basic_error) AS basic_error, " .
+                    "SUM(sba.score_cards.business_error) AS business_error, " .
+                    "SUM(sba.score_cards.serious_error) AS serious_error,
                 sba.contracts.branch_id " .
-                "FROM " .
-                "sba.score_cards, " .
-                "sba.contracts " .
-                "WHERE " .
-                "sba.score_cards.contract_id = sba.contracts.id " .
-                "AND sba.score_cards.branch_id = ? " .
-                "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
-                "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
-                "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;", array(session('result')['branch_id']));
+                    "FROM " .
+                    "sba.score_cards, " .
+                    "sba.contracts " .
+                    "WHERE " .
+                    "sba.score_cards.contract_id = sba.contracts.id " .
+                    "AND sba.score_cards.branch_id = ? " .
+                    "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
+                    "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
+                    "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;", array(session('result')['branch_id']));
             } else {
                 $result = DB::select("SELECT " .
-                "sba.contracts.tdv_assistant, " .
-                "COUNT(*) AS count, " .
-                "SUM(sba.score_cards.score) AS score, " .
-                "SUM(sba.score_cards.basic_error) AS basic_error, " .
-                "SUM(sba.score_cards.business_error) AS business_error, " .
-                "SUM(sba.score_cards.serious_error) AS serious_error, " .
-                "sba.contracts.branch_id " .
-                "FROM " .
-                "sba.score_cards, " .
-                "sba.contracts " .
-                "WHERE " .
-                "sba.score_cards.contract_id = sba.contracts.id " .
-                "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
-                "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
-                "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;");
+                    "sba.contracts.tdv_assistant, " .
+                    "COUNT(*) AS count, " .
+                    "SUM(sba.score_cards.score) AS score, " .
+                    "SUM(sba.score_cards.basic_error) AS basic_error, " .
+                    "SUM(sba.score_cards.business_error) AS business_error, " .
+                    "SUM(sba.score_cards.serious_error) AS serious_error, " .
+                    "sba.contracts.branch_id " .
+                    "FROM " .
+                    "sba.score_cards, " .
+                    "sba.contracts " .
+                    "WHERE " .
+                    "sba.score_cards.contract_id = sba.contracts.id " .
+                    "AND sba.score_cards.created_at >= '" . $data["formated_from_date"] . "' " .
+                    "AND sba.score_cards.created_at <= '" . $data["formated_to_date"] . "' " .
+                    "GROUP BY sba.contracts.tdv_assistant, sba.contracts.branch_id;");
             }
             foreach ($result as $i => $row) {
                 $rows[] = [
@@ -511,11 +518,11 @@ class ReportController extends AdminController
                     ];
                 }
             } else {
-                $headers = ['STT', 'Số hợp đồng', 'Hồ sơ thẩm định giá', 'Tình trạng', 'Chi nhánh'];
+                $headers = ['STT', 'Số hợp đồng', 'Tình trạng', 'Chi nhánh'];
                 if (session('result')['branch_id']) {
-                    $query = ContractAcceptance::where("branch_id", session('result')['branch_id'])->where("status", 35);
+                    $query = ValuationDocument::where("branch_id", session('result')['branch_id'])->where("status", 30);
                 } else {
-                    $query = ContractAcceptance::query();
+                    $query = ValuationDocument::query();
                 }
                 if (!is_null(($data["formated_from_date"]))) {
                     $query->where('created_at', '>=', $data["formated_from_date"]);
@@ -526,7 +533,7 @@ class ReportController extends AdminController
                 $result = $query->get();
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $rows[] = [$i + 1, $row->contract->code, $row->id, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $row->contract->branch->branch_name];
+                    $rows[] = [$i + 1, $row->contract->code, Status::find($row->status)->done == 1 ? "Đã hoàn thành" : "Đang xử lý", $row->contract->branch->branch_name];
                 }
             }
 

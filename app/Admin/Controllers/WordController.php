@@ -128,13 +128,13 @@ class WordController extends AdminController
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-BBNT.docx");
             $document->setValue('code',  $contractAcceptance->contract->code);
             $document->setValue('today',  $today);
-            $document->setValue('appraisal_date',  $contractAcceptance->contract->appraisal_date);
+            $document->setValue('appraisal_date',  $contractAcceptance->contract->created_date);
             $document->setValue('business_name',  $contractAcceptance->contract->business_name);
             $document->setValue('address',  $contractAcceptance->contract->business_address);
             $document->setValue('representative',  $contractAcceptance->contract->representative);
             $document->setValue('position',  $contractAcceptance->contract->position);
             $document->setValue('tax_number',  $contractAcceptance->tax_number);
-            $document->setValue('total_fee',  $$moneyFormatter($contractAcceptance->total_fee));
+            $document->setValue('total_fee',  $moneyFormatter($contractAcceptance->total_fee));
             $document->setValue('tax_fee',  $moneyFormatter($taxFee));
             $document->setValue('advance_fee',  $moneyFormatter($contractAcceptance->advance_fee));
             $document->setValue('official_fee',  $moneyFormatter($contractAcceptance->official_fee));
