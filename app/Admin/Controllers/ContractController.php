@@ -165,7 +165,7 @@ class ContractController extends AdminController
                         });
                     });
             })
-            ->orderBy('id', 'desc');
+            ->orderBy('updated_at', 'desc');
 
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();

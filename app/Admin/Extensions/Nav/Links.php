@@ -16,7 +16,7 @@ class Links
         $userId = Admin::user()->id;
         $userAvartar = Admin::user()->avatar;
         $count = Notification::where("user_id", $userId)->where("check", 0)->count();
-        $notifications = Notification::where("user_id", $userId)->where("check", 0)->get();
+        $notifications = Notification::where("user_id", $userId)->where("check", 0)->orderBy("id", "desc")->get();
         $urlNotifications = env('APP_URL') . "/admin/notifications";
         $urlBase = env('APP_URL') . "/admin";
         $convertIdToNameUser = function ($userId) {
