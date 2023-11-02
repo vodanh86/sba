@@ -240,7 +240,7 @@ class ReportController extends AdminController
                     } else {
                         $officialAssessment = OfficialAssessment::where("contract_id", "=", $contractId)->first();
                         if ($officialAssessment) {
-                            $status = Status::where("id", "=", $officialAssessment->status)->where("table", "pre_assessments")->first()->done;
+                            $status = Status::where("id", "=", $officialAssessment->status)->where("table", "official_assessments")->first()->done;
                             if ($status == 1) {
                                 $finishedDate = $officialAssessment->finished_date;
                             }
@@ -273,7 +273,7 @@ class ReportController extends AdminController
                     if ($row->tdv_assistant == "") {
                         $status = "Chưa giao nhiệm vụ";
                     } elseif ($officialAssessment) {
-                        $officialAssessmentStatus = Status::where("id", $officialAssessment->status)->where("table", "pre_assessments")->first();
+                        $officialAssessmentStatus = Status::where("id", $officialAssessment->status)->where("table", "official_assessments")->first();
                         if ($officialAssessmentStatus && $officialAssessmentStatus->done == 1) {
                             $status = "Đã hoàn thành";
                         } else {

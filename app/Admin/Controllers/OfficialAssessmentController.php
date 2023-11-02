@@ -79,7 +79,8 @@ class OfficialAssessmentController extends AdminController
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        // $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id);
         $grid->model()->orderByDesc('id');
         if (Utils::getCreateRole(Constant::OFFICIAL_ASSESS_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
