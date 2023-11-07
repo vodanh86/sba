@@ -170,6 +170,7 @@ class ContractController extends AdminController
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
+        $grid->disableRowSelector();
         $grid->actions(function ($actions) use ($editStatus) {
             if (Admin::user()->isRole(Constant::DIRECTOR_ROLE) && in_array(Admin::user()->id, Constant::ROLE_RESET_CONTRACT)) {
                 $actions->add(new ResetButton($actions->getKey()));
@@ -270,7 +271,7 @@ class ContractController extends AdminController
                                 $contract->position, $contract->personal_address, $contract->print, $contract->id_number,
                                 $contract->personal_name, $contract->issue_place, $contract->issue_date, $contract->property,
                                 $contract->purpose, $contract->appraisal_date, $contract->from_date, $contract->to_date,
-                                $contract->total_fee, $contract->advance_fee, $contract->broker, $contract->source,
+                                $contract->total_fee, $contract->advance_fee, $contract->broker, $contract->source, $contract->sale,
                                 $tdv, $legalRepresentative, $tdvMigrate, $assistant, $supervisor, $contract->net_revenue,
                                 $contract->contact, $contract->note, $contract->comment, $contract->statusDetail->name, $creator, $contract->created_at, 
                                 $contract->updated_at
