@@ -146,7 +146,7 @@ class ContractController extends AdminController
                     ->orWhere('tdv', '=', Admin::user()->id);
             });
         }
-
+        // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
             ->where('branch_id', Admin::user()->branch_id)
             ->where(function ($query) {
