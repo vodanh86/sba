@@ -3,12 +3,11 @@
 namespace App\Admin\Forms;
 
 use Encore\Admin\Facades\Admin;
-use App\Admin\Controllers\Utils;
-use App\Admin\Controllers\Constant;
+use Maatwebsite\Excel\Facades\Excel;
 use Encore\Admin\Widgets\Form;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Http\Models\Branch;
+use App\Imports\PricesImport;
 use Config;
 
 class UploadForm extends Form
@@ -29,22 +28,41 @@ class UploadForm extends Form
      */
     public function handle(Request $request)
     {
-        $fromDate = Carbon::createFromFormat('d-m-Y', $request->get("from_date"))->timezone(Config::get('app.timezone'));
-        $toDate = Carbon::createFromFormat('d-m-Y', $request->get("to_date"))->timezone(Config::get('app.timezone'));
-        $result = array("from_date" => $request->get("from_date"),
-                        "to_date" => $request->get("to_date"),
-                        "branch_id" => $request->get("branch_id"),
-                        "formated_from_date" => $fromDate->format('Y-m-d'),
-                        "formated_to_date" => $toDate->format('Y-m-d 23:59:59'),
-                        "type" => $request->get("type"));
-        return back()->with(['result' => $result]);
+        $expiredDate = Carbon::createFromFormat('d-m-Y', $request->get("expired_date"))->timezone(Config::get('app.timezone'));
+        $sheets = Excel::toArray(new PricesImport, request()->file('file'));
+        $rows = [];
+        $error = "";
+        foreach ($sheets as $i => $sheet) {
+            foreach ($sheet as $j => $row) {
+                if ($j > 1) {
+                    if ($row[1] && $row[2] && $row[3] && $row[4] && $row[5] && $row[6] && $row[7] && $row[8] && $row[9]) {
+                        $rows[] = $row;
+                    } else {
+                        $error .= "Lỗi thiếu thông tin ở dòng $j </br>";
+                    }
+                }
+            }
+            break;
+        }
+        if ($error && false) {
+            admin_error("Lỗi", $error);
+            return back();
+        } else {
+            $result = array(
+                "expired_date" => $request->get("expired_date"),
+                "rows" => $rows
+            );
+            return back()->with(['result' => $result]);
+        }
     }
     /**
      * Build a form here.
      */
     public function form()
     {
-        $this->date('expired_date', 'Từ ngày')->format('DD-MM-YYYY')->width(2);    }
+        $this->date('expired_date', 'Ngày hết hạn')->format('DD-MM-YYYY')->width(2)->required();
+        $this->file('file', 'Upload file')->rules('mimes:xls,xlsx')->width(2)->required();
+    }
 
     /**
      * The data of the form.
