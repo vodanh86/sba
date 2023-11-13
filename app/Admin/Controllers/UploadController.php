@@ -7,7 +7,7 @@ use App\Admin\Forms\UploadForm;
 use Encore\Admin\Widgets\Table;
 use App\Http\Models\Price;
 use Encore\Admin\Controllers\AdminController;
-use App\Http\Models\AdminUser;
+use Encore\Admin\Grid;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use DB;
@@ -31,7 +31,7 @@ class UploadController extends AdminController
     public function index(Content $content)
     {
         $content
-            ->title('Báo cáo')
+            ->title('Bảng giá')
             ->row(new UploadForm());
 
         if ($data = session('result')) {
@@ -53,9 +53,18 @@ class UploadController extends AdminController
                 $price->updated_at = new Carbon;
                 $price->save();
             }
-            $table = new Table($headers, $data['rows']);
-            $content->row($table);
         }
+
+        $grid = new Grid(new Price());
+        $grid->column('id', __('Id'));
+        $grid->column('province', __('Tỉnh/Thành phố'))->filter('like');
+        $grid->column('district', __('Quận/Huyện'))->filter('like');
+        $grid->column('street', __('Đường'))->filter('like');
+        $grid->column('from', __('Từ'))->filter('like');
+        $grid->column('expired_date', __('Ngày hết hạn'))->filter('like');
+        $grid->model()->orderBy('id', 'desc');
+
+        $content->row($grid);
 
         return $content;
     }
