@@ -23,6 +23,7 @@ Route::group([
     $router->get('/supervisor-reports', 'ReportController@supervisorReport');
     $router->get('/ba-manager-reports', 'ReportController@baManagerReport');
     $router->get('/accountant-reports', 'ReportController@accountantManagerReport');
+    $router->get('/price-upload', 'UploadController@index');
     $router->resource('branches', BranchController::class);
     $router->resource('individual-customers', IndividualCustomerController::class);
     $router->resource('business-customers', BusinessCustomerController::class);
