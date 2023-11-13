@@ -44,7 +44,7 @@ class UploadForm extends Form
             }
             break;
         }
-        if ($error && false) {
+        if ($error) {
             admin_error("Lỗi", $error);
             return back();
         } else {
