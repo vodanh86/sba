@@ -60,7 +60,13 @@ class UploadController extends AdminController
         $grid->column('province', __('Tỉnh/Thành phố'))->filter('like');
         $grid->column('district', __('Quận/Huyện'))->filter('like');
         $grid->column('street', __('Đường'))->filter('like');
-        $grid->column('from', __('Từ'))->filter('like');
+        $grid->column('from', __('Tuyến đường từ'))->filter('like');
+        $grid->column('to', __('Tuyến đường đến'))->filter('like');
+        $grid->column('location', __('Vị trí'))->filter('like');
+        $grid->column('type', __('Loại đất'))->filter('like');
+        $grid->column('from_price', __('Đơn giá từ (Đồng/m2)'))->filter('like');
+        $grid->column('to_price', __('Đơn giá đến (Đồng/m2)'))->filter('like');
+        $grid->column('note', __('Ghi chú'))->filter('like');
         $grid->column('expired_date', __('Ngày hết hạn'))->filter('like');
         $grid->model()->orderBy('id', 'desc');
 
