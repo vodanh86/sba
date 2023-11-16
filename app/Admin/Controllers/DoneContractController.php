@@ -163,7 +163,7 @@ class DoneContractController extends AdminController
     }
     protected function processData(){
         $processedData = array();
-        foreach(ContractAcceptance::all() as $index=>$contractAcceptance){
+        foreach(ContractAcceptance::where('branch_id', '=', Admin::user()->branch_id)->where('status', 35)->get() as $index=>$contractAcceptance){
             $creator = optional(AdminUser::find($contractAcceptance->created_by))->name;
             $processedData[] = [$contractAcceptance->id, $contractAcceptance->contract->code, $contractAcceptance->contract->property, $contractAcceptance->date_acceptance, $contractAcceptance->contract->customer_type, 
                                 $contractAcceptance->contract->tax_number,$contractAcceptance->contract->business_name, $contractAcceptance->contract->personal_address, $contractAcceptance->contract->representative,
