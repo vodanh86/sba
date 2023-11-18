@@ -46,5 +46,6 @@ class CallApiNotification extends Command
         } else {
             $this->error('API call failed');
         }
+        sleep(1500000);
     }
 }
