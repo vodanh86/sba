@@ -36,37 +36,64 @@ class DoneContractController extends AdminController
         $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ') . " VND";
         };
+        $convertIdToNameUser = function ($tdvId) {
+            $adminUser = AdminUser::find($tdvId);
+            return $adminUser ? $adminUser->name : '';
+        };
         $grid = new Grid(new ContractAcceptance());
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('Mã hợp đồng'));
-        $grid->column('contract.property', __('Tài sản thẩm định giá'));
-        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150);
-        $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter('like');
+        $grid->column('contract.contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
+        $grid->column('contract.created_date', __('Ngày hợp đồng'))->display($dateFormatter);
+        $grid->column('contract.customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE);
         $grid->column('contract.tax_number', __('Mã số thuế'));
         $grid->column('contract.business_name', __('Tên doanh nghiệp'));
-        $grid->column('contract.personal_address', __('Địa chỉ'));
+        $grid->column('contract.business_address', __('Địa chỉ doanh nghiệp'));
         $grid->column('contract.representative', __('Người đại diện'));
         $grid->column('contract.position', __('Chức vụ'));
-        $grid->column('contract.personal_name', __('Họ và tên'));
+        $grid->column('contract.personal_address', __('Địa chỉ'));
         $grid->column('contract.id_number', __('Số CMND/CCCD'));
+        $grid->column('contract.personal_name', __('Họ và tên'));
         $grid->column('contract.issue_place', __('Nơi cấp'));
         $grid->column('contract.issue_date', __('Ngày cấp'))->display($dateFormatter);
-
+        $grid->column('contract.property', __('Tài sản thẩm định giá'));
+        $grid->column('contract.purpose', __('Mục đích thẩm định giá'));
+        $grid->column('contract.appraisal_date', __('Thời điểm thẩm định giá'));
+        $grid->column('contract.from_date', __('Thời gian thực hiện từ ngày'))->display($dateFormatter);
+        $grid->column('contract.to_date', __('Thời gian thực hiện đến ngày'))->display($dateFormatter);
+        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display(function ($money) {
+            return number_format($money, 2, ',', ' ') . " VND";
+        })->width(150)->filter('like');
+        $grid->column('advance_fee', __('Đã tạm ứng'))->display($moneyFormatter)->width(150)->filter('like');
+        $grid->column('contract.broker', __('Môi giới'));
+        $grid->column('contract.source', __('Nguồn'));
+        $grid->column('contract.sale', __('Sale'));
+        $grid->column('contract.tdv', __('Trưởng phòng nghiệp vụ'))->display($convertIdToNameUser);
+        $grid->column('contract.legal_representative', __('Đại diện pháp luật'))->display($convertIdToNameUser);
+        $grid->column('contract.tdv_migrate', __('Thẩm định viên'))->display($convertIdToNameUser);
+        $grid->column('contract.tdv_assistant', __('Trợ lý thẩm định viên'))->display($convertIdToNameUser);
+        $grid->column('contract.supervisor', __('Kiểm soát viên'))->display($convertIdToNameUser);
+        $grid->column('contract.net_revenue', __('Doanh thu thuần'))->display($moneyFormatter);
+        $grid->column('contract.contact', __('Liên hệ'));
+        $grid->column('contract.note', __('Ghi chú'));
+        $grid->column('contract.document', __('File đính kèm'))->display(function ($urls) {
+            $urlsHtml = "";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
+            }
+            return $urlsHtml;
+        });
+        $grid->column('date_acceptance', __('Ngày nghiệm thu'))->display($dateFormatter)->width(150);
         $grid->column('export_bill', __('Xuất hoá đơn'))->display(function ($value) {
             return $value == 0 ? 'Không' : 'Có';
         })->filter('like');
         $grid->column('buyer_name', __('Đơn vị mua'))->filter('like');
-        $grid->column('buyer_address', __('Địa chỉ'))->filter('like');
-        $grid->column('tax_number', __('Mã số thuế'))->filter('like');
+        $grid->column('buyer_address', __('Địa chỉ đơn vị mua'))->filter('like');
+        $grid->column('tax_number', __('Mã số thuế đơn vị mua'))->filter('like');
         $grid->column('bill_content', __('Nội dung hoá đơn'))->filter('like');
-
-        $grid->column('total_fee', __('Tổng phí dịch vụ'))->display(function ($money) {
-            return number_format($money, 2, ',', ' ') . " VND";
-        })->width(150)->filter('like');
         $grid->column('delivery', __('Người chuyển'))->filter('like');
         $grid->column('recipient', __('Người nhận'))->filter('like');
-        $grid->column('advance_fee', __('Đã tạm ứng'))->display($moneyFormatter)->width(150)->filter('like');
         $grid->column('official_fee', __('Còn phải thanh toán'))->display($moneyFormatter)->width(150)->filter('like');
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
@@ -74,7 +101,6 @@ class DoneContractController extends AdminController
                 $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
             }
             return $urlsHtml;        });
-        $grid->column('contract.net_revenue', __('Doanh thu thuần'))->display($moneyFormatter);
         $grid->column('contract.creator.name', __('Người tạo'));
         $grid->column('created_at', __('Ngày tạo'))->display($dateFormatter)->width(150);
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
