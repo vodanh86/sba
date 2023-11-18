@@ -20,7 +20,7 @@ class NotificationController extends Controller
         if ($notifyStatus->status == 1) {
             return response()->json(200);
         } else {
-            $notifyStatus->status == 1;
+            $notifyStatus->status = 1;
             $notifyStatus->save();
 
             $notifications = Notification::where('status', 0)->limit(10)->get();
@@ -42,8 +42,8 @@ class NotificationController extends Controller
                 $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $notification);
                 usleep(500000);
             }
-            
-            $notifyStatus->status == 0;
+
+            $notifyStatus->status = 0;
             $notifyStatus->save();
             return response()->json(200);
         }
