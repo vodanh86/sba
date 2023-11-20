@@ -41,4 +41,5 @@ Route::group([
     $router->resource('done-contracts', DoneContractController::class);
     $router->resource('done-invitation-letters', DoneInvitationLettersController::class);
     $router->resource('notifications', NotificationController::class);
+    $router->resource('docs-config', DocsConfigController::class);
 });
