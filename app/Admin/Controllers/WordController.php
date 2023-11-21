@@ -25,12 +25,27 @@ class WordController extends AdminController
         if ($contract->customer_type == 1) {
             $name = 'SBA-HDCN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDCN.docx");
-            $docsConfig = DocsConfig::where("type", "ContractIndi")->get();
-            if ($docsConfig) {
-                foreach ($docsConfig as $config) {
-                    $document->setValue($config->key, $config->value);
+            if ($contract->docs_stk) {
+                $document->setValue("stk", $contract->docs_stk);
+                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contract->branch_id)->where("stk", $contract->docs_stk)->first()->description;
+                if ($nameStk) {
+                    $document->setValue("ten_stk", $nameStk);
                 }
+            } else {
+                $document->setValue("stk", "686878988");
+                $document->setValue("ten_stk", "Ngân hàng TMCP Quân Đội – Chi nhánh Hoàng Quốc Việt");
             }
+            if ($contract->docs_representative && $contract->docs_position) {
+                $document->setValue("dai_dien", $contract->docs_representative);
+                $document->setValue("chuc_vu", $contract->docs_position);
+            } else if ($contract->branch_id == 3) {
+                $document->setValue("dai_dien", "Phạm Vũ Minh Phúc");
+                $document->setValue("chuc_vu", "Tổng Giám đốc");
+            } else {
+                $document->setValue("dai_dien", "Lê Minh Tiến");
+                $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
+            }
+            $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
             $document->setValue('personal_name', $contract->personal_name);
             $document->setValue('address', $contract->personal_address);
@@ -45,12 +60,27 @@ class WordController extends AdminController
         } else {
             $name = 'SBA-HDDN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDDN.docx");
-            $docsConfig = DocsConfig::where("type", "ContractCorp")->get();
-            if ($docsConfig) {
-                foreach ($docsConfig as $config) {
-                    $document->setValue($config->key, $config->value);
+            if ($contract->docs_stk) {
+                $document->setValue("stk", $contract->docs_stk);
+                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contract->branch_id)->where("stk", $contract->docs_stk)->first()->description;
+                if ($nameStk) {
+                    $document->setValue("ten_stk", $nameStk);
                 }
+            } else {
+                $document->setValue("stk", "686878988");
+                $document->setValue("ten_stk", "Ngân hàng TMCP Quân Đội – Chi nhánh Hoàng Quốc Việt");
             }
+            if ($contract->docs_representative && $contract->docs_position) {
+                $document->setValue("dai_dien", $contract->docs_representative);
+                $document->setValue("chuc_vu", $contract->docs_position);
+            } else if ($contract->branch_id == 3) {
+                $document->setValue("dai_dien", "Phạm Vũ Minh Phúc");
+                $document->setValue("chuc_vu", "Tổng Giám đốc");
+            } else {
+                $document->setValue("dai_dien", "Lê Minh Tiến");
+                $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
+            }
+            $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
             $document->setValue('business_name', $contract->business_name);
             $document->setValue('address', $contract->business_address);
@@ -105,11 +135,29 @@ class WordController extends AdminController
             $adminUser = AdminUser::find($userId);
             return $adminUser ? mb_strtoupper($adminUser->name, 'UTF-8') : '';
         };
+        $convertIdToNameUserDefault = function ($userId) {
+            $adminUser = AdminUser::find($userId);
+            return $adminUser ? $adminUser->name : '';
+        };
         $id = $request->input('id');
         $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
+        $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
+        if ($docsConfig) {
+            foreach ($docsConfig as $config) {
+                if ($config->key == "chuc_vu") {
+                    $document->setValue("chuc_vu", $config->value);
+                }
+                if ($config->key == "key_tdv" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->tdv_migrate)) {
+                    $document->setValue("key_tdv", $config->description);
+                }
+                if ($config->key == "key_đdpl" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->legal_representative)) {
+                    $document->setValue("key_đdpl", $config->description);
+                }
+            }
+        }
         $document->setValue('code', $officialAssessment->contract->code);
         $document->setValue('today', $today);
         $document->setValue('personal_name', $officialAssessment->contract->personal_name);
@@ -138,10 +186,39 @@ class WordController extends AdminController
         $id = $request->input('id');
         $today = Utils::generateDate();
         $contractAcceptance = ContractAcceptance::find($id);
-        $taxFee = $contractAcceptance->total_fee / 100 * 8;
         if ($contractAcceptance->contract->customer_type == 2) {
             $name = 'SBA' . '-' . 'BBNTDN' . '-' . $contractAcceptance->contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-BBNT.docx");
+            $docsConfig = DocsConfig::where("type", "Nghiệm thu hợp đồng doanh nghiệp")->where("branch_id", $contractAcceptance->contract->branch_id)->get();
+            if ($docsConfig) {
+                foreach ($docsConfig as $config) {
+                    if ($config->key == "thue_VAT") {
+                        $totalWithoutTaxFee = $contractAcceptance->total_fee / 1.08;
+                        $taxFee = $totalWithoutTaxFee / 100 * $config->value;
+                    }
+                }
+            }
+            if ($contractAcceptance->contract->docs_stk) {
+                $document->setValue("stk", $contractAcceptance->contract->docs_stk);
+                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contractAcceptance->contract->branch_id)->where("stk", $contractAcceptance->contract->docs_stk)->first()->description;
+                if ($nameStk) {
+                    $document->setValue("ten_stk", $nameStk);
+                }
+            } else {
+                $document->setValue("stk", "686878988");
+                $document->setValue("ten_stk", "Ngân hàng TMCP Quân Đội – Chi nhánh Hoàng Quốc Việt");
+            }
+            if ($contractAcceptance->contract->docs_representative && $contractAcceptance->contract->docs_position) {
+                $document->setValue("dai_dien", $contractAcceptance->contract->docs_representative);
+                $document->setValue("chuc_vu", $contractAcceptance->contract->docs_position);
+            } else if ($contractAcceptance->contract->branch_id == 3) {
+                $document->setValue("dai_dien", "Phạm Vũ Minh Phúc");
+                $document->setValue("chuc_vu", "Tổng Giám đốc");
+            } else {
+                $document->setValue("dai_dien", "Lê Minh Tiến");
+                $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
+            }
+            $document->setValue("uy_quyen", $contractAcceptance->contract->docs_authorization && "");
             $document->setValue('code', $contractAcceptance->contract->code);
             $document->setValue('today', $today);
             $document->setValue('appraisal_date', $contractAcceptance->contract->created_date);
@@ -151,6 +228,7 @@ class WordController extends AdminController
             $document->setValue('position', $contractAcceptance->contract->position);
             $document->setValue('tax_number', $contractAcceptance->tax_number);
             $document->setValue('total_fee', $moneyFormatter($contractAcceptance->total_fee));
+            $document->setValue('total_none_fee', $moneyFormatter($totalWithoutTaxFee));
             $document->setValue('tax_fee', $moneyFormatter($taxFee));
             $document->setValue('advance_fee', $moneyFormatter($contractAcceptance->advance_fee));
             $document->setValue('official_fee', $moneyFormatter($contractAcceptance->official_fee));
