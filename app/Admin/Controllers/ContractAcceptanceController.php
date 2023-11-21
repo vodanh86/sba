@@ -363,7 +363,6 @@ class ContractAcceptanceController extends AdminController
 
         $form->divider('4. Thông tin phí và thanh toán');
         $form->currency('total_fee', __('Tổng phí'))->symbol('VND');
-
         $form->text('delivery', __('Người chuyển'));
         $form->text('recipient', __('Người nhận'));
         $form->currency('advance_fee', __('Đã tạm ứng'))->symbol('VND');
@@ -399,6 +398,16 @@ class ContractAcceptanceController extends AdminController
                 $("#id_number").val(contract.id_number);  
                 $("#issue_place").val(contract.issue_place);  
                 $("#issue_date").val(contract.issue_date); 
+                $("#total_fee").val(contract.total_fee); 
+                $("#delivery").val(contract.sale); 
+                $("#advance_fee").val(contract.advance_fee);
+                $("#official_fee").val(contract.official_fee); 
+
+                if(contract.customer_type == 1){
+                    $("#delivery").val(''); 
+                    $("#delivery").prop("disabled", true);
+                    $("#recipient").prop("disabled", true);
+                }
                 updateBill();
             }
             function updateBill(){
@@ -416,6 +425,9 @@ class ContractAcceptanceController extends AdminController
                     }
                 } else {
                     $(".buyer_name").val('');
+                    $(".buyer_address").val('');
+                    $(".tax_number").val('');
+                    $(".bill_content").val('');
                 }
             }
             $.get("$url",{q : contractId}, function (data) {

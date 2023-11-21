@@ -492,7 +492,7 @@ class ContractController extends AdminController
         })
             ->where("branch_id", Admin::user()->branch_id)
             ->where("key", "uy_quyen")
-            ->pluck("value", "value");
+            ->pluck("description", "description");
         $docsConfigsPosition = DocsConfig::where(function ($query) {
             $query->where("type", "Hợp đồng cá nhân")
                 ->orWhere("type", "Hợp đồng doanh nghiệp");

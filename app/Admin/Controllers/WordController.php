@@ -149,19 +149,33 @@ class WordController extends AdminController
             foreach ($docsConfig as $config) {
                 if ($config->key == "chuc_vu") {
                     $document->setValue("chuc_vu", $config->value);
+                } else {
+                    $document->setValue("chuc_vu", "");
                 }
                 if ($config->key == "key_tdv" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->tdv_migrate)) {
                     $document->setValue("key_tdv", $config->description);
+                } else {
+                    $document->setValue("key_tdv", "");
                 }
                 if ($config->key == "key_đdpl" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->legal_representative)) {
                     $document->setValue("key_đdpl", $config->description);
+                } else {
+                    $document->setValue("key_đdpl", "");
                 }
             }
         }
         $document->setValue('code', $officialAssessment->contract->code);
         $document->setValue('today', $today);
-        $document->setValue('personal_name', $officialAssessment->contract->personal_name);
-        $document->setValue('address', $officialAssessment->contract->personal_address);
+        if ($officialAssessment->contract->personal_name == "") {
+            $document->setValue('personal_name', $officialAssessment->contract->business_name);
+        } else {
+            $document->setValue('personal_name', $officialAssessment->contract->personal_name);
+        }
+        if ($officialAssessment->contract->personal_address == "") {
+            $document->setValue('address', $officialAssessment->contract->business_address);
+        } else {
+            $document->setValue('address', $officialAssessment->contract->personal_address);
+        }
         $document->setValue('id_number', $officialAssessment->contract->id_number);
         $document->setValue('issue_place', $officialAssessment->contract->issue_place);
         $document->setValue('issue_date', $officialAssessment->contract->issue_date);
@@ -195,6 +209,7 @@ class WordController extends AdminController
                     if ($config->key == "thue_VAT") {
                         $totalWithoutTaxFee = $contractAcceptance->total_fee / 1.08;
                         $taxFee = $totalWithoutTaxFee / 100 * $config->value;
+                        $document->setValue("thue_VAT", $config->value);
                     }
                 }
             }
