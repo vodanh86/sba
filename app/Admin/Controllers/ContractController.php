@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
+use App\Http\Models\DocsConfig;
 use Encore\Admin\Layout\Content;
 use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddContractComment;
@@ -98,7 +99,7 @@ class ContractController extends AdminController
         $grid->column('position', __('Chức vụ'))->filter('like');
         $grid->column('personal_address', __('Địa chỉ'))->filter('like');
         $grid->column('print', __('In hợp đồng'))->display(function () {
-            return "<a class=\"fa fa-print\" href='print-contract?id=".$this->id."' target='_blank'></a>";
+            return "<a class=\"fa fa-print\" href='print-contract?id=" . $this->id . "' target='_blank'></a>";
         });
         $grid->column('id_number', __('Số CMND/CCCD'))->filter('like');
         $grid->column('personal_name', __('Họ và tên'))->filter('like');
@@ -138,7 +139,9 @@ class ContractController extends AdminController
         } else if ($condition == 1) {
             $grid->model()->whereIn('status', [
                 Constant::CONTRACT_INPUTTING_STATUS,
-                Constant::PRE_CONTRACT_INPUTTING_STATUS, Constant::WAIT_ASSIGN, Constant::OFFICIAL_ASSIGN
+                Constant::PRE_CONTRACT_INPUTTING_STATUS,
+                Constant::WAIT_ASSIGN,
+                Constant::OFFICIAL_ASSIGN
             ]);
             $grid->model()->where(function ($query) {
                 $query->where('tdv_assistant', '=', Admin::user()->id)
@@ -254,7 +257,7 @@ class ContractController extends AdminController
     {
         $processedData = array();
         $contracts = Contract::all();
-        if(!Utils::isSuperManager(Admin::user()->id)) {
+        if (!Utils::isSuperManager(Admin::user()->id)) {
             $contracts = Contract::where('branch_id', Admin::user()->branch_id)->get();
         }
         foreach ($contracts as $index => $contract) {
@@ -266,16 +269,47 @@ class ContractController extends AdminController
             $assistant = optional(AdminUser::find($contract->tdv_assistant))->name;
             $supervisor = optional(AdminUser::find($contract->supervisor))->name;
             $creator = optional(AdminUser::find($contract->created_by))->name;
-            $processedData[] = [$contract->id, $contract->code, $contractType, $contract->created_date, $customerType,
-                                $contract->tax_number, $contract->business_name, $contract->business_address, $contract->representative,
-                                $contract->position, $contract->personal_address, $contract->print, $contract->id_number,
-                                $contract->personal_name, $contract->issue_place, $contract->issue_date, $contract->property,
-                                $contract->purpose, $contract->appraisal_date, $contract->from_date, $contract->to_date,
-                                $contract->total_fee, $contract->advance_fee, $contract->broker, $contract->source, $contract->sale,
-                                $tdv, $legalRepresentative, $tdvMigrate, $assistant, $supervisor, $contract->net_revenue,
-                                $contract->contact, $contract->note, $contract->comment, $contract->statusDetail->name, $creator, $contract->created_at, 
-                                $contract->updated_at
-                                ];
+            $processedData[] = [
+                $contract->id,
+                $contract->code,
+                $contractType,
+                $contract->created_date,
+                $customerType,
+                $contract->tax_number,
+                $contract->business_name,
+                $contract->business_address,
+                $contract->representative,
+                $contract->position,
+                $contract->personal_address,
+                $contract->print,
+                $contract->id_number,
+                $contract->personal_name,
+                $contract->issue_place,
+                $contract->issue_date,
+                $contract->property,
+                $contract->purpose,
+                $contract->appraisal_date,
+                $contract->from_date,
+                $contract->to_date,
+                $contract->total_fee,
+                $contract->advance_fee,
+                $contract->broker,
+                $contract->source,
+                $contract->sale,
+                $tdv,
+                $legalRepresentative,
+                $tdvMigrate,
+                $assistant,
+                $supervisor,
+                $contract->net_revenue,
+                $contract->contact,
+                $contract->note,
+                $contract->comment,
+                $contract->statusDetail->name,
+                $creator,
+                $contract->created_at,
+                $contract->updated_at
+            ];
         }
         return $processedData;
     }
@@ -400,6 +434,8 @@ class ContractController extends AdminController
             }
         } else {
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
+            $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
+            $form->hidden('created_by')->default(Admin::user()->id);
             $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(0)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
@@ -421,9 +457,7 @@ class ContractController extends AdminController
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
             })->required();
-            $form->hidden('created_by')->default(Admin::user()->id);
         }
-        $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
 
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
@@ -435,6 +469,31 @@ class ContractController extends AdminController
             $form->text('personal_address', __('Địa chỉ'));
             $form->date('issue_date', __('Ngày cấp'))->format('DD-MM-YYYY');
             $form->text('issue_place', __('Nơi cấp'));
+            $docsConfigsRepresentative = DocsConfig::where("type", "Hợp đồng cá nhân")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "dai_dien")
+                ->pluck("value", "value");
+            $docsConfigsAuthorization = DocsConfig::where("type", "Hợp đồng cá nhân")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "uy_quyen")
+                ->pluck("value", "value");
+            $docsConfigsPosition = DocsConfig::where("type", "Hợp đồng cá nhân")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "chuc_vu")
+                ->pluck("value", "value");
+            $docsConfigsStk = DocsConfig::where("type", "Hợp đồng cá nhân")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "stk")
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item['value'] => $item['value'] . ' - ' . $item['description']];
+                });
+
+            $form->divider('2.1. In chứng từ');
+            $form->select('docs_ representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+            $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
+            $form->select('docs_ position', __('Chức vụ'))->options($docsConfigsPosition)->required();
+            $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
                 Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
@@ -444,6 +503,31 @@ class ContractController extends AdminController
             $form->text('business_address', __('Địa chỉ doanh nghiệp'));
             $form->text('representative', __('Người đại diện'));
             $form->text('position', __('Chức vụ'));
+
+            $docsConfigsRepresentative = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "dai_dien")
+                ->pluck("value", "value");
+            $docsConfigsAuthorization = DocsConfig::where("type", "Hợp đồng cá nhân")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "uy_quyen")
+                ->pluck("value", "value");
+            $docsConfigsPosition = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "chuc_vu")
+                ->pluck("value", "value");
+            $docsConfigsStk = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
+                ->where("branch_id", Admin::user()->branch_id)
+                ->where("key", "stk")
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item['value'] => $item['value'] . ' - ' . $item['description']];
+                });
+            $form->divider('2.1. In chứng từ');
+            $form->select('docs_ representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+            $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
+            $form->select('docs_ position', __('Chức vụ'))->options($docsConfigsPosition)->required();
+            $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
         })->required();
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
@@ -506,8 +590,8 @@ class ContractController extends AdminController
                     if ($form->total_fee == "" || $form->net_revenue == "") {
                         throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
                     }
-                }elseif ($contractType == 1 && $statusContract == 70){
-                    if($form->supervisor == ""){
+                } elseif ($contractType == 1 && $statusContract == 70) {
+                    if ($form->supervisor == "") {
                         throw new \Exception('Chưa phân công kiểm soát chất lượng');
                     }
                 }
