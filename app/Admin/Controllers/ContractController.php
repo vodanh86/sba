@@ -458,7 +458,6 @@ class ContractController extends AdminController
                 }
             })->required();
         }
-
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
             $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
@@ -469,31 +468,6 @@ class ContractController extends AdminController
             $form->text('personal_address', __('Địa chỉ'));
             $form->date('issue_date', __('Ngày cấp'))->format('DD-MM-YYYY');
             $form->text('issue_place', __('Nơi cấp'));
-            $docsConfigsRepresentative = DocsConfig::where("type", "Hợp đồng cá nhân")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "dai_dien")
-                ->pluck("value", "value");
-            $docsConfigsAuthorization = DocsConfig::where("type", "Hợp đồng cá nhân")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "uy_quyen")
-                ->pluck("value", "value");
-            $docsConfigsPosition = DocsConfig::where("type", "Hợp đồng cá nhân")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "chuc_vu")
-                ->pluck("value", "value");
-            $docsConfigsStk = DocsConfig::where("type", "Hợp đồng cá nhân")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "stk")
-                ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item['value'] => $item['value'] . ' - ' . $item['description']];
-                });
-
-            $form->divider('2.1. In chứng từ');
-            $form->select('docs_representative', __('Đại diện'))->options(['' => 'Chọn Đại diện'] + $docsConfigsRepresentative)->required();
-            $form->select('docs_authorization', __('Uỷ quyền'))->options(['' => 'Chọn Uỷ quyền'] + $docsConfigsAuthorization);
-            $form->select('docs_position', __('Chức vụ'))->options(['' => 'Chọn Chức vụ'] + $docsConfigsPosition)->required();
-            $form->select('docs_stk', __('Số tài khoản'))->options(['' => 'Chọn Số tài khoản'] + $docsConfigsStk)->required();
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
                 Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
@@ -503,32 +477,45 @@ class ContractController extends AdminController
             $form->text('business_address', __('Địa chỉ doanh nghiệp'));
             $form->text('representative', __('Người đại diện'));
             $form->text('position', __('Chức vụ'));
-
-            $docsConfigsRepresentative = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "dai_dien")
-                ->pluck("value", "value");
-            $docsConfigsAuthorization = DocsConfig::where("type", "Hợp đồng cá nhân")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "uy_quyen")
-                ->pluck("value", "value");
-            $docsConfigsPosition = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "chuc_vu")
-                ->pluck("value", "value");
-            $docsConfigsStk = DocsConfig::where("type", "Hợp đồng doanh nghiệp")
-                ->where("branch_id", Admin::user()->branch_id)
-                ->where("key", "stk")
-                ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item['value'] => $item['value'] . ' - ' . $item['description']];
-                });
-            $form->divider('2.1. In chứng từ');
-            $form->select('docs_representative', __('Đại diện'))->options(['' => 'Chọn Đại diện'] + $docsConfigsRepresentative)->required();
-            $form->select('docs_authorization', __('Uỷ quyền'))->options(['' => 'Chọn Uỷ quyền'] + $docsConfigsAuthorization);
-            $form->select('docs_position', __('Chức vụ'))->options(['' => 'Chọn Chức vụ'] + $docsConfigsPosition)->required();
-            $form->select('docs_stk', __('Số tài khoản'))->options(['' => 'Chọn Số tài khoản'] + $docsConfigsStk)->required();
         })->required();
+
+        $docsConfigsRepresentative = DocsConfig::where(function ($query) {
+            $query->where("type", "Hợp đồng cá nhân")
+                ->orWhere("type", "Hợp đồng doanh nghiệp");
+        })
+            ->where("branch_id", Admin::user()->branch_id)
+            ->where("key", "dai_dien")
+            ->pluck("value", "value");
+        $docsConfigsAuthorization = DocsConfig::where(function ($query) {
+            $query->where("type", "Hợp đồng cá nhân")
+                ->orWhere("type", "Hợp đồng doanh nghiệp");
+        })
+            ->where("branch_id", Admin::user()->branch_id)
+            ->where("key", "uy_quyen")
+            ->pluck("value", "value");
+        $docsConfigsPosition = DocsConfig::where(function ($query) {
+            $query->where("type", "Hợp đồng cá nhân")
+                ->orWhere("type", "Hợp đồng doanh nghiệp");
+        })
+            ->where("branch_id", Admin::user()->branch_id)
+            ->where("key", "chuc_vu")
+            ->pluck("value", "value");
+        $docsConfigsStk = DocsConfig::where(function ($query) {
+            $query->where("type", "Hợp đồng cá nhân")
+                ->orWhere("type", "Hợp đồng doanh nghiệp");
+        })
+            ->where("branch_id", Admin::user()->branch_id)
+            ->where("key", "stk")
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item['value'] => $item['value'] . ' - ' . $item['description']];
+            });
+        $form->divider('2.1. In chứng từ');
+        $form->select('docs_representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+        $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
+        $form->select('docs_position', __('Chức vụ'))->options($docsConfigsPosition)->required();
+        $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
+
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
         $form->text('purpose', __('Mục đích thẩm định giá'))->required();
@@ -629,6 +616,7 @@ class ContractController extends AdminController
         $script = <<<EOT
         var contracts = $contracts;
         var customerType;
+
         $(document).on('change', ".selected_id_number, .selected_tax_number", function () {
             var contract = contracts[this.value];
             $("#tax_number").val(contract.tax_number);  
