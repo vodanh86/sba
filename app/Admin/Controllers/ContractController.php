@@ -490,9 +490,9 @@ class ContractController extends AdminController
                 });
 
             $form->divider('2.1. In chứng từ');
-            $form->select('docs_ representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+            $form->select('docs_representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
             $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
-            $form->select('docs_ position', __('Chức vụ'))->options($docsConfigsPosition)->required();
+            $form->select('docs_position', __('Chức vụ'))->options($docsConfigsPosition)->required();
             $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
@@ -524,9 +524,9 @@ class ContractController extends AdminController
                     return [$item['value'] => $item['value'] . ' - ' . $item['description']];
                 });
             $form->divider('2.1. In chứng từ');
-            $form->select('docs_ representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+            $form->select('docs_representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
             $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
-            $form->select('docs_ position', __('Chức vụ'))->options($docsConfigsPosition)->required();
+            $form->select('docs_position', __('Chức vụ'))->options($docsConfigsPosition)->required();
             $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
         })->required();
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
