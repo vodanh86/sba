@@ -133,31 +133,30 @@ abstract class Utils
         }
         return false;
     }
+    public static function convertHundred($number, $units, $teens, $tens, $hundreds)
+    {
+        $result = '';
+
+        if ($number > 99) {
+            $result .= $hundreds[floor($number / 100)] . ' ';
+            $number %= 100;
+        }
+
+        if ($number > 9 && $number < 20) {
+            $result .= $teens[$number - 10];
+        } else {
+            $result .= $tens[floor($number / 10)] . ' ';
+            $result .= $units[$number % 10];
+        }
+
+        return $result;
+    }
     public static function numberToWords($number)
     {
         $units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
         $teens = ['', 'mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
         $tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
         $hundreds = ['', 'một trăm', 'hai trăm', 'ba trăm', 'bốn trăm', 'năm trăm', 'sáu trăm', 'bảy trăm', 'tám trăm', 'chín trăm'];
-        function convertHundred($number, $units, $teens, $tens, $hundreds)
-        {
-            $result = '';
-
-            if ($number > 99) {
-                $result .= $hundreds[floor($number / 100)] . ' ';
-                $number %= 100;
-            }
-
-            if ($number > 9 && $number < 20) {
-                $result .= $teens[$number - 10];
-            } else {
-                $result .= $tens[floor($number / 10)] . ' ';
-                $result .= $units[$number % 10];
-            }
-
-            return $result;
-        }
-
         if ($number == 0) {
             return 'Không';
         }
@@ -168,19 +167,19 @@ abstract class Utils
         $remainder = $number - $billions * 1000000000 - $millions * 1000000 - $thousands * 1000;
 
         if ($billions > 0) {
-            $result .= convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
+            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
         }
 
         if ($millions > 0) {
-            $result .= convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
+            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
         }
 
         if ($thousands > 0) {
-            $result .= convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
+            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
         }
 
         if ($remainder > 0) {
-            $result .= convertHundred($remainder, $units, $teens, $tens, $hundreds);
+            $result .= self::convertHundred($remainder, $units, $teens, $tens, $hundreds);
         }
 
         return $result . 'đồng';
