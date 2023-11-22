@@ -45,6 +45,11 @@ class WordController extends AdminController
                 $document->setValue("dai_dien", "Lê Minh Tiến");
                 $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
             }
+            $document->setValue('payment_left', ($contract->total_fee - $contract->advance_fee));
+            $document->setValue('payment_left_words', Utils::numberToWords($contract->total_fee - $contract->advance_fee));
+            $document->setValue('advance_fee', $contract->advance_fee);
+            $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+            $document->setValue('issue_date', $contract->issue_date);
             $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
             $document->setValue('personal_name', $contract->personal_name);
@@ -80,6 +85,11 @@ class WordController extends AdminController
                 $document->setValue("dai_dien", "Lê Minh Tiến");
                 $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
             }
+            $document->setValue('payment_left', ($contract->total_fee - $contract->advance_fee));
+            $document->setValue('payment_left_words', Utils::numberToWords($contract->total_fee - $contract->advance_fee));
+            $document->setValue('advance_fee', $contract->advance_fee);
+            $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+            $document->setValue('issue_date', $contract->issue_date);
             $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
             $document->setValue('business_name', $contract->business_name);
@@ -128,6 +138,11 @@ class WordController extends AdminController
 
     public function createOfficialAssessment(Request $request)
     {
+        $dateFormatter = function($date) {
+            $timestamp = strtotime($date);
+            $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
+            return $formattedDate;
+        };
         $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ');
         };
@@ -164,8 +179,18 @@ class WordController extends AdminController
                 }
             }
         }
+
+        if($officialAssessment->contract->branch_id == 4){
+            $document->setValue('branch', "Hồ Chí Minh");
+        }else if($officialAssessment->contract->branch_id == 3){
+            $document->setValue('branch', "Hà Nội");
+        }else if($officialAssessment->contract->branch_id == 5){
+            $document->setValue('branch', "Bắc Ninh");
+        }
         $document->setValue('code', $officialAssessment->contract->code);
         $document->setValue('today', $today);
+        $document->setValue('created_date', $dateFormatter($officialAssessment->contract->created_date));
+        $document->setValue('certificate_date', $dateFormatter($officialAssessment->certificate_date));
         if ($officialAssessment->contract->personal_name == "") {
             $document->setValue('personal_name', $officialAssessment->contract->business_name);
         } else {
@@ -194,6 +219,11 @@ class WordController extends AdminController
 
     public function createContractAcceptance(Request $request)
     {
+        $dateFormatter = function($date) {
+            $timestamp = strtotime($date);
+            $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
+            return $formattedDate;
+        };
         $moneyFormatter = function ($money) {
             return number_format($money, 2, ',', ' ');
         };
@@ -236,6 +266,7 @@ class WordController extends AdminController
             $document->setValue("uy_quyen", $contractAcceptance->contract->docs_authorization && "");
             $document->setValue('code', $contractAcceptance->contract->code);
             $document->setValue('today', $today);
+            $document->setValue('created_date', $dateFormatter($contractAcceptance->contract->created_date));
             $document->setValue('appraisal_date', $contractAcceptance->contract->created_date);
             $document->setValue('business_name', $contractAcceptance->contract->business_name);
             $document->setValue('address', $contractAcceptance->contract->business_address);

@@ -176,14 +176,14 @@ abstract class Utils
         }
 
         if ($thousands > 0) {
-            $result .= convertHundred($thousands, $units, $teens, $tens, $hundreds) . ' nghìn ';
+            $result .= convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
         }
 
         if ($remainder > 0) {
             $result .= convertHundred($remainder, $units, $teens, $tens, $hundreds);
         }
 
-        return $result . ' đồng';
+        return $result . 'đồng';
     }
     public static function generateDate()
     {
