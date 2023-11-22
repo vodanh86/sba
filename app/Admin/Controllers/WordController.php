@@ -45,10 +45,18 @@ class WordController extends AdminController
                 $document->setValue("dai_dien", "Lê Minh Tiến");
                 $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
             }
-            $document->setValue('payment_left', ($contract->total_fee - $contract->advance_fee));
-            $document->setValue('payment_left_words', Utils::numberToWords($contract->total_fee - $contract->advance_fee));
-            $document->setValue('advance_fee', $contract->advance_fee);
-            $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+
+            $paymentLeftValue = ($contract->total_fee) - ($contract->advance_fee);
+            if ($contract->total_fee > 0) {
+                $document->setValue('payment_left_words', Utils::numberToWords($paymentLeftValue));
+                $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+            }else{
+                $document->setValue('payment_left_words', "Không");
+                $document->setValue('advance_fee_words', "Không");
+            }
+
+            $document->setValue('payment_left', ($moneyFormatter($paymentLeftValue)));
+            $document->setValue('advance_fee', $moneyFormatter(($contract->advance_fee)));
             $document->setValue('issue_date', $contract->issue_date);
             $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
@@ -85,10 +93,17 @@ class WordController extends AdminController
                 $document->setValue("dai_dien", "Lê Minh Tiến");
                 $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
             }
-            $document->setValue('payment_left', ($contract->total_fee - $contract->advance_fee));
-            $document->setValue('payment_left_words', Utils::numberToWords($contract->total_fee - $contract->advance_fee));
-            $document->setValue('advance_fee', $contract->advance_fee);
-            $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+            
+            $paymentLeftValue = ($contract->total_fee) - ($contract->advance_fee);
+            if ($contract->total_fee > 0) {
+                $document->setValue('payment_left_words', Utils::numberToWords($paymentLeftValue));
+                $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
+            }else{
+                $document->setValue('payment_left_words', "Không");
+                $document->setValue('advance_fee_words', "Không");
+            }
+            $document->setValue('payment_left', ($moneyFormatter(($paymentLeftValue))));
+            $document->setValue('advance_fee', $moneyFormatter($contract->advance_fee));
             $document->setValue('issue_date', $contract->issue_date);
             $document->setValue("uy_quyen", $contract->docs_authorization && "");
             $document->setValue('code', $contract->code);
@@ -138,7 +153,7 @@ class WordController extends AdminController
 
     public function createOfficialAssessment(Request $request)
     {
-        $dateFormatter = function($date) {
+        $dateFormatter = function ($date) {
             $timestamp = strtotime($date);
             $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
             return $formattedDate;
@@ -180,11 +195,11 @@ class WordController extends AdminController
             }
         }
 
-        if($officialAssessment->contract->branch_id == 4){
+        if ($officialAssessment->contract->branch_id == 4) {
             $document->setValue('branch', "Hồ Chí Minh");
-        }else if($officialAssessment->contract->branch_id == 3){
+        } else if ($officialAssessment->contract->branch_id == 3) {
             $document->setValue('branch', "Hà Nội");
-        }else if($officialAssessment->contract->branch_id == 5){
+        } else if ($officialAssessment->contract->branch_id == 5) {
             $document->setValue('branch', "Bắc Ninh");
         }
         $document->setValue('code', $officialAssessment->contract->code);
@@ -219,7 +234,7 @@ class WordController extends AdminController
 
     public function createContractAcceptance(Request $request)
     {
-        $dateFormatter = function($date) {
+        $dateFormatter = function ($date) {
             $timestamp = strtotime($date);
             $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
             return $formattedDate;
