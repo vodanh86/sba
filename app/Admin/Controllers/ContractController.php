@@ -511,10 +511,10 @@ class ContractController extends AdminController
                 return [$item['value'] => $item['value'] . ' - ' . $item['description']];
             });
         $form->divider('2.1. In chứng từ');
-        $form->select('docs_representative', __('Đại diện'))->options($docsConfigsRepresentative)->required();
+        $form->select('docs_representative', __('Đại diện'))->options($docsConfigsRepresentative);
         $form->select('docs_authorization', __('Uỷ quyền'))->options($docsConfigsAuthorization);
-        $form->select('docs_position', __('Chức vụ'))->options($docsConfigsPosition)->required();
-        $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk)->required();
+        $form->select('docs_position', __('Chức vụ'))->options($docsConfigsPosition);
+        $form->select('docs_stk', __('Số tài khoản'))->options($docsConfigsStk);
 
         $form->divider('3. Thông tin về hồ sơ thẩm định giá');
         $form->textarea('property', __('Tài sản thẩm định giá'))->rows(5)->required();
