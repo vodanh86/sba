@@ -27,9 +27,9 @@ class WordController extends AdminController
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDCN.docx");
             if ($contract->docs_stk) {
                 $document->setValue("stk", $contract->docs_stk);
-                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contract->branch_id)->where("stk", $contract->docs_stk)->first()->description;
-                if ($nameStk) {
-                    $document->setValue("ten_stk", $nameStk);
+                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contract->branch_id)->where("value", $contract->docs_stk)->first();
+                if ($nameStk && $nameStk->value == $contract->docs_stk) {
+                    $document->setValue("ten_stk", $nameStk->description);
                 }
             } else {
                 $document->setValue("stk", "686878988");
@@ -51,8 +51,8 @@ class WordController extends AdminController
                 $document->setValue('payment_left_words', Utils::numberToWords($paymentLeftValue));
                 $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
             }else{
-                $document->setValue('payment_left_words', "Không");
-                $document->setValue('advance_fee_words', "Không");
+                $document->setValue('payment_left_words', "Không đồng");
+                $document->setValue('advance_fee_words', "Không đồng");
             }
 
             $document->setValue('payment_left', ($moneyFormatter($paymentLeftValue)));
@@ -75,9 +75,9 @@ class WordController extends AdminController
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDDN.docx");
             if ($contract->docs_stk) {
                 $document->setValue("stk", $contract->docs_stk);
-                $nameStk = DocsConfig::where("type", "Hợp đồng cá nhân")->where("branch_id", $contract->branch_id)->where("stk", $contract->docs_stk)->first()->description;
-                if ($nameStk) {
-                    $document->setValue("ten_stk", $nameStk);
+                $nameStk = DocsConfig::where("type", "Hợp đồng doanh nghiệp")->where("branch_id", $contract->branch_id)->where("value", $contract->docs_stk)->first();
+                if ($nameStk && $nameStk->value == $contract->docs_stk) {
+                    $document->setValue("ten_stk", $nameStk->description);
                 }
             } else {
                 $document->setValue("stk", "686878988");
@@ -297,6 +297,7 @@ class WordController extends AdminController
         } else {
             $name = 'SBA' . '-' . 'BBNTCN' . '-' . $contractAcceptance->contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-BBNTCN.docx");
+            $document->setValue('created_date', $dateFormatter($contractAcceptance->contract->created_date));
             $document->setValue('code', $contractAcceptance->contract->code);
             $document->setValue('today', $today);
             $document->setValue('property', $contractAcceptance->contract->property);
@@ -308,6 +309,5 @@ class WordController extends AdminController
         $outputPath = storage_path("/$name.docx");
         $document->saveAs($outputPath);
         return response()->download($outputPath, "$name.docx");
-        ;
     }
 }
