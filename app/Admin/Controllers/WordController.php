@@ -19,7 +19,7 @@ class WordController extends AdminController
         $contract = Contract::find($id);
         $today = Utils::generateDate();
         $moneyFormatter = function ($money) {
-            return number_format($money, 2, ',', ' ');
+            return number_format($money);
         };
 
         if ($contract->customer_type == 1) {
@@ -50,7 +50,7 @@ class WordController extends AdminController
             if ($contract->total_fee > 0) {
                 $document->setValue('payment_left_words', Utils::numberToWords($paymentLeftValue));
                 $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
-            }else{
+            } else {
                 $document->setValue('payment_left_words', "Không đồng");
                 $document->setValue('advance_fee_words', "Không đồng");
             }
@@ -58,9 +58,9 @@ class WordController extends AdminController
             $document->setValue('payment_left', ($moneyFormatter($paymentLeftValue)));
             $document->setValue('advance_fee', $moneyFormatter(($contract->advance_fee)));
             $document->setValue('issue_date', $contract->issue_date);
-            if($contract->docs_authorization == ""){
+            if ($contract->docs_authorization == "") {
                 $document->setValue("uy_quyen", "");
-            }else{
+            } else {
                 $document->setValue("uy_quyen", $contract->docs_authorization);
             }
             $document->setValue('code', $contract->code);
@@ -97,21 +97,21 @@ class WordController extends AdminController
                 $document->setValue("dai_dien", "Lê Minh Tiến");
                 $document->setValue("chuc_vu", "Phó Tổng Giám đốc");
             }
-            
+
             $paymentLeftValue = ($contract->total_fee) - ($contract->advance_fee);
             if ($contract->total_fee > 0) {
                 $document->setValue('payment_left_words', Utils::numberToWords($paymentLeftValue));
                 $document->setValue('advance_fee_words', Utils::numberToWords($contract->advance_fee));
-            }else{
+            } else {
                 $document->setValue('payment_left_words', "Không");
                 $document->setValue('advance_fee_words', "Không");
             }
             $document->setValue('payment_left', ($moneyFormatter(($paymentLeftValue))));
             $document->setValue('advance_fee', $moneyFormatter($contract->advance_fee));
             $document->setValue('issue_date', $contract->issue_date);
-            if($contract->docs_authorization == ""){
+            if ($contract->docs_authorization == "") {
                 $document->setValue("uy_quyen", "");
-            }else{
+            } else {
                 $document->setValue("uy_quyen", $contract->docs_authorization);
             }
             $document->setValue('code', $contract->code);
@@ -137,7 +137,7 @@ class WordController extends AdminController
     public function createInvitationLetter(Request $request)
     {
         $moneyFormatter = function ($money) {
-            return number_format($money, 2, ',', ' ');
+            return number_format($money);
         };
         $id = $request->input('id');
         $today = Utils::generateDate();
@@ -163,11 +163,11 @@ class WordController extends AdminController
     {
         $dateFormatter = function ($date) {
             $timestamp = strtotime($date);
-            $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
+            $formattedDate = date('\n\g\à\y d \t\h\á\n\g m \n\ă\m Y', $timestamp);
             return $formattedDate;
         };
         $moneyFormatter = function ($money) {
-            return number_format($money, 2, ',', ' ');
+            return number_format($money);
         };
         $convertIdToNameUser = function ($userId) {
             $adminUser = AdminUser::find($userId);
@@ -184,23 +184,25 @@ class WordController extends AdminController
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {
+            $chuc_vu = "";
+            $key_tdv = "";
+            $key_ddpl = "";
             foreach ($docsConfig as $config) {
                 if ($config->key == "chuc_vu") {
-                    $document->setValue("chuc_vu", $config->value);
-                } else {
-                    $document->setValue("chuc_vu", "");
+                    $chuc_vu = $config->value;
                 }
-                if ($config->key == "key_tdv" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->tdv_migrate)) {
-                    $document->setValue("key_tdv", $config->description);
-                } else {
-                    $document->setValue("key_tdv", "");
+
+                if ($config->key == "key_tđv" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->tdv_migrate)) {
+                    $key_tdv = $config->description;
                 }
+
                 if ($config->key == "key_đdpl" && $config->value == $convertIdToNameUserDefault($officialAssessment->contract->legal_representative)) {
-                    $document->setValue("key_đdpl", $config->description);
-                } else {
-                    $document->setValue("key_đdpl", "");
+                    $key_ddpl = $config->description;
                 }
             }
+            $document->setValue("chuc_vu", $chuc_vu);
+            $document->setValue("key_tđv", $key_tdv);
+            $document->setValue("key_đdpl", $key_ddpl);
         }
 
         if ($officialAssessment->contract->branch_id == 4) {
@@ -244,11 +246,11 @@ class WordController extends AdminController
     {
         $dateFormatter = function ($date) {
             $timestamp = strtotime($date);
-            $formattedDate = date('d \n\g\à\y m \t\h\á\n\g Y', $timestamp);
+            $formattedDate = date('\n\g\à\y d \t\h\á\n\g m \n\ă\m Y', $timestamp);
             return $formattedDate;
         };
         $moneyFormatter = function ($money) {
-            return number_format($money, 2, ',', ' ');
+            return number_format($money);
         };
         $id = $request->input('id');
         $today = Utils::generateDate();
