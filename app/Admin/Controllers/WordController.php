@@ -58,7 +58,11 @@ class WordController extends AdminController
             $document->setValue('payment_left', ($moneyFormatter($paymentLeftValue)));
             $document->setValue('advance_fee', $moneyFormatter(($contract->advance_fee)));
             $document->setValue('issue_date', $contract->issue_date);
-            $document->setValue("uy_quyen", $contract->docs_authorization && "");
+            if($contract->docs_authorization == ""){
+                $document->setValue("uy_quyen", "");
+            }else{
+                $document->setValue("uy_quyen", $contract->docs_authorization);
+            }
             $document->setValue('code', $contract->code);
             $document->setValue('personal_name', $contract->personal_name);
             $document->setValue('address', $contract->personal_address);
@@ -105,7 +109,11 @@ class WordController extends AdminController
             $document->setValue('payment_left', ($moneyFormatter(($paymentLeftValue))));
             $document->setValue('advance_fee', $moneyFormatter($contract->advance_fee));
             $document->setValue('issue_date', $contract->issue_date);
-            $document->setValue("uy_quyen", $contract->docs_authorization && "");
+            if($contract->docs_authorization == ""){
+                $document->setValue("uy_quyen", "");
+            }else{
+                $document->setValue("uy_quyen", $contract->docs_authorization);
+            }
             $document->setValue('code', $contract->code);
             $document->setValue('business_name', $contract->business_name);
             $document->setValue('address', $contract->business_address);
