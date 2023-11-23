@@ -15,6 +15,11 @@ class WordController extends AdminController
 {
     public function createContract(Request $request)
     {
+        $dateFormatter = function ($date) {
+            $timestamp = strtotime($date);
+            $formattedDate = date('\n\g\à\y d \t\h\á\n\g m \n\ă\m Y', $timestamp);
+            return $formattedDate;
+        };
         $id = $request->input('id');
         $contract = Contract::find($id);
         $today = Utils::generateDate();
@@ -63,6 +68,7 @@ class WordController extends AdminController
             } else {
                 $document->setValue("uy_quyen", $contract->docs_authorization);
             }
+            $document->setValue('created_date', $dateFormatter($contract->created_date));
             $document->setValue('code', $contract->code);
             $document->setValue('personal_name', $contract->personal_name);
             $document->setValue('address', $contract->personal_address);
@@ -114,6 +120,7 @@ class WordController extends AdminController
             } else {
                 $document->setValue("uy_quyen", $contract->docs_authorization);
             }
+            $document->setValue('created_date', $dateFormatter($contract->created_date));
             $document->setValue('code', $contract->code);
             $document->setValue('business_name', $contract->business_name);
             $document->setValue('address', $contract->business_address);
