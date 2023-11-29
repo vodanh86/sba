@@ -299,7 +299,7 @@ class WordController extends AdminController
             $document->setValue('code', $contractAcceptance->contract->code);
             $document->setValue('today', $today);
             $document->setValue('created_date', $dateFormatter($contractAcceptance->contract->created_date));
-            $document->setValue('appraisal_date', $contractAcceptance->contract->created_date);
+            $document->setValue('appraisal_date', date('d/m/Y', strtotime($contractAcceptance->contract->created_date)));
             $document->setValue('business_name', $contractAcceptance->contract->business_name);
             $document->setValue('address', $contractAcceptance->contract->business_address);
             $document->setValue('representative', $contractAcceptance->contract->representative);
