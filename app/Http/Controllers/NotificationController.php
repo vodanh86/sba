@@ -9,6 +9,7 @@ use App\Http\Models\NotifyStatus;
 use Carbon\Carbon;
 use Pusher\Pusher;
 use App\Admin\Controllers\Constant;
+use Encore\Admin\Facades\Admin;
 
 class NotificationController extends Controller
 {
@@ -94,9 +95,10 @@ class NotificationController extends Controller
 
     public function get($userId)
     {
+        $userAvartar = Admin::user()->avatar;
         $urlBase = env('APP_URL') . "/admin";
         $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
         // return response()->json(['notifications' => $notifications], 200);
-        return view('notifications', compact('notifications' , 'urlBase'))->render();
+        return view('notifications', compact('notifications' , 'urlBase', 'userAvartar'))->render();
     }
 }
