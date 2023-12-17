@@ -96,6 +96,5 @@ class NotificationController extends Controller
     {
         $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
         return view('notifications', compact('notifications'))->render();
-        return response()->json(['notifications' => $notifications], 200);
     }
 }
