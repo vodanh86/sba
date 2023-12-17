@@ -94,8 +94,9 @@ class NotificationController extends Controller
 
     public function get($userId)
     {
+        $urlBase = env('APP_URL') . "/admin";
         $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
-        return view('notifications', compact('notifications'))->render();
-        return response()->json(['notifications' => $notifications], 200);
+        // return response()->json(['notifications' => $notifications], 200);
+        return view('notifications', compact('notifications' , 'urlBase'))->render();
     }
 }
