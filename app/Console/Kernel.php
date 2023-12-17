@@ -27,10 +27,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
     }
-    // protected function shortSchedule(ShortSchedule $shortSchedule)
-    // {
-    //     $shortSchedule->command('api:call')->everySeconds(45);
-    // }
+    protected function shortSchedule(ShortSchedule $shortSchedule)
+    {
+        $shortSchedule->command('api:call')->everySeconds(45);
+    }
     /**
      * Register the commands for the application.
      *
