@@ -91,4 +91,11 @@ class NotificationController extends Controller
         }
         return response()->json(['message' => 'No notification found to update'], 404);
     }
+
+    public function get($userId)
+    {
+        $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
+        return view('notifications', compact('notifications'))->render();
+        return response()->json(['notifications' => $notifications], 200);
+    }
 }

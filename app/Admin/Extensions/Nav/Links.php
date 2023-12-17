@@ -19,6 +19,7 @@ class Links
         $notifications = Notification::where("user_id", $userId)->where("check", 0)->orderBy("id", "desc")->get();
         $urlNotifications = env('APP_URL') . "/admin/notifications";
         $urlBase = env('APP_URL') . "/admin";
+        $urlApiBase = env('APP_URL') . "/api";
         $convertIdToNameUser = function ($userId) {
             $adminUser = AdminUser::find($userId);
             return $adminUser ? $adminUser->name : '';
@@ -79,7 +80,7 @@ class Links
             </style>
             <li class="dropdown user user-menu dropdown-notifications">
                 <!-- Menu Toggle Button -->
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle">
                     <i data-count="$count" class="glyphicon glyphicon-bell notification-icon"></i>
                 </a>
                 <div class="dropdown-container">
@@ -105,7 +106,7 @@ class Links
                     var notifications          = notificationsWrapper.find('.notif-count');
                     var notificationsContent = notificationsWrapper.find('.notification-container')
                     function updateCheckNotification(id) {
-                             fetch('https://valuation.sba.net.vn/api/notifications/' + id, {
+                             fetch("$urlApiBase/notifications/" + id, {
                                 method: 'PUT',
                                 headers: {
                                         'Content-Type': 'application/json',
@@ -130,33 +131,23 @@ class Links
                         });
                         var channel = pusher.subscribe('Notify');
                         channel.bind('send-message', function(data) {
-                            var cards = document.querySelectorAll(".card")
-                            if (data.user_id == $userId && data.check !== 1){
-                                var existingNotifications = notificationsContent.html();
-                                notificationsCountElem.attr('data-count',cards.length + 1);
-                                notificationsWrapper.find('.notif-count').text(cards.length + 1);
-                                var newNotificationHtml = `
-                                <div class="card" style="cursor: pointer;" data-notification-id="`+data.id+`">
-                                    <a class="card-body" href="$urlBase/`+data.table+`/`+data.table_id+`" onclick="updateCheckNotification(`+data.id+`)">
-                                        <div class="media-left">
-                                            <div class="media-object">
-                                                <img src="$userAvartar" class="img-circle" alt="50x50" style="width: 50px; height: 50px;">
-                                            </div>
-                                        </div>
-                                        <div class="media-body">
-                                            <strong class="notification-title">Gửi từ: `+data.user_send+`</strong>
-                                                <p class="notification-desc">`+data.content+`</p>
-                                                <div class="notification-meta">
-                                                    <small class="timestamp">{$formattedCreatedAt(`+data.created_at+`)}</small>
-                                                </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                `
-                                notificationsContent.html(newNotificationHtml + existingNotifications);
-                                notificationsWrapper.show();
-                            }
+                            data.forEach(function(notification){
+                                if (notification.data.user_id == $userId){
+                                    notificationsCountElem.attr('data-count', notification.data.count);
+                                    notificationsWrapper.find('.notif-count').text(notification.data.count);
+                                }
+                            });
                         });
+                        $('.dropdown-toggle').click(function() {
+                            if (notificationsWrapper.hasClass('open')){
+                                notificationsWrapper.removeClass('open');
+                            } else {
+                                $.get("$urlApiBase/notifications/get/$userId", {}, function (data) {
+                                    notificationsContent.html(data);
+                                    notificationsWrapper.addClass('open');
+                                });
+                            }
+                        })
                     });
                 </script>
             HTML;
