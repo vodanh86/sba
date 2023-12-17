@@ -20,7 +20,7 @@ class NotificationController extends Controller
         };
         $notifyLog = new NotifyLog();
         $notifyStatus = NotifyStatus::where('id', 1)->first();
-        if ($notifyStatus->status == 1) {
+        if ($notifyStatus->status == 100) {
             return response()->json(200);
         } else {
             $notifyStatus->status = 1;
@@ -29,29 +29,30 @@ class NotificationController extends Controller
             $processRecord = 0;
             $notifyLog->time_start = Carbon::now();
 
-            $notifications = Notification::where('status', 0)->limit(10)->get();
-
-            foreach ($notifications as $notification) {
-                $options = array(
-                    'cluster' => 'ap1',
-                    'encrypted' => true
-                );
-                $pusher = new Pusher(
-                    env('PUSHER_APP_KEY'),
-                    env('PUSHER_APP_SECRET'),
-                    env('PUSHER_APP_ID'),
-                    $options
-                );
-                $notification['status'] = 1;
-                $notification->save();
-
-                $notification['user_send'] = $convertIdToNameUser($notification->user_send);
-                $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $notification);
-                usleep(500000);
-
-                $processRecord++;
-                $notifyLog->time_end = Carbon::now();
+            $userIds = Notification::where('status', 0)->groupBy('user_id')->get('user_id')->toArray();
+            $batch = [];
+            foreach ($userIds as $userId) {
+                if ($userId && $userId["user_id"]){
+                    $data = array();
+                    $data["user_id"] = $userId["user_id"];
+                    $data["count"] = Notification::where('check', 0)->where('user_id', $data["user_id"])->get()->count();
+                    $batch[] = ['channel' => Constant::PUSHER_CHANNEL, 'name' => Constant::PUSHER_EVENT, 'data' => $data];
+    
+                    $processRecord++;
+                    $notifyLog->time_end = Carbon::now();
+                }
             }
+            $options = array(
+                'cluster' => 'ap1',
+                'encrypted' => true
+            );
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                $options
+            );
+            $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $batch);
             if ($processRecord > 0) {
                 $notifyLog->process_record = $processRecord;
                 $notifyLog->save();
