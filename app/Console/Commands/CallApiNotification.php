@@ -38,13 +38,13 @@ class CallApiNotification extends Command
      */
     public function handle()
     {
-        // $client = new Client();
-        // $url = env('APP_URL');
-        // $response = $client->get($url . '/api/notifications');
-        // if ($response->getStatusCode() === 200) {
-        //     $this->info('API call successful');
-        // } else {
-        //     $this->error('API call failed');
-        // }
+        $client = new Client();
+        $url = env('APP_URL');
+        $response = $client->get($url . '/api/notifications');
+        if ($response->getStatusCode() === 200) {
+             $this->info('API call successful');
+        } else {
+             $this->error('API call failed');
+        }
     }
 }
