@@ -20,7 +20,7 @@ class NotificationController extends Controller
         };
         $notifyLog = new NotifyLog();
         $notifyStatus = NotifyStatus::where('id', 1)->first();
-        if ($notifyStatus->status == 100) {
+        if ($notifyStatus->status == 1) {
             return response()->json(200);
         } else {
             $notifyStatus->status = 1;
