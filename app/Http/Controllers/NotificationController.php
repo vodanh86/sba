@@ -9,7 +9,6 @@ use App\Http\Models\NotifyStatus;
 use Carbon\Carbon;
 use Pusher\Pusher;
 use App\Admin\Controllers\Constant;
-use Encore\Admin\Facades\Admin;
 
 class NotificationController extends Controller
 {
@@ -95,7 +94,7 @@ class NotificationController extends Controller
 
     public function get($userId)
     {
-        $userAvartar = Admin::user()->avatar;
+        $userAvartar = 'https://sba.net.vn/wp-content/uploads/2020/09/LOGO-SBA-SVG-02.svg';
         $urlBase = env('APP_URL') . "/admin";
         $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
         // return response()->json(['notifications' => $notifications], 200);
