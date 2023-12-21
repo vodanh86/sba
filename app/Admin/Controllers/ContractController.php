@@ -112,6 +112,13 @@ class ContractController extends AdminController
         $grid->column('to_date', __('Thời gian thực hiện đến ngày'))->display($dateFormatter);
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
+        $grid->column('type_fees', __('Loại biểu phí'))->display(function ($typeFees) {
+            if($typeFees){
+                return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
+            }else{
+                return "";
+            }
+        });
         $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 
         $grid->column('broker', __('Môi giới'))->filter('like');
@@ -355,6 +362,13 @@ class ContractController extends AdminController
         $show->field('from_date', __('Thời gian thực hiện từ ngày'))->as($dateFormatter);
         $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('total_fee', __('Tổng phí dịch vụ'));
+        $show->field('type_fees', __('Loại biểu phí'))->as(function ($typeFees) {
+            if($typeFees){
+                return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
+            }else{
+                return "";
+            }
+        });
         $show->field('advance_fee', __('Tạm ứng'));
         $show->field('broker', __('Môi giới'));
         $show->field('source', __('Nguồn'));
@@ -525,6 +539,7 @@ class ContractController extends AdminController
 
         $form->divider('4. Thông tin phí và thanh toán');
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
+        $form->select('type_fees', __('Loại biểu phí'))->options(Constant::TYPE_FEE_CONTRACT)->default(2);
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
 
         $form->divider('5. Thông tin phiếu giao việc');

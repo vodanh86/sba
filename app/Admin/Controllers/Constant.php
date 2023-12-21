@@ -44,6 +44,7 @@ abstract class Constant
     const PAYMENT_METHOD = array(1 => "Chuyển khoản", 2 => "Tiền mặt");
     const YES_NO = array(0 => "Không", 1 => "Có");
     const INVITATION_STATUS = array(1 => "Chưa gửi khách hàng", 2 => "Khách hàng đồng ý",  2 => "Khách hàng từ chối");
+    const TYPE_FEE_CONTRACT = array(0 => "Trong biểu phí", 1 => "Ngoài biểu phí", 2 => "");
 
     const BUSINESS_STAFF = 5;
     const QA_STAFF = 7;

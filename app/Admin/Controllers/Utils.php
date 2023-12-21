@@ -154,9 +154,9 @@ abstract class Utils
     public static function numberToWords($number)
     {
         $units = ['', 'Một', 'Hai', 'Ba', 'Bốn', 'Năm', 'Sáu', 'Bảy', 'Tám', 'Chín'];
-        $teens = ['', 'mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
-        $tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
-        $hundreds = ['', 'một trăm', 'hai trăm', 'ba trăm', 'bốn trăm', 'năm trăm', 'sáu trăm', 'bảy trăm', 'tám trăm', 'chín trăm'];
+        $teens = ['', 'Mười', 'Mười Một', 'Mười Hai', 'Mười Ba', 'Mười Bốn', 'Mười Lăm', 'Mười Sáu', 'Mười Bảy', 'Mười Tám', 'Mười Chín'];
+        $tens = ['', '', 'Hai Mươi', 'Ba Mươi', 'Bốn Mươi', 'Năm Mươi', 'Sáu Mươi', 'Bảy Mươi', 'Tám Mươi', 'Chín Mươi'];
+        $hundreds = ['', 'Một Trăm', 'Hai Trăm', 'Ba Trăm', 'Bốn Trăm', 'Năm Trăm', 'Sáu Trăm', 'Bảy Trăm', 'Tám Trăm', 'Chín Trăm'];
         if ($number == 0) {
             return 'Không';
         }
@@ -167,22 +167,22 @@ abstract class Utils
         $remainder = $number - $billions * 1000000000 - $millions * 1000000 - $thousands * 1000;
 
         if ($billions > 0) {
-            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
+            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . ' Tỷ ';
         }
 
         if ($millions > 0) {
-            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
+            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . ' Triệu ';
         }
 
         if ($thousands > 0) {
-            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
+            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'Nghìn ';
         }
 
         if ($remainder > 0) {
             $result .= self::convertHundred($remainder, $units, $teens, $tens, $hundreds);
         }
 
-        return $result . 'đồng';
+        return $result . 'Đồng';
     }
     public static function generateDate()
     {
