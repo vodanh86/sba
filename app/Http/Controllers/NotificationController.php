@@ -9,6 +9,8 @@ use App\Http\Models\NotifyStatus;
 use Carbon\Carbon;
 use Pusher\Pusher;
 use App\Admin\Controllers\Constant;
+use Mail;
+use App\Mail\SendMail;
 
 class NotificationController extends Controller
 {
@@ -92,6 +94,24 @@ class NotificationController extends Controller
         return response()->json(['message' => 'No notification found to update'], 404);
     }
 
+    public function sendEmail(){
+        $notifications = Notification::where('sent', 0)->orderBy('id', 'DESC')->limit(10)->get();
+        foreach ($notifications as $i => $notification){
+            $user = AdminUser::find($notification->user_id);
+            $email = $user->email ? $user->email : env('MAIL_USERNAME'); 
+            $email = 'cuongdm172@gmail.com';
+    
+            $testMailData = [
+                'title' => 'Thông báo mới từ Sba admin',
+                'body' => $notification->content
+            ];
+    
+            Mail::to($email)->send(new SendMail($testMailData));
+            $notification->sent = 1;
+            $notification->save();
+        }
+    }
+
     public function get($userId)
     {
         $userAvatar = 'https://sba.net.vn/wp-content/uploads/2020/09/LOGO-SBA-SVG-02.svg';
@@ -100,3 +120,4 @@ class NotificationController extends Controller
         return view('notifications', compact('notifications' , 'urlBase', 'userAvatar'))->render();
     }
 }
+

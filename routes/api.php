@@ -24,4 +24,5 @@ Route::get('invitation-letter', 'InvitationLetterController@find');
 Route::get('contract', 'ContractController@find');
 Route::get('notifications', 'NotificationController@index');
 Route::get('notifications/get/{userId}', 'NotificationController@get');
+Route::get('notifications/send-email', 'NotificationController@sendEmail');
 Route::put('notifications/{userId}', 'NotificationController@check');
