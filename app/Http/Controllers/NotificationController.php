@@ -97,7 +97,6 @@ class NotificationController extends Controller
         $userAvatar = 'https://sba.net.vn/wp-content/uploads/2020/09/LOGO-SBA-SVG-02.svg';
         $urlBase = env('APP_URL') . "/admin";
         $notifications = Notification::where('user_id', $userId)->orderBy('id', 'DESC')->take(15)->get();
-        // return response()->json(['notifications' => $notifications], 200);
         return view('notifications', compact('notifications' , 'urlBase', 'userAvatar'))->render();
     }
 }
