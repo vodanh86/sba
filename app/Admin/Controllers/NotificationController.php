@@ -36,6 +36,7 @@ class NotificationController extends AdminController
             return $this->check == 0 ? "Chưa xem" : "Đã xem";
         });
         $grid->column('check', __('Xem'))->action(ViewNotification::class);
+        $grid->column('sent', __('Gửi'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
         $grid->model()->where('user_id', Admin::user()->id);

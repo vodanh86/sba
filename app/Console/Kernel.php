@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
     protected function shortSchedule(ShortSchedule $shortSchedule)
     {
         $shortSchedule->command('api:call')->everySeconds(45);
+        $shortSchedule->command('api:email')->everySeconds(45);
     }
     /**
      * Register the commands for the application.
