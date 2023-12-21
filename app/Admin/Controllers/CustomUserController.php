@@ -32,6 +32,7 @@ class CustomUserController extends UserController
         $grid->column('id', 'ID')->sortable();
         $grid->column('username', trans('admin.username'))->filter('like');
         $grid->column('name', trans('admin.name'))->filter('like');
+        $grid->column('email', trans('admin.email'))->filter('like');
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
         $grid->column('branch.branch_name', "Chi nhánh")->filter('like');
         $grid->column('created_at', trans('admin.created_at'));
@@ -107,6 +108,7 @@ class CustomUserController extends UserController
             ->updateRules(['required', "unique:{$connection}.{$userTable},username,{{id}}"]);
 
         $form->text('name', trans('admin.name'))->rules('required');
+        $form->text('email', trans('admin.email'))->required();
         $form->image('avatar', trans('admin.avatar'));
         $form->password('password', trans('admin.password'))->rules('required|confirmed');
         $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
