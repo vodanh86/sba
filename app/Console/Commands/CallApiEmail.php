@@ -40,7 +40,7 @@ class CallApiEmail extends Command
     {
         $client = new Client();
         $url = env('APP_URL');
-        $response = $client->get($url . '/api/send-email');
+        $response = $client->get($url . '/api/notifications/send-email');
         if ($response->getStatusCode() === 200) {
              $this->info('API call successful');
         } else {
