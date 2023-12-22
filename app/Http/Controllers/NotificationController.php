@@ -43,6 +43,7 @@ class NotificationController extends Controller
                     $processRecord++;
                     $notifyLog->time_end = Carbon::now();
                 }
+                Notification::where('user_id', $userId["user_id"])->update(['status' => 1]);
             }
             $options = array(
                 'cluster' => 'ap1',
