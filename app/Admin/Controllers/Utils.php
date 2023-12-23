@@ -60,18 +60,30 @@ abstract class Utils
         $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $data);
     }
 
-    public static function generateCode($table, $branchId)
+    public static function generateCode($table, $branchId, $type)
     {
-        $code = DB::table($table)
+        $query = DB::table($table)
             ->select(DB::raw('code'))
             ->where('branch_id', $branchId)
             ->where('code', 'like', '%' . date('ym') . '%')
-            ->orderByDesc('id')
-            ->first();
+            ->orderByDesc('id');
+
+        if ($type == "pre_contracts") {
+            $query->where("contract_type", 0);
+        } else {
+            $query->where("contract_type", 1);
+        }
+
+        $code = $query->first();
+
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
             $currentIndex = substr($code->code, 1, 7);
-            return "S" . ($currentIndex + 1) . ".$branchCode";
+            if ($type == "pre_contracts") {
+                return "KS" . ($currentIndex + 1) . ".$branchCode";
+            } else {
+                return "S" . ($currentIndex + 1) . ".$branchCode";
+            }
         }
         return "S" . date('ym') . "001.$branchCode";
     }

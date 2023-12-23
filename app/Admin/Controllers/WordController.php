@@ -187,7 +187,10 @@ class WordController extends AdminController
         $id = $request->input('id');
         $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
-        $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code;
+        $officialAssessment->num_of_prints += 1;
+        $officialAssessment->save();
+        $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
+        $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {
