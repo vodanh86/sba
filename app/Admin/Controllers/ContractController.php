@@ -9,7 +9,6 @@ use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddContractComment;
 use App\Admin\Grid\ResetButton;
 use App\Http\Models\AdminUser;
-use App\Http\Models\Notification;
 use App\Http\Models\PreAssessment;
 use App\Http\Models\Status;
 use App\Http\Models\StatusTransition;
@@ -447,8 +446,7 @@ class ContractController extends AdminController
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
-            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
-            $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
+            $form->text('code', "Mã hợp đồng")->readonly()->setWidth(2, 2);
             $form->hidden('created_by')->default(Admin::user()->id);
             $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(0)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
@@ -575,7 +573,11 @@ class ContractController extends AdminController
         // callback before save
         $form->saving(function (Form $form) {
             if ($form->isCreating()) {
-                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
+                if($form->contract_type == 0){
+                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 'pre_contracts');
+                }else{
+                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 'contracts');
+                }
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
                 $statusContract = $form->status;
@@ -598,7 +600,7 @@ class ContractController extends AdminController
                     }
                 }
             }
-            $dateFields = ['created_date', 'issue_date', 'from_date', 'to_date'];
+            $dateFields = ['issue_date', 'from_date', 'to_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
                 if (!empty($value)) {
