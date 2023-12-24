@@ -577,9 +577,9 @@ class ContractController extends AdminController
                 $contractType = $form->contract_type;
                 $statusContract = $form->status;
                 if($contractType == 0){
-                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 0);
+                    $form->code = Utils::generateCode("sba_dev.contracts", Admin::user()->branch_id, 0);
                 }else{
-                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 1);
+                    $form->code = Utils::generateCode("sba_dev.contracts", Admin::user()->branch_id, 1);
                 }
                 if ($contractType == 1 && $customerType == 1) {
                     if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
