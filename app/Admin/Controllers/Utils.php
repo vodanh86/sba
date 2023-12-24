@@ -70,6 +70,7 @@ abstract class Utils
             ->where('code', 'like', '%' . date('ym') . '%')
             ->orderByDesc('id')
             ->first();
+            
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
             $currentIndex = substr($code->code, 1, 7);
