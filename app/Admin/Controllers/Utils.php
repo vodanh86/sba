@@ -79,9 +79,9 @@ abstract class Utils
 
         if ($code) {
             if ($type == 0) {
-                return "KS" . $formattedCount . $codeDate . ".$branchCode";
+                return "KS" . $codeDate . $formattedCount . ".$branchCode";
             } else {
-                return "S" . $formattedCount . $codeDate . ".$branchCode";
+                return "S" . $codeDate . $formattedCount . ".$branchCode";
             }
         }
         return "S" . date('ym') . "001.$branchCode";
