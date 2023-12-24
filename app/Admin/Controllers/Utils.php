@@ -2,7 +2,6 @@
 
 namespace App\Admin\Controllers;
 
-use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +9,7 @@ use App\Http\Models\Status;
 use App\Http\Models\Branch;
 use App\Http\Models\Notification;
 use Pusher\Pusher;
+use Carbon\Carbon;
 
 abstract class Utils
 {
@@ -63,21 +63,25 @@ abstract class Utils
 
     public static function generateCode($table, $branchId, $type)
     {
+        $currentDate = Carbon::now();
+        $year = $currentDate->format('y');
+        $month = $currentDate->format('m');
+        $codeDate = $year . $month;
+
         $code = DB::table($table)
             ->select(DB::raw('code'))
             ->where('branch_id', $branchId)
             ->where('contract_type', $type)
-            ->where('code', 'like', '%' . date('ym') . '%')
-            ->orderByDesc('id')
-            ->first();
-            
+            ->count();
+
+        $formattedCount = str_pad($code + 1, 3, '0', STR_PAD_LEFT);
         $branchCode = Branch::find($branchId)->code;
+
         if ($code) {
-            $currentIndex = substr($code->code, 1, 7);
             if ($type == 0) {
-                return "KS" . ($currentIndex + 1) . ".$branchCode";
+                return "KS" . $formattedCount . $codeDate . ".$branchCode";
             } else {
-                return "S" . ($currentIndex + 1) . ".$branchCode";
+                return "S" . $formattedCount . $codeDate . ".$branchCode";
             }
         }
         return "S" . date('ym') . "001.$branchCode";
