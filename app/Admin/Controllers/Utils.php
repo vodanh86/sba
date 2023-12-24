@@ -75,7 +75,9 @@ abstract class Utils
         $code = $query->first();
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
+            dd($code);
             $currentIndex = substr($code->code, 1, 7);
+            dd($currentIndex);
             if (is_numeric($currentIndex)) {
                 $currentIndex = intval($currentIndex);
                 if ($type == "pre_contracts") {
