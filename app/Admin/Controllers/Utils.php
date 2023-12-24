@@ -75,10 +75,15 @@ abstract class Utils
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
             $currentIndex = substr($code->code, 1, 7);
-            if ($type == "pre_contracts") {
-                return "KS" . ($currentIndex + 1) . ".$branchCode";
+            if (is_numeric($currentIndex)) {
+                $currentIndex = intval($currentIndex);
+                if ($type == "pre_contracts") {
+                    return "KS" . ($currentIndex + 1) . ".$branchCode";
+                } else {
+                    return "S" . ($currentIndex + 1) . ".$branchCode";
+                }
             } else {
-                return "S" . ($currentIndex + 1) . ".$branchCode";
+                throw new \Exception('Lỗi mã hợp đồng');
             }
         }
         return "S" . date('ym') . "001.$branchCode";
