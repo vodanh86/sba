@@ -63,36 +63,18 @@ abstract class Utils
 
     public static function generateCode($table, $branchId, $type)
     {
-        try {
-            $query = Contract::select('code')
-                ->where('branch_id', $branchId)
-                ->where('code', 'like', '%' . date('ym') . '%')
-                ->orderByDesc('id');
-            if ($type == "pre_contracts") {
-                $query->where("contract_type", 0);
-            } else {
-                $query->where("contract_type", 1);
-            }
-            $code = $query->first();
-            $branchCode = Branch::find($branchId)->code;
-            if ($code) {
-                $currentIndex = substr($code->code, 1, 7);
-                if (is_numeric($currentIndex)) {
-                    $currentIndex = intval($currentIndex);
-                    if ($type == "pre_contracts") {
-                        return "KS" . ($currentIndex + 1) . ".$branchCode";
-                    } else {
-                        return "S" . ($currentIndex + 1) . ".$branchCode";
-                    }
-                } else {
-                    throw new \Exception('Lỗi mã hợp đồng');
-                }
-            }
-            return "S" . date('ym') . "001.$branchCode";
-        } catch (\Exception $e) {
-            \Log::error('Lỗi: ' . $e->getMessage());
-            return null;
+        $code = DB::table($table)
+            ->select(DB::raw('code'))
+            ->where('branch_id', $branchId)
+            ->where('code', 'like', '%' . date('ym') . '%')
+            ->orderByDesc('id')
+            ->first();
+        $branchCode = Branch::find($branchId)->code;
+        if ($code) {
+            $currentIndex = substr($code->code, 1, 7);
+            return "S" . ($currentIndex + 1) . ".$branchCode";
         }
+        return "S" . date('ym') . "001.$branchCode";
     }
     public static function generateInvitationCode($table)
     {
