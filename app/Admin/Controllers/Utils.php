@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -63,8 +64,7 @@ abstract class Utils
     public static function generateCode($table, $branchId, $type)
     {
         try {
-            $query = DB::table($table)
-                ->select(DB::raw('code'))
+            $query = Contract::select('code')
                 ->where('branch_id', $branchId)
                 ->where('code', 'like', '%' . date('ym') . '%')
                 ->orderByDesc('id');
@@ -91,7 +91,7 @@ abstract class Utils
             return "S" . date('ym') . "001.$branchCode";
         } catch (\Exception $e) {
             \Log::error('Lỗi: ' . $e->getMessage());
-            return null; // hoặc trả về một giá trị mặc định khác tùy theo nhu cầu của bạn
+            return null;
         }
     }
     public static function generateInvitationCode($table)
