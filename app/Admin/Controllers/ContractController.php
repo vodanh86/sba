@@ -573,14 +573,14 @@ class ContractController extends AdminController
         // callback before save
         $form->saving(function (Form $form) {
             if ($form->isCreating()) {
-                if($form->contract_type == 0){
+                $customerType = $form->customer_type;
+                $contractType = $form->contract_type;
+                $statusContract = $form->status;
+                if($contractType == 0){
                     $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 'pre_contracts');
                 }else{
                     $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 'contracts');
                 }
-                $customerType = $form->customer_type;
-                $contractType = $form->contract_type;
-                $statusContract = $form->status;
                 if ($contractType == 1 && $customerType == 1) {
                     if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
                         throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');

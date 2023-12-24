@@ -65,17 +65,13 @@ abstract class Utils
         $query = DB::table($table)
             ->select(DB::raw('code'))
             ->where('branch_id', $branchId)
-            ->where('code', 'like', '%' . date('ym') . '%')
-            ->orderByDesc('id');
-
+            ->where('code', 'like', '%' . date('ym') . '%');
         if ($type == "pre_contracts") {
             $query->where("contract_type", 0);
         } else {
             $query->where("contract_type", 1);
         }
-
-        $code = $query->first();
-
+        $code = $query->orderByDesc('id')->first();
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
             $currentIndex = substr($code->code, 1, 7);
