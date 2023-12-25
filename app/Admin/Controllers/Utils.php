@@ -63,25 +63,22 @@ abstract class Utils
 
     public static function generateCode($table, $branchId, $type)
     {
-        $currentDate = Carbon::now();
-        $year = $currentDate->format('y');
-        $month = $currentDate->format('m');
-        $codeDate = $year . $month;
-
         $code = DB::table($table)
             ->select(DB::raw('code'))
             ->where('branch_id', $branchId)
             ->where('contract_type', $type)
-            ->count();
+            ->where('code', 'like', '%' . date('ym') . '%')
+            ->orderByDesc('id')
+            ->first();
 
-        $formattedCount = str_pad($code + 1, 3, '0', STR_PAD_LEFT);
         $branchCode = Branch::find($branchId)->code;
-
         if ($code) {
             if ($type == 0) {
-                return "KS" . $codeDate . $formattedCount . ".$branchCode";
+                $currentIndex = substr($code->code, 2, 8);
+                return "KS" . ($currentIndex + 1) . ".$branchCode";
             } else {
-                return "S" . $codeDate . $formattedCount . ".$branchCode";
+                $currentIndex = substr($code->code, 1, 7);
+                return "S" . ($currentIndex + 1) . ".$branchCode";
             }
         }
         return "S" . date('ym') . "001.$branchCode";

@@ -112,9 +112,9 @@ class ContractController extends AdminController
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
         $grid->column('type_fees', __('Loại biểu phí'))->display(function ($typeFees) {
-            if($typeFees){
+            if ($typeFees) {
                 return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
-            }else{
+            } else {
                 return "";
             }
         });
@@ -147,7 +147,8 @@ class ContractController extends AdminController
                 Constant::CONTRACT_INPUTTING_STATUS,
                 Constant::PRE_CONTRACT_INPUTTING_STATUS,
                 Constant::WAIT_ASSIGN,
-                Constant::OFFICIAL_ASSIGN
+                Constant::OFFICIAL_ASSIGN,
+                Constant::WAIT_CONTRACT_APPROVED
             ]);
             $grid->model()->where(function ($query) {
                 $query->where('tdv_assistant', '=', Admin::user()->id)
@@ -362,9 +363,9 @@ class ContractController extends AdminController
         $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('type_fees', __('Loại biểu phí'))->as(function ($typeFees) {
-            if($typeFees){
+            if ($typeFees) {
                 return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
-            }else{
+            } else {
                 return "";
             }
         });
@@ -446,9 +447,9 @@ class ContractController extends AdminController
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
-            $form->text('code', "Mã hợp đồng")->readonly()->setWidth(2, 2);
             $form->hidden('created_by')->default(Admin::user()->id);
             $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(0)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
+                $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 0))->readonly()->setWidth(2, 2);
                 $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -459,6 +460,8 @@ class ContractController extends AdminController
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
                 }
             })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
+                $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
+                $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
                 $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
                 foreach ($nextStatuses as $nextStatus) {
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -576,9 +579,9 @@ class ContractController extends AdminController
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
                 $statusContract = $form->status;
-                if($contractType == 0){
+                if ($contractType == 0) {
                     $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 0);
-                }else{
+                } else {
                     $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 1);
                 }
                 if ($contractType == 1 && $customerType == 1) {
@@ -633,6 +636,45 @@ class ContractController extends AdminController
         $script = <<<EOT
         var contracts = $contracts;
         var customerType;
+        $(document).on('change', ".code_pre_contracts", function(){
+            var contract = contracts[this.value];
+            $(".customer_type").val(contract.customer_type).trigger('change');
+            $(".selected_id_number").val(contract.selected_id_number).trigger('change');
+            $("#tax_number").val(contract.tax_number);  
+            $("#business_name").val(contract.business_name);
+            $("#personal_address").val(contract.personal_address);
+            $("#business_address").val(contract.business_address);
+            $("#representative").val(contract.representative);
+            $("#position").val(contract.position);
+            $("#personal_name").val(contract.personal_name);
+            $("#id_number").val(contract.id_number);
+            $("#issue_place").val(contract.issue_place);  
+            $("#issue_date").val(contract.issue_date); 
+            $(".docs_representative").val(contract.docs_representative).trigger('change');
+            $(".docs_authorization").val(contract.docs_authorization).trigger('change');
+            $(".docs_position").val(contract.docs_position).trigger('change');
+            $(".docs_stk").val(contract.docs_stk).trigger('change');
+            $(".property").val(contract.property);
+            $("#purpose").val(contract.purpose);
+            $("#appraisal_date").val(contract.appraisal_date);
+            $("#from_date").val(contract.from_date);
+            $("#to_date").val(contract.to_date);
+            $("#total_fee").val(contract.total_fee);
+            $(".type_fees").val(contract.type_fees).trigger('change');
+            $("#advance_fee").val(contract.advance_fee);
+            $("#broker").val(contract.broker);
+            $("#source").val(contract.source);
+            $("#sale").val(contract.sale);
+            $("#net_revenue").val(contract.net_revenue);
+            $(".tdv").val(contract.tdv).trigger('change');
+            $(".legal_representative").val(contract.legal_representative).trigger('change');
+            $(".tdv_migrate").val(contract.tdv_migrate).trigger('change');
+            $(".tdv_assistant").val(contract.tdv_assistant).trigger('change');
+            $(".supervisor").val(contract.supervisor).trigger('change');
+            $("#contact").val(contract.contact);
+            $("#note").val(contract.note);
+            $("#document").val(contract.document);
+        });
 
         $(document).on('change', ".selected_id_number, .selected_tax_number", function () {
             var contract = contracts[this.value];
