@@ -12,7 +12,7 @@ class CallApiNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'api:call-enabled';
+    protected $signature = 'api:call';
 
     /**
      * The console command description.
