@@ -447,6 +447,7 @@ class PreContractController extends AdminController
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
+            $form->select('contract_type', __('Loại hợp đồng'))->options([0 => "Sơ bộ"])->default(0)->readonly();
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 0))->readonly()->setWidth(2, 2);
             $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
             $form->hidden('created_by')->default(Admin::user()->id);

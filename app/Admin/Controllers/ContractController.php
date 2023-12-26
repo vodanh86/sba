@@ -28,7 +28,7 @@ class ContractController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Hợp đồng';
+    protected $title = 'Hợp đồng chính thức';
 
     /**
      * Make a grid builder.
@@ -158,6 +158,7 @@ class ContractController extends AdminController
         }
         // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
+            ->where("contract_type", 1)
             ->where('branch_id', Admin::user()->branch_id)
             ->where(function ($query) {
                 $query->whereExists(function ($subQuery) {
@@ -448,30 +449,18 @@ class ContractController extends AdminController
             }
         } else {
             $form->hidden('created_by')->default(Admin::user()->id);
-            $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->default(0)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
-                $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 0))->readonly()->setWidth(2, 2);
-                $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
-                foreach ($nextStatuses as $nextStatus) {
-                    $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
-                }
-                if (in_array("Lưu nháp (Sơ bộ)", $status)) {
-                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp (Sơ bộ)", $status))->setWidth(5, 2)->rules($checkStatus);
-                } else {
-                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
-                }
-            })->when(Constant::OFFICIAL_CONTRACT_TYPE, function (Form $form) use ($checkStatus) {
-                $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
-                $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
-                $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
-                foreach ($nextStatuses as $nextStatus) {
-                    $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
-                }
-                if (in_array("Lưu nháp", $status)) {
-                    $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->rules($checkStatus);
-                } else {
-                    $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
-                }
-            })->required();
+            $form->select('contract_type', __('Loại hợp đồng'))->options([1 => "Chính thức"])->default(1)->readonly();
+            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
+            $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
+            $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
+            foreach ($nextStatuses as $nextStatus) {
+                $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
+            }
+            if (in_array("Lưu nháp", $status)) {
+                $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->rules($checkStatus);
+            } else {
+                $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
+            }
         }
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
@@ -569,7 +558,6 @@ class ContractController extends AdminController
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         $form->tools(function (Form\Tools $tools) {
-            // Disable `Delete` btn.
             $tools->disableDelete();
         });
 
@@ -579,11 +567,7 @@ class ContractController extends AdminController
                 $customerType = $form->customer_type;
                 $contractType = $form->contract_type;
                 $statusContract = $form->status;
-                if ($contractType == 0) {
-                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 0);
-                } else {
-                    $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 1);
-                }
+                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 1);
                 if ($contractType == 1 && $customerType == 1) {
                     if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
                         throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
@@ -615,22 +599,6 @@ class ContractController extends AdminController
                 }
             }
         });
-        // $form->saved(function (Form $form) {
-        //     $users = array($form->model()->tdv, $form->model()->legal_representative, $form->model()->tdv_migrate, $form->model()->tdv_assistant, $form->model()->supervisor);
-        //     foreach($users as $i => $userId){
-        //         if ($userId && $form->model()->status == 66){
-        //             $notification = new Notification();
-        //             $notification->user_id = $userId;
-        //             $notification->table = "contracts";
-        //             $notification->table_id = $form->model()->id;
-        //             $notification->content = $form->model()->status == 66
-        //             ? "Hợp đồng số {$form->model()->code} chờ phân công/phê duyệt"
-        //             : '';
-        //             $notification->save();
-        //             Utils::sendNotification($notification->user_id, $notification->table);
-        //         }
-        //     }
-        // });
 
         $contracts = json_encode(Contract::where('branch_id', '=', Admin::user()->branch_id)->get()->keyBy("id"));
         $script = <<<EOT
