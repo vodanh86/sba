@@ -141,7 +141,7 @@ class ContractController extends AdminController
 
         // get list of assigned contracts
         if ($condition == 0) {
-            $grid->model()->whereIn('status', $listStatus);
+            $grid->model()->whereIn('status', $listStatus)->where("contract_type", 1);
         } else if ($condition == 1) {
             $grid->model()->whereIn('status', [
                 Constant::CONTRACT_INPUTTING_STATUS,
@@ -159,7 +159,6 @@ class ContractController extends AdminController
         }
         // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
-            ->where("contract_type", 1)
             ->where('branch_id', Admin::user()->branch_id)
             ->where(function ($query) {
                 $query->whereExists(function ($subQuery) {
