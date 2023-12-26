@@ -212,11 +212,11 @@ class OfficialAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
             $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
+            $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
             $form->select('contract_id', __('valuation_document.contract_id'))
             ->default(0)
             ->options($pluckDefaultContractId)
-            ->required()
-            ->readOnly();
+            ->required();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::OFFICIAL_ASSESS_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {

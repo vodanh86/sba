@@ -29,6 +29,7 @@ Route::group([
     $router->resource('business-customers', BusinessCustomerController::class);
     $router->resource('invitation-letters', InvitationLetterController::class);
     $router->resource('contracts', ContractController::class);
+    $router->resource('pre_contracts', PreContractController::class);
     $router->resource('assigned-contracts', AssignedContractController::class);
     $router->resource('statuses', StatusController::class);
     $router->resource('status-transitions', StatusTransitionController::class);
