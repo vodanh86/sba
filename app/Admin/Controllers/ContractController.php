@@ -148,7 +148,8 @@ class ContractController extends AdminController
                 Constant::PRE_CONTRACT_INPUTTING_STATUS,
                 Constant::WAIT_ASSIGN,
                 Constant::OFFICIAL_ASSIGN,
-                Constant::WAIT_CONTRACT_APPROVED
+                Constant::WAIT_CONTRACT_APPROVED,
+                Constant::WAIT_TPNV_PRE_CONTRACT_APPROVED
             ]);
             $grid->model()->where(function ($query) {
                 $query->where('tdv_assistant', '=', Admin::user()->id)
