@@ -54,6 +54,7 @@ abstract class Constant
     const WAIT_ASSIGN = 85;
     const OFFICIAL_ASSIGN = 70;
     const WAIT_CONTRACT_APPROVED = 9;
+    const WAIT_TPNV_PRE_CONTRACT_APPROVED = 65;
     const ASSESSMENT_DONE_STATUS = 58;
     const PRE_CONTRACT_TYPE = 0;
     const OFFICIAL_CONTRACT_TYPE = 1;
