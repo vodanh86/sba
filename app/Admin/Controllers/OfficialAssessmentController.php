@@ -211,18 +211,11 @@ class OfficialAssessmentController extends AdminController
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
             $form->select('contract_id', __('valuation_document.contract_id'))
-                ->options(
-                    Contract::where("branch_id", Admin::user()->branch_id)
-                        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
-                        ->where('status', Constant::CONTRACT_INPUTTING_STATUS)
-                        ->where('tdv_assistant', '=', Admin::user()->id)
-                        ->pluck('code', 'id')
-                )
-                ->required()
-                ->readOnly()
-                ->creationRules(['required', "unique:official_assessments"])
-                ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
+            ->default(0)
+            ->options($pluckDefaultContractId)
+            ->required();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::OFFICIAL_ASSESS_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
