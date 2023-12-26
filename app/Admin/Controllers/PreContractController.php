@@ -447,7 +447,7 @@ class PreContractController extends AdminController
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
-            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id))->readonly()->setWidth(2, 2);
+            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 0))->readonly()->setWidth(2, 2);
             $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
             $form->hidden('created_by')->default(Admin::user()->id);
             $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
@@ -556,42 +556,20 @@ class PreContractController extends AdminController
         $form->hidden('branch_id')->default(Admin::user()->branch_id);
 
         $form->tools(function (Form\Tools $tools) {
-            // Disable `Delete` btn.
             $tools->disableDelete();
         });
 
         // callback before save
         $form->saving(function (Form $form) {
             if ($form->isCreating()) {
-                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id);
-                $customerType = $form->customer_type;
-                $contractType = $form->contract_type;
-                $statusContract = $form->status;
-                if ($contractType == 1 && $customerType == 1) {
-                    if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
-                        throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
-                    }
-                } elseif ($contractType == 1 && $customerType == 2) {
-                    if ($form->tax_number == "" || $form->business_name == "" || $form->business_address == "") {
-                        throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
-                    }
-                }
-                if ($contractType == 1) {
-                    if ($form->total_fee == "" || $form->net_revenue == "") {
-                        throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
-                    }
-                } elseif ($contractType == 1 && $statusContract == 70) {
-                    if ($form->supervisor == "") {
-                        throw new \Exception('Chưa phân công kiểm soát chất lượng');
-                    }
-                }
+                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 0);
             }
             $dateFields = ['created_date', 'issue_date', 'from_date', 'to_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
                 if (!empty($value)) {
                     try {
-                        $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                        $formattedDate = Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
                         $form->input($field, $formattedDate);
                     } catch (\Exception $e) {
                     }
