@@ -100,7 +100,7 @@ class NotificationController extends Controller
         foreach ($notifications as $i => $notification){
             $user = AdminUser::find($notification->user_id);
             #$email = $user->email ? $user->email : env('MAIL_USERNAME'); 
-            $email = ($user && $user->email) ? $user->email : 'cuongdm172@gmail.com';
+            $email = ($user && $user->email) ? $user->email : 'vpms@sba.net.vn';
     
             $testMailData = [
                 'title' => 'Thông báo mới từ Sba admin',
