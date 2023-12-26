@@ -414,7 +414,7 @@ class PreContractController extends AdminController
         $form = new Form(new Contract());
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
-            $id = request()->route()->parameter('contract');
+            $id = request()->route()->parameter('pre_contract');
             if (is_null($id)) {
                 $id = request()->route()->parameter('assigned_contract');
             }
