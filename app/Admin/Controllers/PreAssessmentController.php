@@ -191,18 +191,12 @@ class PreAssessmentController extends AdminController
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
+            $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
             $form->select('contract_id', __('valuation_document.contract_id'))
-            ->options(
-                Contract::where("branch_id", Admin::user()->branch_id)
-                    ->where('status', Constant::PRE_CONTRACT_INPUTTING_STATUS)
-                    ->where('contract_type', Constant::PRE_CONTRACT_TYPE)
-                    ->where('tdv_assistant', Admin::user()->id)
-                    ->pluck('code', 'id')
-            )
+            ->default(0)
+            ->options($pluckDefaultContractId)
             ->required()
-            ->readOnly()
-            ->creationRules(['required', "unique:pre_assessments"])
-            ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
+            ->readOnly();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::PRE_ASSESS_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
@@ -222,9 +216,7 @@ class PreAssessmentController extends AdminController
             ->updateRules(['required', "unique:pre_assessments,contract_id,{{id}}"]);
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
-
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
-
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
         $form->text('note', __('Chú ý'));
         $form->currency('pre_value', __('Giá trị sơ bộ'))->symbol('VND');
