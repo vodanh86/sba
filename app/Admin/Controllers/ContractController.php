@@ -88,7 +88,14 @@ class ContractController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'))->filter('like');
-        $grid->column('code_pre_contracts', __('Mã yêu cầu SBKS'));
+        $grid->column('code_pre_contracts', __('Mã yêu cầu SBKS'))->display(function ($codePreContracts) {
+            $code = Contract::where('id', $codePreContracts)->first();
+            if($code){
+                return $code->code;
+            }else{
+                return "";
+            }
+        });
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
