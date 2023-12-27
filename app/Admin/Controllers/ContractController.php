@@ -88,7 +88,7 @@ class ContractController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('code', __('Mã hợp đồng'))->filter('like');
-        $grid->column('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE)->filter(Constant::CONTRACT_TYPE);
+        $grid->column('code_pre_contracts', __('Mã yêu cầu SBKS'));
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -338,7 +338,7 @@ class ContractController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('code', __('Mã hợp đồng'));
-        $show->field('contract_type', __('Loại hợp đồng'))->using(Constant::CONTRACT_TYPE);
+        $show->field('code_pre_contracts', __('Mã yêu cầu SBKS'));
         $show->field('created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('tax_number', __('Mã số thuế'));
