@@ -112,11 +112,7 @@ class PreContractController extends AdminController
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
         $grid->column('type_fees', __('Loại biểu phí'))->display(function ($typeFees) {
-            if ($typeFees) {
-                return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
-            } else {
-                return "";
-            }
+            return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
         });
         $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 

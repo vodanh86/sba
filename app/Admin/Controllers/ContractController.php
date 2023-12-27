@@ -112,11 +112,7 @@ class ContractController extends AdminController
 
         $grid->column('total_fee', __('Tổng phí dịch vụ'))->display($moneyFormatter);
         $grid->column('type_fees', __('Loại biểu phí'))->display(function ($typeFees) {
-            if ($typeFees) {
-                return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
-            } else {
-                return "";
-            }
+            return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
         });
         $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 
@@ -445,6 +441,7 @@ class ContractController extends AdminController
                 });
             } else {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->readOnly();
+                $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
