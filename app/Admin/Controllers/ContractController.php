@@ -122,6 +122,15 @@ class ContractController extends AdminController
         $grid->column('type_fees', __('Loại biểu phí'))->display(function ($typeFees) {
             return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
         });
+        $grid->column('payment_type', __('Hình thức thanh toán'))->display(function ($type) {
+            if($type == 0){
+                return "Tiền mặt";
+            }else if($type == 1){
+                return "Chuyển khoản";
+            }else{
+                return "";
+            }
+        })->width(150);
         $grid->column('advance_fee', __('Tạm ứng'))->display($moneyFormatter);
 
         $grid->column('broker', __('Môi giới'))->filter('like');
@@ -375,6 +384,15 @@ class ContractController extends AdminController
                 return "";
             }
         });
+        $show->column('payment_type', __('Hình thức thanh toán'))->as(function ($type) {
+            if($type == 0){
+                return "Tiền mặt";
+            }else if($type == 1){
+                return "Chuyển khoản";
+            }else{
+                return "";
+            }
+        })->width(150);
         $show->field('advance_fee', __('Tạm ứng'));
         $show->field('broker', __('Môi giới'));
         $show->field('source', __('Nguồn'));
@@ -534,6 +552,7 @@ class ContractController extends AdminController
         $form->date('to_date', __('Đến ngày'))->format('DD-MM-YYYY')->required();
 
         $form->divider('4. Thông tin phí và thanh toán');
+        $form->select('payment_type', __('Hình thức thanh toán'))->options([0 => 'Tiền mặt', 1 => 'Chuyển khoản']);
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
         $form->select('type_fees', __('Loại biểu phí'))->options(Constant::TYPE_FEE_CONTRACT)->default(2);
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
@@ -614,6 +633,7 @@ class ContractController extends AdminController
             var contract = contracts[this.value];
             $(".customer_type").val(contract.customer_type).trigger('change');
             $(".selected_id_number").val(contract.selected_id_number).trigger('change');
+            $(".payment_type").val(contract.payment_type).trigger('change');
             $("#tax_number").val(contract.tax_number);  
             $("#business_name").val(contract.business_name);
             $("#personal_address").val(contract.personal_address);
