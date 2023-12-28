@@ -87,7 +87,7 @@ class PreContractController extends AdminController
         $grid = new Grid(new Contract());
 
         $grid->column('id', __('Id'));
-        $grid->column('code', __('Mã hợp đồng'))->filter('like');
+        $grid->column('code', __('Mã yêu cầu SBKS'))->filter('like');
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -337,7 +337,7 @@ class PreContractController extends AdminController
         $show = new Show(Contract::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('code', __('Mã hợp đồng'));
+        $show->field('code', __('Mã yêu cầu SBKS'));
         $show->field('created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('tax_number', __('Mã số thuế'));
@@ -460,7 +460,7 @@ class PreContractController extends AdminController
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
             $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
-                Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+                Contract::select(DB::raw('CONCAT(personal_name," ", id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
             $form->text('id_number', __('Số CMND/CCCD'));
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
@@ -469,7 +469,7 @@ class PreContractController extends AdminController
             $form->text('issue_place', __('Nơi cấp'));
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
-                Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+                Contract::select(DB::raw('CONCAT(business_name, " ", tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
             $form->text('tax_number', __('Mã số thuế'));
             $form->text('business_name', __('Tên doanh nghiệp'));

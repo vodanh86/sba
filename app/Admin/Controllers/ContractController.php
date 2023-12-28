@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
+use App\Http\Models\ContractAcceptance;
 use App\Http\Models\DocsConfig;
 use Encore\Admin\Layout\Content;
 use App\Admin\Extensions\ExcelExporter;
@@ -163,6 +164,7 @@ class ContractController extends AdminController
         // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
             ->where('branch_id', Admin::user()->branch_id)
+            ->whereNotIn('id', ContractAcceptance::pluck('contract_id'))
             ->where(function ($query) {
                 $query->whereExists(function ($subQuery) {
                     $subQuery->select('contract_id')
@@ -448,14 +450,14 @@ class ContractController extends AdminController
                 });
             } else {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->readOnly();
-                $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
+                $form->select('code_pre_contracts', "Lựa chọn mã yêu cầu SBKS")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
             $form->hidden('created_by')->default(Admin::user()->id);
             $form->select('contract_type', __('Loại hợp đồng'))->options([1 => "Chính thức"])->default(1)->readonly();
             $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
-            $form->select('code_pre_contracts', "Lựa chọn mã hợp đồng sơ bộ")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
+            $form->select('code_pre_contracts', "Lựa chọn mã yêu cầu SBKS")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
             $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
@@ -469,7 +471,7 @@ class ContractController extends AdminController
         $form->divider('2. Thông tin khách hàng');
         $form->select('customer_type', __('Loại khách hàng'))->options(Constant::CUSTOMER_TYPE)->setWidth(2, 2)->required()->default(1)->when(1, function (Form $form) {
             $form->select('selected_id_number', __('Chọn CMND/CCCD'))->options(
-                Contract::select(DB::raw('CONCAT(id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+                Contract::select(DB::raw('CONCAT(personal_name," ", id_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
             $form->text('id_number', __('Số CMND/CCCD'));
             $form->text('personal_name', __('Họ và tên bên thuê dịch vụ'));
@@ -478,7 +480,7 @@ class ContractController extends AdminController
             $form->text('issue_place', __('Nơi cấp'));
         })->when(2, function (Form $form) {
             $form->select('selected_tax_number', __('Chọn mã số thuê'))->options(
-                Contract::select(DB::raw('CONCAT(tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
+                Contract::select(DB::raw('CONCAT(business_name, " ", tax_number, " mã hợp đồng ", IFNULL(code,"")) AS code, id'))->where('branch_id', '=', Admin::user()->branch_id)->pluck('code', 'id')
             );
             $form->text('tax_number', __('Mã số thuế'));
             $form->text('business_name', __('Tên doanh nghiệp'));
