@@ -26,13 +26,6 @@ class WordController extends AdminController
         $moneyFormatter = function ($money) {
             return number_format($money);
         };
-        $paymentTypeConvert = function ($type) {
-            if($type){
-                return $type == 1 ? "Tiền mặt" : "Chuyển khoản";
-            }else{
-                return "";
-            }
-        };
         if ($contract->customer_type == 1) {
             $name = 'SBA-HDCN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDCN.docx");
@@ -84,7 +77,6 @@ class WordController extends AdminController
             $document->setValue('property', $contract->property);
             $document->setValue('total_fee', $moneyFormatter($contract->total_fee));
             $document->setValue('total_fee_words', Utils::numberToWords($contract->total_fee));
-            $document->setValue('payment_type', $paymentTypeConvert($contract->payment_type));
             $document->setValue('appraisal_date', $contract->appraisal_date);
             $document->setValue('today', $today);
         } else {
@@ -136,7 +128,6 @@ class WordController extends AdminController
             $document->setValue('purpose', $contract->purpose);
             $document->setValue('property', $contract->property);
             $document->setValue('total_fee', $moneyFormatter($contract->total_fee));
-            $document->setValue('payment_type', $paymentTypeConvert($contract->payment_type));
             $document->setValue('total_fee_words', Utils::numberToWords($contract->total_fee));
             $document->setValue('representative', $contract->representative);
             $document->setValue('position', $contract->position);
