@@ -28,7 +28,7 @@ class WordController extends AdminController
         };
         $paymentTypeConvert = function ($type) {
             if($type){
-                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
+                return $type == 1 ? "Tiền mặt" : "Chuyển khoản";
             }else{
                 return "";
             }

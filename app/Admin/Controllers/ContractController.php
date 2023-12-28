@@ -124,7 +124,7 @@ class ContractController extends AdminController
         });
         $grid->column('payment_type', __('Hình thức thanh toán'))->display(function ($type) {
             if($type){
-                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
+                return $type == 1 ? "Tiền mặt" : "Chuyển khoản";
             }else{
                 return "";
             }
@@ -383,9 +383,9 @@ class ContractController extends AdminController
             }
         });
         $show->field('payment_type', __('Hình thức thanh toán'))->as(function ($type) {
-            if ($type) {
-                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
-            } else {
+            if($type){
+                return $type == 1 ? "Tiền mặt" : "Chuyển khoản";
+            }else{
                 return "";
             }
         })->width(150);
@@ -548,7 +548,7 @@ class ContractController extends AdminController
         $form->date('to_date', __('Đến ngày'))->format('DD-MM-YYYY')->required();
 
         $form->divider('4. Thông tin phí và thanh toán');
-        $form->select('payment_type', __('Hình thức thanh toán'))->options([0 => 'Tiền mặt', 1 => 'Chuyển khoản']);
+        $form->select('payment_type', __('Hình thức thanh toán'))->options([1 => 'Tiền mặt', 2 => 'Chuyển khoản']);
         $form->currency('total_fee', __('Tổng phí dịch vụ'))->symbol('VND');
         $form->select('type_fees', __('Loại biểu phí'))->options(Constant::TYPE_FEE_CONTRACT)->default(2);
         $form->currency('advance_fee', __('Tạm ứng'))->symbol('VND');
