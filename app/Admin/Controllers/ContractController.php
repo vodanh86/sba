@@ -91,9 +91,9 @@ class ContractController extends AdminController
         $grid->column('code', __('Mã hợp đồng'))->filter('like');
         $grid->column('code_pre_contracts', __('Mã yêu cầu SBKS'))->display(function ($codePreContracts) {
             $code = Contract::where('id', $codePreContracts)->first();
-            if($code){
+            if ($code) {
                 return $code->code;
-            }else{
+            } else {
                 return "";
             }
         });
@@ -123,10 +123,8 @@ class ContractController extends AdminController
             return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
         });
         $grid->column('payment_type', __('Hình thức thanh toán'))->display(function ($type) {
-            if($type == 0){
-                return "Tiền mặt";
-            }else if($type == 1){
-                return "Chuyển khoản";
+            if($type){
+                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
             }else{
                 return "";
             }
@@ -384,12 +382,10 @@ class ContractController extends AdminController
                 return "";
             }
         });
-        $show->column('payment_type', __('Hình thức thanh toán'))->as(function ($type) {
-            if($type == 0){
-                return "Tiền mặt";
-            }else if($type == 1){
-                return "Chuyển khoản";
-            }else{
+        $show->field('payment_type', __('Hình thức thanh toán'))->as(function ($type) {
+            if ($type) {
+                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
+            } else {
                 return "";
             }
         })->width(150);

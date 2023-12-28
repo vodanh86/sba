@@ -27,11 +27,9 @@ class WordController extends AdminController
             return number_format($money);
         };
         $paymentTypeConvert = function ($type) {
-            if ($type == 0) {
-                return "tiền mặt";
-            } else if ($type == 1) {
-                return "chuyển khoản";
-            } else {
+            if($type){
+                return $type == 0 ? "Tiền mặt" : "Chuyển khoản";
+            }else{
                 return "";
             }
         };
