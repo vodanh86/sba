@@ -433,7 +433,7 @@ class ContractController extends AdminController
                     $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
                 }
             }
-            $form->text('code', "Mã hợp đồng")->readonly();
+            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
             if ($model->contract_type == Constant::PRE_CONTRACT_TYPE && Status::find($model->status)->done == 1) {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->when(Constant::PRE_CONTRACT_TYPE, function (Form $form) use ($status, $checkStatus) {
                     $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
