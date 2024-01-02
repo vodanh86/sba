@@ -105,8 +105,9 @@ class ContractAcceptanceController extends AdminController
         $grid->actions(function ($actions) use ($editStatus) {
             $doneStatus = Status::whereIn("id", $editStatus)->where("done", 1)->get();
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
-            if (!in_array($actions->row->status, $editStatus) || in_array($actions->row->status, $doneStatusIds)) {
+            if (in_array($actions->row->status, $doneStatusIds)) {
                 $actions->disableDelete();
+            }else if(!in_array($actions->row->status, $editStatus)){
                 $actions->disableEdit();
             }
         });
@@ -367,7 +368,6 @@ class ContractAcceptanceController extends AdminController
         $form->text('recipient', __('Người nhận'));
         $form->currency('advance_fee', __('Đã tạm ứng'))->symbol('VND');
         $form->currency('official_fee', __('Còn phải thanh toán'))->symbol('VND');
-
         $form->divider('5. Thông tin khác');
         $form->multipleFile('document', __('Tài liệu'))->removable();
         if (in_array("Lưu nháp", $status)) {

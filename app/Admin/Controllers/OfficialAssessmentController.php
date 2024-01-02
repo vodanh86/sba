@@ -45,6 +45,7 @@ class OfficialAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
+        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('certificate_code', __('Mã chứng thư'))->filter('like');
         $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter);
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
@@ -100,6 +101,7 @@ class OfficialAssessmentController extends AdminController
                     $query->where('code', 'like', "%{$this->input}%");
                 });
             }, 'Mã hợp đồng');
+            $filter->date('created_date', 'Ngày hợp đồng');
             $filter->date('certificate_date', 'Ngày chứng thư');
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
@@ -153,6 +155,7 @@ class OfficialAssessmentController extends AdminController
 
         $show->field('id', __('Id'));
         $show->field('contract.code', __('official_assessment.contract_id'));
+        $show->field('created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('certificate_code', __('Mã chứng thư'));
         $show->field('certificate_date', __('Ngày chứng thư'))->as($dateFormatter);
         $show->field('contract.property', __('Tài sản thẩm định giá'))->unescape()->as(function ($property) {
@@ -209,31 +212,32 @@ class OfficialAssessmentController extends AdminController
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
             $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
+            $pluckDefaultContractId = [$model->contract_id => Contract::where('id', $model->contract_id)->first()->code];
             $form->select('contract_id', __('valuation_document.contract_id'))
             ->default(0)
             ->options($pluckDefaultContractId)
-            ->required()
-            ->readOnly();
+            ->required();
         } else {
             $nextStatuses = StatusTransition::where("table", Constant::OFFICIAL_ASSESS_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
             $form->select('contract_id', __('valuation_document.contract_id'))
-            ->options(
-                Contract::where("branch_id", Admin::user()->branch_id)
-                    ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
-                    ->where('status', Constant::CONTRACT_INPUTTING_STATUS)
-                    ->where('tdv_assistant', '=', Admin::user()->id)
-                    ->whereNotIn('id', OfficialAssessment::pluck('contract_id')->all())
-                    ->pluck('code', 'id')
-            )
-            ->required()
-            ->creationRules(['required', "unique:official_assessments"])
-            ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
+                ->options(
+                    Contract::where("branch_id", Admin::user()->branch_id)
+                        ->where('contract_type', '=', Constant::OFFICIAL_CONTRACT_TYPE)
+                        ->where('status', Constant::CONTRACT_INPUTTING_STATUS)
+                        ->where('tdv_assistant', '=', Admin::user()->id)
+                        ->whereNotIn('id', OfficialAssessment::pluck('contract_id')->all())
+                        ->pluck('code', 'id')
+                )
+                ->required()
+                ->creationRules(['required', "unique:official_assessments"])
+                ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
+        $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
         $form->date('certificate_date', __('Ngày chứng thư'))->format('DD-MM-YYYY');
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
 
@@ -251,7 +255,7 @@ class OfficialAssessmentController extends AdminController
             $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->required();
         }
         $form->saving(function (Form $form) {
-            $dateFields = ['finished_date', 'certificate_date'];
+            $dateFields = ['created_date', 'finished_date', 'certificate_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
                 if (!empty($value)) {
@@ -262,6 +266,12 @@ class OfficialAssessmentController extends AdminController
                     }
                 }
             }
+        });
+        // callback after save
+        $form->saved(function (Form $form) {
+            $contract = Contract::find($form->model()->contract_id);
+            $contract->created_date = $form->model()->created_date;
+            $contract->save();
         });
         // $url = 'http://127.0.0.1:8000/api/contract';
         $url = env('APP_URL') . '/api/contract';

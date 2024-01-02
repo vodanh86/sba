@@ -26,7 +26,6 @@ class WordController extends AdminController
         $moneyFormatter = function ($money) {
             return number_format($money);
         };
-
         if ($contract->customer_type == 1) {
             $name = 'SBA-HDCN-' . $contract->code;
             $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-HDCN.docx");
@@ -120,6 +119,7 @@ class WordController extends AdminController
             } else {
                 $document->setValue("uy_quyen", $contract->docs_authorization);
             }
+
             $document->setValue('created_date', $dateFormatter($contract->created_date));
             $document->setValue('code', $contract->code);
             $document->setValue('business_name', $contract->business_name);
@@ -187,7 +187,10 @@ class WordController extends AdminController
         $id = $request->input('id');
         $today = Utils::generateDate();
         $officialAssessment = OfficialAssessment::find($id);
-        $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code;
+        $officialAssessment->num_of_prints += 1;
+        $officialAssessment->save();
+        $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
+        $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {

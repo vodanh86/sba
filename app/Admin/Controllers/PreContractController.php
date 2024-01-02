@@ -3,7 +3,6 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Models\Contract;
-use App\Http\Models\ContractAcceptance;
 use App\Http\Models\DocsConfig;
 use Encore\Admin\Layout\Content;
 use App\Admin\Extensions\ExcelExporter;
@@ -22,14 +21,14 @@ use Carbon\Carbon;
 use Config;
 use DB;
 
-class ContractController extends AdminController
+class PreContractController extends AdminController
 {
     /**
      * Title for current resource.
      *
      * @var string
      */
-    protected $title = 'Hợp đồng chính thức';
+    protected $title = 'Yêu cầu sơ bộ khảo sát';
 
     /**
      * Make a grid builder.
@@ -88,15 +87,7 @@ class ContractController extends AdminController
         $grid = new Grid(new Contract());
 
         $grid->column('id', __('Id'));
-        $grid->column('code', __('Mã hợp đồng'))->filter('like');
-        $grid->column('code_pre_contracts', __('Mã yêu cầu SBKS'))->display(function ($codePreContracts) {
-            $code = Contract::where('id', $codePreContracts)->first();
-            if ($code) {
-                return $code->code;
-            } else {
-                return "";
-            }
-        });
+        $grid->column('code', __('Mã yêu cầu SBKS'))->filter('like');
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -145,7 +136,7 @@ class ContractController extends AdminController
 
         // get list of assigned contracts
         if ($condition == 0) {
-            $grid->model()->whereIn('status', $listStatus)->where("contract_type", 1);
+            $grid->model()->whereIn('status', $listStatus);
         } else if ($condition == 1) {
             $grid->model()->whereIn('status', [
                 Constant::CONTRACT_INPUTTING_STATUS,
@@ -163,8 +154,8 @@ class ContractController extends AdminController
         }
         // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
+            ->where("contract_type", 0)
             ->where('branch_id', Admin::user()->branch_id)
-            ->whereNotIn('id', ContractAcceptance::pluck('contract_id'))
             ->where(function ($query) {
                 $query->whereExists(function ($subQuery) {
                     $subQuery->select('contract_id')
@@ -346,8 +337,7 @@ class ContractController extends AdminController
         $show = new Show(Contract::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('code', __('Mã hợp đồng'));
-        $show->field('code_pre_contracts', __('Mã yêu cầu SBKS'));
+        $show->field('code', __('Mã yêu cầu SBKS'));
         $show->field('created_date', __('Ngày hợp đồng'))->as($dateFormatter);
         $show->field('customer_type', __('Customer type'))->using(Constant::CUSTOMER_TYPE);
         $show->field('tax_number', __('Mã số thuế'));
@@ -369,9 +359,9 @@ class ContractController extends AdminController
         $show->field('to_date', __('Đến ngày'))->as($dateFormatter);
         $show->field('total_fee', __('Tổng phí dịch vụ'));
         $show->field('type_fees', __('Loại biểu phí'))->as(function ($typeFees) {
-            if ($typeFees) {
-                return $typeFees == 0 ? "Trong biểu phí" : "Ngoài biểu phí";
-            } else {
+            if($typeFees){
+                return $typeFees == 1 ? "Tiền mặt" : "Chuyển khoản";
+            }else{
                 return "";
             }
         });
@@ -420,7 +410,7 @@ class ContractController extends AdminController
         $form = new Form(new Contract());
         $form->divider('1. Thông tin hợp đồng');
         if ($form->isEditing()) {
-            $id = request()->route()->parameter('contract');
+            $id = request()->route()->parameter('pre_contract');
             if (is_null($id)) {
                 $id = request()->route()->parameter('assigned_contract');
             }
@@ -450,20 +440,19 @@ class ContractController extends AdminController
                 });
             } else {
                 $form->select('contract_type', __('Loại hợp đồng'))->options(Constant::CONTRACT_TYPE)->setWidth(5, 2)->readOnly();
-                $form->select('code_pre_contracts', "Lựa chọn mã yêu cầu SBKS")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
         } else {
+            $form->select('contract_type', __('Loại hợp đồng'))->options([0 => "Sơ bộ"])->default(0)->readonly();
+            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 0))->readonly()->setWidth(2, 2);
+            $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
             $form->hidden('created_by')->default(Admin::user()->id);
-            $form->select('contract_type', __('Loại hợp đồng'))->options([1 => "Chính thức"])->default(1)->readonly();
-            $form->text('code', "Mã hợp đồng")->default(Utils::generateCode("contracts", Admin::user()->branch_id, 1))->readonly()->setWidth(2, 2);
-            $form->select('code_pre_contracts', "Lựa chọn mã yêu cầu SBKS")->options(Contract::where("contract_type", 0)->where("status", 65)->pluck('code', 'id'))->setWidth(5, 2);
-            $nextStatuses = StatusTransition::where("table", Constant::CONTRACT_TABLE)->whereNull("status_id")->get();
+            $nextStatuses = StatusTransition::where("table", Constant::PRE_CONTRACT_TABLE)->whereNull("status_id")->get();
             foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
-            if (in_array("Lưu nháp", $status)) {
-                $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp", $status))->setWidth(5, 2)->rules($checkStatus);
+            if (in_array("Lưu nháp (Sơ bộ)", $status)) {
+                $form->select('status', __('Trạng thái'))->options($status)->default(array_search("Lưu nháp (Sơ bộ)", $status))->setWidth(5, 2)->rules($checkStatus);
             } else {
                 $form->select('status', __('Trạng thái'))->options($status)->setWidth(5, 2)->rules($checkStatus);
             }
@@ -570,35 +559,14 @@ class ContractController extends AdminController
         // callback before save
         $form->saving(function (Form $form) {
             if ($form->isCreating()) {
-                $customerType = $form->customer_type;
-                $contractType = $form->contract_type;
-                $statusContract = $form->status;
-                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 1);
-                if ($contractType == 1 && $customerType == 1) {
-                    if ($form->id_number == "" || $form->personal_name == "" || $form->personal_address == "") {
-                        throw new \Exception('Chưa điền đủ thông tin khách hàng cá nhân');
-                    }
-                } elseif ($contractType == 1 && $customerType == 2) {
-                    if ($form->tax_number == "" || $form->business_name == "" || $form->business_address == "") {
-                        throw new \Exception('Chưa điền đủ thông tin khách hàng doanh nghiệp');
-                    }
-                }
-                if ($contractType == 1) {
-                    if ($form->total_fee == "" || $form->net_revenue == "") {
-                        throw new \Exception('Chưa điền đủ tổng phí dịch vụ và doanh thu thuần');
-                    }
-                } elseif ($contractType == 1 && $statusContract == 70) {
-                    if ($form->supervisor == "") {
-                        throw new \Exception('Chưa phân công kiểm soát chất lượng');
-                    }
-                }
+                $form->code = Utils::generateCode("contracts", Admin::user()->branch_id, 0);
             }
-            $dateFields = ['issue_date', 'from_date', 'to_date'];
+            $dateFields = ['created_date', 'issue_date', 'from_date', 'to_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
                 if (!empty($value)) {
                     try {
-                        $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                        $formattedDate = Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
                         $form->input($field, $formattedDate);
                     } catch (\Exception $e) {
                     }
@@ -610,46 +578,6 @@ class ContractController extends AdminController
         $script = <<<EOT
         var contracts = $contracts;
         var customerType;
-        $(document).on('change', ".code_pre_contracts", function(){
-            var contract = contracts[this.value];
-            $(".customer_type").val(contract.customer_type).trigger('change');
-            $(".selected_id_number").val(contract.selected_id_number).trigger('change');
-            $(".payment_type").val(contract.payment_type).trigger('change');
-            $("#tax_number").val(contract.tax_number);  
-            $("#business_name").val(contract.business_name);
-            $("#personal_address").val(contract.personal_address);
-            $("#business_address").val(contract.business_address);
-            $("#representative").val(contract.representative);
-            $("#position").val(contract.position);
-            $("#personal_name").val(contract.personal_name);
-            $("#id_number").val(contract.id_number);
-            $("#issue_place").val(contract.issue_place);  
-            $("#issue_date").val(contract.issue_date); 
-            $(".docs_representative").val(contract.docs_representative).trigger('change');
-            $(".docs_authorization").val(contract.docs_authorization).trigger('change');
-            $(".docs_position").val(contract.docs_position).trigger('change');
-            $(".docs_stk").val(contract.docs_stk).trigger('change');
-            $(".property").val(contract.property);
-            $("#purpose").val(contract.purpose);
-            $("#appraisal_date").val(contract.appraisal_date);
-            $("#from_date").val(contract.from_date);
-            $("#to_date").val(contract.to_date);
-            $("#total_fee").val(contract.total_fee);
-            $(".type_fees").val(contract.type_fees).trigger('change');
-            $("#advance_fee").val(contract.advance_fee);
-            $("#broker").val(contract.broker);
-            $("#source").val(contract.source);
-            $("#sale").val(contract.sale);
-            $("#net_revenue").val(contract.net_revenue);
-            $(".tdv").val(contract.tdv).trigger('change');
-            $(".legal_representative").val(contract.legal_representative).trigger('change');
-            $(".tdv_migrate").val(contract.tdv_migrate).trigger('change');
-            $(".tdv_assistant").val(contract.tdv_assistant).trigger('change');
-            $(".supervisor").val(contract.supervisor).trigger('change');
-            $("#contact").val(contract.contact);
-            $("#note").val(contract.note);
-            $("#document").val(contract.document);
-        });
 
         $(document).on('change', ".selected_id_number, .selected_tax_number", function () {
             var contract = contracts[this.value];

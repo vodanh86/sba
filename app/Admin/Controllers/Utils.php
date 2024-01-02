@@ -9,6 +9,7 @@ use App\Http\Models\Status;
 use App\Http\Models\Branch;
 use App\Http\Models\Notification;
 use Pusher\Pusher;
+use Carbon\Carbon;
 
 abstract class Utils
 {
@@ -60,22 +61,28 @@ abstract class Utils
         $pusher->trigger(Constant::PUSHER_CHANNEL, Constant::PUSHER_EVENT, $data);
     }
 
-    public static function generateCode($table, $branchId)
+    public static function generateCode($table, $branchId, $type)
     {
         $code = DB::table($table)
             ->select(DB::raw('code'))
             ->where('branch_id', $branchId)
+            ->where('contract_type', $type)
             ->where('code', 'like', '%' . date('ym') . '%')
             ->orderByDesc('id')
             ->first();
+
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
-            $currentIndex = substr($code->code, 1, 7);
-            return "S" . ($currentIndex + 1) . ".$branchCode";
+            if ($type == 0) {
+                $currentIndex = substr($code->code, 2, 8);
+                return "KS" . ($currentIndex + 1) . ".$branchCode";
+            } else {
+                $currentIndex = substr($code->code, 1, 7);
+                return "S" . ($currentIndex + 1) . ".$branchCode";
+            }
         }
         return "S" . date('ym') . "001.$branchCode";
     }
-
     public static function generateInvitationCode($table)
     {
         $code = DB::table($table)
@@ -167,11 +174,11 @@ abstract class Utils
         $remainder = $number - $billions * 1000000000 - $millions * 1000000 - $thousands * 1000;
 
         if ($billions > 0) {
-            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
+            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . 'tỷ ';
         }
 
         if ($millions > 0) {
-            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
+            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . 'triệu ';
         }
 
         if ($thousands > 0) {
