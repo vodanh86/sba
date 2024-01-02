@@ -74,7 +74,7 @@ abstract class Utils
         $branchCode = Branch::find($branchId)->code;
         if ($code) {
             if ($type == 0) {
-                $currentIndex = intval(substr($code->code, 2, 8));
+                $currentIndex = intval(substr($code->code, 2));
                 return "KS" . ($currentIndex + 1) . ".$branchCode";
             } else {
                 $currentIndex = intval(substr($code->code, 1, 7));
