@@ -45,7 +45,14 @@ class OfficialAssessmentController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('contract.code', __('official_assessment.contract_id'));
-        $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
+        $grid->column('created_date', __('Ngày hợp đồng'))->display(function ($createdDate) {
+            if($createdDate == null){
+                return "";
+            }else{
+                $convertDay = Carbon::parse($createdDate)->timezone(Config::get('app.timezone'));
+                return $convertDay->format('d/m/Y');
+            }
+        });
         $grid->column('certificate_code', __('Mã chứng thư'))->filter('like');
         $grid->column('certificate_date', __('Ngày chứng thư'))->display($dateFormatter);
         $grid->column('contract.property', __('Tài sản thẩm định giá'))->width(150);
