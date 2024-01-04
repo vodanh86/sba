@@ -174,15 +174,15 @@ abstract class Utils
         $remainder = $number - $billions * 1000000000 - $millions * 1000000 - $thousands * 1000;
 
         if ($billions > 0) {
-            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . 'tỷ ';
+            $result .= self::convertHundred($billions, $units, $teens, $tens, $hundreds) . ' tỷ ';
         }
 
         if ($millions > 0) {
-            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . 'triệu ';
+            $result .= self::convertHundred($millions, $units, $teens, $tens, $hundreds) . ' triệu ';
         }
 
         if ($thousands > 0) {
-            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
+            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . ' nghìn ';
         }
 
         if ($remainder > 0) {
