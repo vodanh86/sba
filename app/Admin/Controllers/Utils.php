@@ -80,8 +80,13 @@ abstract class Utils
                 $currentIndex = intval(substr($code->code, 1, 7));
                 return "S" . str_pad(($currentIndex + 1), 7, '0', STR_PAD_LEFT) . ".$branchCode";
             }
+        }else{
+            if($type == 0) {
+                return "KS" . date('ym') . "001.$branchCode";
+            }else{
+                return "S" . date('ym') . "001.$branchCode";
+            }
         }
-        return "S" . date('ym') . "001.$branchCode";
     }
     public static function generateInvitationCode($table)
     {
