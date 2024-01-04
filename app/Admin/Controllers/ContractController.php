@@ -613,12 +613,21 @@ class ContractController extends AdminController
         $(document).on('change', ".code_pre_contracts", function(){
             var contract = contracts[this.value];
             $(".customer_type").val(contract.customer_type).trigger('change');
-            $(".selected_id_number").val(contract.selected_id_number).trigger('change');
-            $(".payment_type").val(contract.payment_type).trigger('change');
-            $("#tax_number").val(contract.tax_number);  
+            console.log(contract);
+            if(+contract.customer_type === 2){
+                if (contract.selected_id_number !== undefined && contract.selected_id_number !== null) {
+                    $(".selected_id_number").val(contract.selected_id_number).trigger('change');
+                }
+            }else{
+                if (contract.selected_tax_number !== undefined && contract.selected_tax_number !== null) {
+                    $(".selected_tax_number").val(contract.selected_tax_number).trigger('change');
+                }
+            }
+            $("#tax_number").val(contract.tax_number);
             $("#business_name").val(contract.business_name);
-            $("#personal_address").val(contract.personal_address);
             $("#business_address").val(contract.business_address);
+            $(".payment_type").val(contract.payment_type).trigger('change');
+            $("#personal_address").val(contract.personal_address);
             $("#representative").val(contract.representative);
             $("#position").val(contract.position);
             $("#personal_name").val(contract.personal_name);
@@ -655,15 +664,16 @@ class ContractController extends AdminController
             var contract = contracts[this.value];
             $("#tax_number").val(contract.tax_number);  
             $("#business_name").val(contract.business_name);
-            $("#personal_address").val(contract.personal_address);
             $("#business_address").val(contract.business_address);
             $("#representative").val(contract.representative);
             $("#position").val(contract.position);
+            $("#personal_address").val(contract.personal_address);
             $("#personal_name").val(contract.personal_name);
-            $("#id_number").val(contract.id_number);  
+            $("#id_number").val(contract.id_number);
             $("#issue_place").val(contract.issue_place);  
             $("#issue_date").val(contract.issue_date); 
         });
+        
         $(document).ready(function () {
             customerType = $('select[name="customer_type"]').val();
             $('select[name="customer_type"]').on('change', function () {
