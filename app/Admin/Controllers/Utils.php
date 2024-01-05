@@ -187,7 +187,7 @@ abstract class Utils
         }
 
         if ($thousands > 0) {
-            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . ' nghìn ';
+            $result .= self::convertHundred($thousands, $units, $teens, $tens, $hundreds) . 'nghìn ';
         }
 
         if ($remainder > 0) {
