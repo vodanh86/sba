@@ -172,7 +172,7 @@ class ScoreCardController extends AdminController
             ->where("supervisor", '=', Admin::user()->id)->whereNotIn('id', ScoreCard::pluck('contract_id')->all())->get();
 
         foreach ($contracts as $i => $contract) {
-            $officialAssessments = OfficialAssessment::where('contract_id', '=', $contract->id)->where('status', '=', Constant::ASSESSMENT_DONE_STATUS)->orWhere('status', '=', 73)->get();
+            $officialAssessments = OfficialAssessment::where('contract_id', '=', $contract->id)->where('status', '=', Constant::ASSESSMENT_DONE_STATUS)->get();
             if (count($officialAssessments) > 0) {
                 $avaiContracts[$contract->id] = $contract->code;
             }
