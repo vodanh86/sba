@@ -105,12 +105,6 @@ class OfficialAssessmentController extends AdminController
             $filter->disableIdFilter();
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
-                    $result = $this->input == "KS" ? 0 : 1;
-                    $query->where('contract_type', 'like', "%{$result}%");
-                });
-            }, 'Loại hợp đồng (KS hoặc S)');
-            $filter->where(function ($query) {
-                $query->whereHas('contract', function ($query) {
                     $query->where('code', 'like', "%{$this->input}%");
                 });
             }, 'Mã hợp đồng');
@@ -295,11 +289,13 @@ class OfficialAssessmentController extends AdminController
             $.get("$url",{q : contractId}, function (data) {
                 $(".property").val(data.property);
                 $("#certificate_code").val(data.code);
+                $("#created_date").val(data.created_date);
             });
             $(document).on('change', ".contract_id", function () {
                 $.get("$url",{q : this.value}, function (data) {
                 $(".property").val(data.property);
                 $("#certificate_code").val(data.code);
+                $("#created_date").val(data.created_date);
                 });
             });
         });
