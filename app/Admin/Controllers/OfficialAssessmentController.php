@@ -105,6 +105,12 @@ class OfficialAssessmentController extends AdminController
             $filter->disableIdFilter();
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
+                    $result = $this->input == "KS" ? 0 : 1;
+                    $query->where('contract_type', 'like', "%{$result}%");
+                });
+            }, 'Loại hợp đồng (KS hoặc S)');
+            $filter->where(function ($query) {
+                $query->whereHas('contract', function ($query) {
                     $query->where('code', 'like', "%{$this->input}%");
                 });
             }, 'Mã hợp đồng');
@@ -244,7 +250,7 @@ class OfficialAssessmentController extends AdminController
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
         $form->text('certificate_code', __('Mã chứng thư'));
-        $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY')->required();
+        $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY');
         $form->date('certificate_date', __('Ngày chứng thư'))->format('DD-MM-YYYY');
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
 
