@@ -106,7 +106,7 @@ class DoneContractController extends AdminController
         $grid->column('updated_at', __('Ngày cập nhật'))->display($dateFormatter)->width(150);
 
 
-        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', 35);
+        $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->where('status', 26);
         $grid->model()->orderBy('id', 'desc');
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
