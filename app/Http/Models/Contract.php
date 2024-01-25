@@ -13,6 +13,11 @@ class Contract extends Model
         return $this->belongsTo(InvitationLetter::class, 'invitation_letter_id');
     }
 
+    public function codePreContracts()
+    {
+        return $this->belongsTo(Contract::class, 'code_pre_contracts');
+    }
+
     public function tdvDetail()
     {
         return $this->belongsTo(AdminUser::class, 'tdv');

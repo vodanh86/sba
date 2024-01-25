@@ -96,7 +96,7 @@ class ContractController extends AdminController
             } else {
                 return "";
             }
-        })->filter('like');
+        });
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
@@ -222,6 +222,11 @@ class ContractController extends AdminController
 
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
+            $filter->where(function ($query) {
+                $query->whereHas('codePreContracts', function ($query) {
+                    $query->where('code', 'like', "%{$this->input}%");
+                });
+            }, 'Mã yêu cầu SBKS');
             $filter->date('created_date', 'Ngày hợp đồng');
             $filter->date('issue_date', 'Ngày cấp');
             $filter->date('from_date', 'Thời gian thực hiện từ ngày');
