@@ -96,7 +96,7 @@ class ContractController extends AdminController
             } else {
                 return "";
             }
-        });
+        })->filter('like');
         $grid->column('created_date', __('Ngày hợp đồng'))->display($dateFormatter);
         $grid->column('customer_type', __('Loại khách'))->using(Constant::CUSTOMER_TYPE)->filter(Constant::CUSTOMER_TYPE);
         $grid->column('tax_number', __('Mã số thuế'))->filter('like');
