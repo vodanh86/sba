@@ -2,9 +2,9 @@
 
 namespace App\Admin\Controllers;
 
+use App\Http\Models\ContractAcceptance;
 use App\Http\Models\ValuationDocument;
 use Encore\Admin\Controllers\AdminController;
-use App\Http\Models\Contract;
 use App\Http\Models\AdminUser;
 use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddValuationDocumentComment;
@@ -42,14 +42,15 @@ class ValuationDocumentController extends AdminController
         $grid->column('contract.code', __('valuation_document.contract_id'));
         $grid->column('document', __('Tài liệu'))->display(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;        });
+            return $urlsHtml;
+        });
         $grid->column('finished_date', __('Ngày hoàn thành'));
         $grid->column('performerDetail.name', __('Người thực hiện'));
         $grid->column('note', __('Chú ý'));
-        
+
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
                 return $column->editable('select', $nextStatuses);
@@ -67,7 +68,7 @@ class ValuationDocumentController extends AdminController
         })->width(100);
         $grid->model()->where('branch_id', '=', Admin::user()->branch_id)->whereIn('status', array_merge($viewStatus, $editStatus, $approveStatus));
         $grid->model()->orderBy('id', 'desc');
-        if (Utils::getCreateRole(Constant::VALUATION_DOCUMENT_TABLE) != Admin::user()->roles[0]->slug){
+        if (Utils::getCreateRole(Constant::VALUATION_DOCUMENT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
@@ -76,7 +77,7 @@ class ValuationDocumentController extends AdminController
                 $actions->disableEdit();
             }
         });
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
@@ -99,10 +100,11 @@ class ValuationDocumentController extends AdminController
         $show->field('contract.code', __('valuation_document.contract_id'));
         $show->field('document', __('Tài liệu'))->unescape()->as(function ($urls) {
             $urlsHtml = "";
-            foreach($urls as $i => $url){
-                $urlsHtml .= "<a href='".env('APP_URL').'/storage/'.$url."' target='_blank'>".basename($url)."</a><br/>";
+            foreach ($urls as $i => $url) {
+                $urlsHtml .= "<a href='" . env('APP_URL') . '/storage/' . $url . "' target='_blank'>" . basename($url) . "</a><br/>";
             }
-            return $urlsHtml;        });
+            return $urlsHtml;
+        });
         $show->field('finished_date', __('Ngày hoàn thành'));
         $show->field('performer', __('Người thực hiện'));
         $show->field('note', __('Chú ý'));
@@ -111,10 +113,10 @@ class ValuationDocumentController extends AdminController
         $show->field('updated_at', __('Ngày cập nhật'));
 
         $show->panel()
-        ->tools(function ($tools) {
-            $tools->disableEdit();
-            $tools->disableDelete();
-        });
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
         return $show;
     }
 
@@ -131,9 +133,9 @@ class ValuationDocumentController extends AdminController
             $id = request()->route()->parameter('valuation_document');
             $model = $form->model()->find($id);
             $currentStatus = $model->status;
-            $nextStatuses = StatusTransition::where(["table" => Constant::VALUATION_DOCUMENT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%'.Admin::user()->roles[0]->slug.'%')->get();
+            $nextStatuses = StatusTransition::where(["table" => Constant::VALUATION_DOCUMENT_TABLE, "status_id" => $currentStatus])->where('editors', 'LIKE', '%' . Admin::user()->roles[0]->slug . '%')->get();
             $status[$model->status] = $model->statusDetail->name;
-            foreach($nextStatuses as $nextStatus){
+            foreach ($nextStatuses as $nextStatus) {
                 $status[$nextStatus->next_status_id] = $nextStatus->nextStatus->name;
             }
         } else {
@@ -143,10 +145,12 @@ class ValuationDocumentController extends AdminController
             }
         }
         $form->select('contract_id', __('valuation_document.contract_id'))
-        ->options(Contract::where("branch_id", Admin::user()->branch_id)
-            ->where('contract_type', Constant::OFFICIAL_CONTRACT_TYPE)
-            ->whereDoesntHave('valuationDocuments')
-            ->pluck('code', 'id')
+            ->options(
+                ContractAcceptance::where("branch_id", Admin::user()->branch_id)
+                    ->where('status', 26)
+                    ->with('contract')
+                    ->get()
+                    ->pluck('contract.code', 'id')
         );
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
