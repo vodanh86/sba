@@ -148,9 +148,8 @@ class ValuationDocumentController extends AdminController
             ->options(
                 ContractAcceptance::where("branch_id", Admin::user()->branch_id)
                     ->where('status', 26)
-                    ->with('contract')
                     ->get()
-                    ->pluck('contract.code', 'id')
+                    ->pluck('contract.code', 'contract_id')
         );
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
