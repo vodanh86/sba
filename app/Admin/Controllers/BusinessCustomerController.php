@@ -55,8 +55,8 @@ class BusinessCustomerController extends AdminController
             $filter->disableIdFilter();
             $filter->like('business_name', __('Tên doanh nghiệp'));
             $filter->like('tax_number', __('Mã số thuế'));
-            $filter->date('created_at', 'Ngày tạo');
-            $filter->date('updated_at', 'Ngày cập nhật');
+            $filter->between('created_at', 'Ngày tạo')->date();
+            $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
         return $grid;
     }
