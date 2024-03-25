@@ -211,8 +211,8 @@ class ContractAcceptanceController extends AdminController
                     $query->where('name', 'like', "%{$this->input}%");
                 });
             }, 'Trạng thái');
-            $filter->date('created_at', 'Ngày tạo');
-            $filter->date('updated_at', 'Ngày cập nhật');
+            $filter->between('created_at', 'Ngày tạo')->date();
+            $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
 
         $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
