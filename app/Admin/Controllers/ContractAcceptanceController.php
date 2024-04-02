@@ -215,12 +215,13 @@ class ContractAcceptanceController extends AdminController
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
 
-        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData($grid)));
         return $grid;
     }
-    protected function processData(){
+    protected function processData($grid){
         $processedData = array();
-        foreach(ContractAcceptance::all() as $index=>$contractAcceptance){
+        $data = $grid->model()->addConditions($grid->getFilter()->conditions())->buildData(false);
+        foreach($data as $index=>$contractAcceptance){
             $processedData[] = [$contractAcceptance->id, $contractAcceptance->contract->code, $contractAcceptance->contract->property, $contractAcceptance->date_acceptance, $contractAcceptance->contract->customer_type, 
                                 $contractAcceptance->contract->tax_number,$contractAcceptance->contract->business_name, $contractAcceptance->contract->personal_address, $contractAcceptance->contract->representative,
                                 $contractAcceptance->contract->position, $contractAcceptance->contract->personal_name, $contractAcceptance->contract->id_number, $contractAcceptance->contract->issue_place, $contractAcceptance->contract->issue_date,
