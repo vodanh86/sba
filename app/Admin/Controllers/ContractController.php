@@ -165,7 +165,7 @@ class ContractController extends AdminController
         }
         $grid->model()
             ->where('branch_id', Admin::user()->branch_id)
-            ->whereNotIn('id', ContractAcceptance::pluck('contract_id'))
+            ->whereNotIn('id', ContractAcceptance::where('status', 35)->pluck('contract_id'))
             ->where(function ($query) {
                 $query->whereExists(function ($subQuery) {
                     $subQuery->select('contract_id')
