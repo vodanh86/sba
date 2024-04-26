@@ -158,10 +158,11 @@ class ContractController extends AdminController
             $grid->model()->where(function ($query) {
                 $query->where('tdv_assistant', '=', Admin::user()->id)
                     ->orWhere('supervisor', '=', Admin::user()->id)
-                    ->orWhere('tdv', '=', Admin::user()->id);
+                    ->orWhere('tdv', '=', Admin::user()->id)
+                    ->orWhere('legal_representative', '=', Admin::user()->id)
+                    ->orWhere('tdv_migrate', '=', Admin::user()->id);
             });
         }
-        // $roleName = Admin::user()->roles[0]->slug;
         $grid->model()
             ->where('branch_id', Admin::user()->branch_id)
             ->whereNotIn('id', ContractAcceptance::pluck('contract_id'))
@@ -601,7 +602,7 @@ class ContractController extends AdminController
             $dateFields = ['issue_date', 'from_date', 'to_date'];
             foreach ($dateFields as $field) {
                 $value = $form->input($field);
-                if (!empty($value)) {
+                if (!empty ($value)) {
                     try {
                         $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
                         $form->input($field, $formattedDate);
