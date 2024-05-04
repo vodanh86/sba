@@ -57,9 +57,12 @@ class PreContractController extends AdminController
 
     protected function search($condition)
     {
-        $convertIdToNameUser = function ($tdvId) {
-            $adminUser = AdminUser::find($tdvId);
-            return $adminUser ? $adminUser->name : '';
+        $userNameIds = AdminUser::pluck('name', 'id')->toArray();
+        $convertIdToNameUser = function ($tdvId) use ($userNameIds) {
+            if (in_array($tdvId, $userNameIds) == 1) {
+                return $userNameIds[$tdvId];
+            }
+            return "";
         };
         $dateFormatter = function ($updatedAt) {
             $carbonUpdatedAt = Carbon::parse($updatedAt)->timezone(Config::get('app.timezone'));
