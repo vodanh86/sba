@@ -159,12 +159,12 @@ class ReportController extends AdminController
                 $rows = [];
                 $count = 1;
                 foreach ($brokers as $broker => $row) {
-                    $rows[] = [$count, $broker, "Sơ bộ",  $row[0][0], number_format($row[0][1]), number_format($row[0][2]), Branch::find($row[3])->branch_name];
+                    $rows[] = [$count, $broker, "Sơ bộ", $row[0][0], number_format($row[0][1]), number_format($row[0][2]), Branch::find($row[3])->branch_name];
                     $rows[] = ["", "", "Chính thức", $row[1][0], number_format($row[1][1]), number_format($row[1][2]), ""];
                     $rows[] = ["", "Tổng", "", $row[2][0], number_format($row[2][1]), number_format($row[2][2]), ""];
                     $count++;
                 }
-                $rows[] = ["", "Tổng cộng", "",  $sum[0], number_format($sum[1]), number_format($sum[2])];
+                $rows[] = ["", "Tổng cộng", "", $sum[0], number_format($sum[1]), number_format($sum[2])];
             }
 
             $table = new Table($headers, $rows);
@@ -264,7 +264,7 @@ class ReportController extends AdminController
                         } else {
                             $status = "Chưa hoàn thành";
                         }
-                    }else{
+                    } else {
                         $status = "Chưa hoàn thành";
                     }
                 } else {
@@ -279,7 +279,7 @@ class ReportController extends AdminController
                         } else {
                             $status = "Chưa hoàn thành";
                         }
-                    }else{
+                    } else {
                         $status = "Chưa hoàn thành";
                     }
                 }
@@ -365,13 +365,13 @@ class ReportController extends AdminController
             foreach ($appraisers as $appraiser => $row) {
                 if (array_key_exists($appraiser, $users)) {
                     $count++;
-                    $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
+                    $rows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ", "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
                     $rows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
                     $rows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
                     $rows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
                     $rows[] = ["", "Tổng", "", "", $row[2]];
                 } else {
-                    $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ",  "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
+                    $tmpRows[] = [$count, array_key_exists($appraiser, $users) ? $users[$appraiser] : $appraiser, "Sơ bộ", "Đang xử lý", $row[0][0], array_key_exists($appraiser, $branches) ? Branch::find($branches[$appraiser])->branch_name : ""];
                     $tmpRows[] = ["", "", "Sơ bộ", "Đã hoàn thành", number_format($row[0][1])];
                     $tmpRows[] = ["", "", "Chính thức", "Đang xử lý", number_format($row[1][0])];
                     $tmpRows[] = ["", "", "Chính thức", "Đã hoàn thành", number_format($row[1][1])];
@@ -382,7 +382,7 @@ class ReportController extends AdminController
                 $tmpRows[0][0] = $count + 1;
                 $rows = array_merge($rows, $tmpRows);
             }
-            $rows[] = ["", "Tổng cộng", "",  "", $sum];
+            $rows[] = ["", "Tổng cộng", "", "", $sum];
 
             $table = new Table($headers, $rows);
             $tab = new Tab();
@@ -458,8 +458,12 @@ class ReportController extends AdminController
                 $rows[] = [
                     $i + 1,
                     !is_null($row->tdv_assistant) && array_key_exists($row->tdv_assistant, $users) ? $users[$row->tdv_assistant] : "",
-                    $row->count, is_null($row->basic_error) ? 0 : $row->basic_error, is_null($row->business_error) ? 0 : $row->business_error,
-                    is_null($row->serious_error) ? 0 : $row->serious_error, $row->score, Branch::find($row->branch_id)->branch_name
+                    $row->count,
+                    is_null($row->basic_error) ? 0 : $row->basic_error,
+                    is_null($row->business_error) ? 0 : $row->business_error,
+                    is_null($row->serious_error) ? 0 : $row->serious_error,
+                    $row->score,
+                    Branch::find($row->branch_id)->branch_name
                 ];
             }
 
@@ -494,38 +498,44 @@ class ReportController extends AdminController
 
         if ($data = session('result')) {
             if ($data["type"] == "c") {
-                $headers = ['STT', 'Số chứng thư', 'Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định gía', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
+                $headers = ['STT', 'Số chứng thư', 'Ngày chứng thư', 'Thẩm định viên', 'Đại diện pháp luật', 'Tài sản thẩm định giá', 'Mục đích thẩm định giá', 'Thời điểm thẩm định giá', 'Phương pháp thẩm định giá', 'Kết quả thẩm định giá', 'Người thực hiện', 'Chi nhánh'];
                 $users = AdminUser::pluck("name", "id")->toArray();
 
+                $query = DB::table('contract_acceptances as ca')
+                    ->join('official_assessments as oa', 'ca.contract_id', '=', 'oa.contract_id');
+
                 if (session('result')['branch_id']) {
-                    $query = ContractAcceptance::where("branch_id", session('result')['branch_id'])->where("status", 26);
+                    $query->where('ca.branch_id', session('result')['branch_id'])
+                        ->where('ca.status', 26);
                 } else {
-                    $query = ContractAcceptance::query();
+                    $query->where('ca.status', 26);
                 }
-                if (!is_null(($data["formated_from_date"]))) {
-                    $query->where('created_at', '>=', $data["formated_from_date"]);
+
+                if (!is_null($data["formated_from_date"])) {
+                    $query->where('oa.certificate_date', '>=', $data["formated_from_date"]);
                 }
-                if (!is_null(($data["formated_to_date"]))) {
-                    $query->where('created_at', '<=', $data["formated_to_date"]);
+                if (!is_null($data["formated_to_date"])) {
+                    $query->where('oa.certificate_date', '<=', $data["formated_to_date"]);
                 }
 
                 $result = $query->get();
+                
                 $rows = [];
                 foreach ($result as $i => $row) {
-                    $officialAssessment = OfficialAssessment::where("contract_id", "=", $row->contract_id)->first();
+                    $contract = Contract::where("id", "=", $row->contract_id)->first();
                     $rows[] = [
-                        $i + 1, 
-                        $officialAssessment->certificate_code, 
-                        Carbon::parse($row->certificate_date)->format('d/m/Y'), 
-                        array_key_exists($row->contract->tdv_migrate, $users) ? $users[$row->contract->tdv_migrate] : "", 
-                        array_key_exists($row->contract->legal_representative, $users) ? $users[$row->contract->legal_representative] : "", 
-                        $row->contract->property,
-                        $row->contract->purpose, 
-                        $row->contract->appraisal_date, 
-                        join(', ', $officialAssessment->assessment_type),
-                        number_format($officialAssessment->official_value), 
-                        array_key_exists($officialAssessment->performer, $users) ? $users[$officialAssessment->performer] : "", 
-                        $row->contract->branch->branch_name
+                        $i + 1,
+                        $row->certificate_code,
+                        Carbon::parse($row->certificate_date)->format('d/m/Y'),
+                        array_key_exists($contract->tdv_migrate, $users) ? $users[$contract->tdv_migrate] : "",
+                        array_key_exists($contract->legal_representative, $users) ? $users[$contract->legal_representative] : "",
+                        $contract->property,
+                        $contract->purpose,
+                        $contract->appraisal_date,
+                        $row->assessment_type,
+                        number_format($row->official_value),
+                        array_key_exists($row->performer, $users) ? $users[$row->performer] : "",
+                        $contract->branch_name
                     ];
                 }
             } else {
