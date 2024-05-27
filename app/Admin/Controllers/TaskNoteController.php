@@ -77,7 +77,7 @@ class TaskNoteController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", TaskNote::all()->toArray()));
+        //$grid->exporter(new ExcelExporter("reports.xlsx", TaskNote::all()->toArray()));
         return $grid;
     }
 

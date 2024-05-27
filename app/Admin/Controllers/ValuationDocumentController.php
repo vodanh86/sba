@@ -81,7 +81,7 @@ class ValuationDocumentController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", ValuationDocument::all()->toArray()));
+        //$grid->exporter(new ExcelExporter("reports.xlsx", ValuationDocument::all()->toArray()));
         return $grid;
     }
 

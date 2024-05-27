@@ -268,7 +268,7 @@ class ContractController extends AdminController
             $filter->between('created_at', 'Ngày tạo')->date();
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
+        //$grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
 

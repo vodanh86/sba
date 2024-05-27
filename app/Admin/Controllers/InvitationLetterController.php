@@ -98,7 +98,7 @@ class InvitationLetterController extends AdminController
             $filter->disableIdFilter();
             $filter->like('code', 'Mã thư chào');
         });
-        $grid->exporter(new ExcelExporter("reports.xlsx", InvitationLetter::all()->toArray()));
+        //new ExcelExporter("reports.xlsx", InvitationLetter::all()->toArray()));
         return $grid;
     }
 
