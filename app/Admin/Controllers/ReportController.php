@@ -541,7 +541,7 @@ class ReportController extends AdminController
             } else {
                 $headers = ['STT', 'Số hợp đồng', 'Tình trạng', 'Chi nhánh'];
                 if (session('result')['branch_id']) {
-                    $query = ValuationDocument::where("branch_id", session('result')['branch_id'])->where("status", 30);
+                    $query = ValuationDocument::where("branch_id", session('result')['branch_id'])->where("status", 30)->whereNotNull("contract_id");
                 } else {
                     $query = ValuationDocument::query();
                 }
