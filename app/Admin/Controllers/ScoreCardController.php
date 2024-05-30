@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Actions\Document\AddScoreCardComment;
+use App\Admin\Extensions\Export\DataProcessors;
 use App\Http\Models\ScoreCard;
 use App\Http\Models\Contract;
 use App\Admin\Extensions\ExcelExporter;
@@ -106,22 +107,25 @@ class ScoreCardController extends AdminController
             $filter->between('created_at', 'Ngày tạo')->date();
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
-        $dataExport = $this->processData();
-        $grid->exporter(new ExcelExporter("reports.xlsx", $dataExport));
+
+        $headings = [
+            'Id',
+            'Mã hợp đồng',
+            'Tài sản thẩm định giá',
+            'Điểm',
+            'Lỗi cơ bản',
+            'Lỗi nghiệp vụ',
+            'Lỗi nghiêm trọng',
+            'Ghi chú',
+            'Trạng thái',
+            'Bình luận',
+            'Ngày tạo',
+            'Ngày cập nhật'
+        ];
+        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processScoreCardData'], Admin::user()->branch_id, $headings));
         return $grid;
     }
-    protected function processData()
-    {
-        $processedData = array();
-        foreach (ScoreCard::all() as $index => $scoreCard) {
-            $processedData[] = [
-                $scoreCard->id, $scoreCard->contract->code, $scoreCard->contract->property, $scoreCard->score, $scoreCard->basic_error, $scoreCard->business_error,
-                $scoreCard->serious_error, $scoreCard->note, $scoreCard->statusDetail->name,
-                $scoreCard->comment, $scoreCard->created_at, $scoreCard->updated_at
-            ];
-        }
-        return $processedData;
-    }
+
     /**
      * Make a show builder.
      *

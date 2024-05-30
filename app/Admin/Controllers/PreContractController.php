@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\Export\DataProcessors;
 use App\Http\Models\Contract;
 use App\Http\Models\DocsConfig;
 use Encore\Admin\Layout\Content;
@@ -256,70 +257,51 @@ class PreContractController extends AdminController
             $filter->between('created_at', 'Ngày tạo')->date();
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
-        $dataExport = $this->processData();
-        $grid->exporter(new ExcelExporter("reports.xlsx", $dataExport));
-        return $grid;
-    }
 
-    protected function processData()
-    {
-        $processedData = array();
-        $contracts = Contract::all();
-        if (!Utils::isSuperManager(Admin::user()->id)) {
-            $contracts = Contract::where('branch_id', Admin::user()->branch_id)->get();
-        }
-        foreach ($contracts as $index => $contract) {
-            $contractType = Constant::CONTRACT_TYPE[$contract->contract_type];
-            $customerType = Constant::CUSTOMER_TYPE[$contract->customer_type];
-            $tdv = optional(AdminUser::find($contract->tdv))->name;
-            $legalRepresentative = optional(AdminUser::find($contract->legal_representative))->name;
-            $tdvMigrate = optional(AdminUser::find($contract->tdv_migrate))->name;
-            $assistant = optional(AdminUser::find($contract->tdv_assistant))->name;
-            $supervisor = optional(AdminUser::find($contract->supervisor))->name;
-            $creator = optional(AdminUser::find($contract->created_by))->name;
-            $processedData[] = [
-                $contract->id,
-                $contract->code,
-                $contractType,
-                $contract->created_date,
-                $customerType,
-                $contract->tax_number,
-                $contract->business_name,
-                $contract->business_address,
-                $contract->representative,
-                $contract->position,
-                $contract->personal_address,
-                $contract->print,
-                $contract->id_number,
-                $contract->personal_name,
-                $contract->issue_place,
-                $contract->issue_date,
-                $contract->property,
-                $contract->purpose,
-                $contract->appraisal_date,
-                $contract->from_date,
-                $contract->to_date,
-                $contract->total_fee,
-                $contract->advance_fee,
-                $contract->broker,
-                $contract->source,
-                $contract->sale,
-                $tdv,
-                $legalRepresentative,
-                $tdvMigrate,
-                $assistant,
-                $supervisor,
-                $contract->net_revenue,
-                $contract->contact,
-                $contract->note,
-                $contract->comment,
-                $contract->statusDetail->name,
-                $creator,
-                $contract->created_at,
-                $contract->updated_at
-            ];
-        }
-        return $processedData;
+        $headings = [
+            'Id',
+            'Mã hợp đồng',
+            'Mã yêu cầu SBKS',
+            'Ngày hợp đồng',
+            'Loại khách',
+            'Mã số thuế',
+            'Tên doanh nghiệp',
+            'Địa chỉ',
+            'Người đại diện',
+            'Chức vụ',
+            'Địa chỉ',
+            'In hợp đồng',
+            'Số CMND/CCCD',
+            'Họ và tên',
+            'Nơi cấp',
+            'Ngày cấp',
+            'Tài sản thẩm định giá',
+            'Mục đích thẩm định giá',
+            'Thời điểm thẩm định giá',
+            'Thời gian thực hiện từ ngày',
+            'Thời gian thực hiện đến ngày',
+            'Tổng phí dịch vụ',
+            'Loại biểu phí',
+            'Tạm ứng',
+            'Môi giới',
+            'Nguồn',
+            'Sale',
+            'Trưởng phòng nghiệp vụ',
+            'Đại diện pháp luật',
+            'Thẩm định viên',
+            'Trợ lý thẩm định viên',
+            'Kiểm soát viên',
+            'Doanh thu thuần',
+            'Liên hệ',
+            'Ghi chú',
+            'Bình luận',
+            'Trạng thái',
+            'Người tạo',
+            'Ngày tạo',
+            'Ngày cập nhật'
+        ];
+        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processPreContractData'], Admin::user()->branch_id, $headings));
+        return $grid;
     }
 
     /**
