@@ -215,7 +215,7 @@ class ContractAcceptanceController extends AdminController
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
 
-        //$grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
+        $grid->exporter(new ExcelExporter("reports.xlsx", $this->processData()));
         return $grid;
     }
     protected function processData(){
