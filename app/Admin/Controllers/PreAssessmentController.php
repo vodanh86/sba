@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\Export\DataProcessors;
 use App\Http\Models\PreAssessment;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\Contract;
@@ -110,22 +111,22 @@ class PreAssessmentController extends AdminController
             $filter->between('created_at', 'Ngày tạo')->date();
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
-        $dataExport = $this->processData();
-        $grid->exporter(new ExcelExporter("reports.xlsx", $dataExport));
-        return $grid;
-    }
 
-    protected function processData()
-    {
-        $processedData = array();
-        foreach (PreAssessment::all() as $index => $preAssessment) {
-            $performerDetail = optional(AdminUser::find($preAssessment->performer))->name;
-            $processedData[] = [
-                $preAssessment->id, $preAssessment->contract->code, $preAssessment->contract->property, $preAssessment->finished_date, $performerDetail,
-                $preAssessment->note, $preAssessment->comment, $preAssessment->statusDetail->name, $preAssessment->pre_value, $preAssessment->created_at, $preAssessment->updated_at
-            ];
-        }
-        return $processedData;
+        $headings = [
+            'Id',
+            'Mã hợp đồng',
+            'Tài sản thẩm định giá',
+            'Ngày hoàn thành',
+            'Người thực hiện',
+            'Chú ý',
+            'Ghi chú',
+            'Trạng thái',
+            'Giá trị sơ bộ',
+            'Ngày tạo',
+            'Ngày cập nhật'
+        ];
+        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processPreAssessmentData'], Admin::user()->branch_id, $headings));
+        return $grid;
     }
 
     /**

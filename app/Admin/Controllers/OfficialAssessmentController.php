@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\Export\DataProcessors;
 use App\Http\Models\OfficialAssessment;
 use App\Admin\Extensions\ExcelExporter;
 use Encore\Admin\Controllers\AdminController;
@@ -130,8 +131,25 @@ class OfficialAssessmentController extends AdminController
             $filter->between('created_at', 'Ngày tạo')->date();
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
-        $dataExport = $this->processData();
-        $grid->exporter(new ExcelExporter("reports.xlsx", $dataExport));
+
+        $headings = [
+            'Id',
+            'Mã hợp đồng',
+            'Ngày hợp đồng',
+            'Mã chứng thư',
+            'Ngày chứng thư',
+            'Tài sản thẩm định giá',
+            'Ngày hoàn thành',
+            'Người thực hiện',
+            'Phương pháp thẩm định',
+            'Ghi chú',
+            'Trạng thái',
+            'Giá trị chính thức',
+            'Bình luận',
+            'Ngày tạo',
+            'Ngày cập nhật'
+        ];
+        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processOfficialAssessmentData'], Admin::user()->branch_id, $headings));
         return $grid;
     }
     protected function processData()

@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\ExcelExporter;
+use App\Admin\Extensions\Export\DataProcessors;
 use App\Http\Models\ContractAcceptance;
 use App\Http\Models\Contract;
 use App\Http\Models\StatusTransition;
@@ -87,7 +88,7 @@ class ContractAcceptanceController extends AdminController
         });
         $grid->column('comment', __('Ghi chú'))->action(AddContractAcceptanceComment::class)->width(150)->filter('like');
         $grid->column('print', __('In nghiệm thu'))->display(function () {
-            return "<a class=\"fa fa-print\" href='print-contract-acceptance?id=".$this->id."' target='_blank'></a>";
+            return "<a class=\"fa fa-print\" href='print-contract-acceptance?id=" . $this->id . "' target='_blank'></a>";
         });
         $grid->column('status', __('Trạng thái'))->display(function ($statusId, $column) use ($approveStatus, $nextStatuses) {
             if (in_array($statusId, $approveStatus) == 1) {
@@ -107,12 +108,12 @@ class ContractAcceptanceController extends AdminController
             $doneStatusIds = $doneStatus->pluck('id')->toArray();
             if (in_array($actions->row->status, $doneStatusIds)) {
                 $actions->disableDelete();
-            }else if(!in_array($actions->row->status, $editStatus)){
+            } else if (!in_array($actions->row->status, $editStatus)) {
                 $actions->disableEdit();
             }
         });
 
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
@@ -138,10 +139,10 @@ class ContractAcceptanceController extends AdminController
                     });
                 }
             }, 'Loại khách')->radio([
-                ''  => 'Tất cả',
-                '1' => 'Khách hàng cá nhân',
-                '2' => 'Khách hàng doanh nghiệp',
-            ]);
+                        '' => 'Tất cả',
+                        '1' => 'Khách hàng cá nhân',
+                        '2' => 'Khách hàng doanh nghiệp',
+                    ]);
             $filter->where(function ($query) {
                 $query->whereHas('contract', function ($query) {
                     $query->where('tax_number', 'like', "%{$this->input}%");
@@ -194,10 +195,10 @@ class ContractAcceptanceController extends AdminController
                     $query->where('export_bill', 1);
                 }
             }, 'Xuất hoá đơn')->radio([
-                ''   => 'Tất cả',
-                'yes' => 'Có',
-                'no'  => 'Không',
-            ]);
+                        '' => 'Tất cả',
+                        'yes' => 'Có',
+                        'no' => 'Không',
+                    ]);
             $filter->where(function ($query) {
                 $input = str_replace(',', '', $this->input);
                 $query->where('advance_fee', '=', $input);
@@ -215,23 +216,39 @@ class ContractAcceptanceController extends AdminController
             $filter->between('updated_at', 'Ngày cập nhật')->date();
         });
 
-        $dataExport = $this->processData();
-        $grid->exporter(new ExcelExporter("reports.xlsx", $dataExport));
+        $headings = [
+            'Id',
+            'Mã hợp đồng',
+            'Tài sản thẩm định giá',
+            'Ngày nghiệm thu',
+            'Loại khách',
+            'Mã số thuế',
+            'Tên doanh nghiệp',
+            'Địa chỉ',
+            'Người đại diện',
+            'Chức vụ',
+            'Họ và tên',
+            'Số CMND/CCCD',
+            'Nơi cấp',
+            'Ngày cấp',
+            'Xuất hoá đơn',
+            'Đơn vị mua',
+            'Địa chỉ',
+            'Mã số thuế',
+            'Nội dung hoá đơn',
+            'Tổng phí dịch vụ',
+            'Người chuyển',
+            'Người nhận',
+            'Đã tạm ứng',
+            'Còn phải thanh toán',
+            'Trạng thái',
+            'Ngày tạo',
+            'Ngày cập nhật'
+        ];
+        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processContractAcceptanceData'], Admin::user()->branch_id, $headings));
         return $grid;
     }
-    protected function processData(){
-        $processedData = array();
-        foreach(ContractAcceptance::all() as $index=>$contractAcceptance){
-            $processedData[] = [$contractAcceptance->id, $contractAcceptance->contract->code, $contractAcceptance->contract->property, $contractAcceptance->date_acceptance, $contractAcceptance->contract->customer_type, 
-                                $contractAcceptance->contract->tax_number,$contractAcceptance->contract->business_name, $contractAcceptance->contract->personal_address, $contractAcceptance->contract->representative,
-                                $contractAcceptance->contract->position, $contractAcceptance->contract->personal_name, $contractAcceptance->contract->id_number, $contractAcceptance->contract->issue_place, $contractAcceptance->contract->issue_date,
-                                $contractAcceptance->export_bill, $contractAcceptance->buyer_name, $contractAcceptance->buyer_address, $contractAcceptance->tax_number, $contractAcceptance->bill_content,
-                                $contractAcceptance->total_fee, $contractAcceptance->delivery, $contractAcceptance->recipient, $contractAcceptance->advance_fee, $contractAcceptance->official_fee,
-                                $contractAcceptance->statusDetail->name, $contractAcceptance->created_at, $contractAcceptance->updated_at
-                                ];
-        }
-        return $processedData;
-    }
+
     /**
      * Make a show builder.
      *

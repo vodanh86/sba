@@ -1,6 +1,6 @@
 <?php
 
-Namespace App\Admin\Extensions;
+namespace App\Admin\Extensions;
 
 use App\Exports\ReportExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -9,18 +9,31 @@ use Encore\Admin\Grid\Exporters\AbstractExporter;
 class ExcelExporter extends AbstractExporter
 {
     protected $fileName;
+    protected $dataProcessor;
+    protected $branchId;
+    protected $headings;
 
-    protected $data;
 
-    public function __construct($inputFileName, $inputData) {
-        $this->fileName = $inputFileName;
-        $this->data = $inputData;
+    public function __construct($fileName, $dataProcessor, $branchId, array $headings)
+    {
+        $this->fileName = $fileName;
+        $this->dataProcessor = $dataProcessor;
+        $this->branchId = $branchId;
+        $this->headings = $headings;
     }
 
     public function export()
     {
-        $export = new ReportExport($this->data);
+        $data = $this->processData();
+
+        $export = new ReportExport($data, $this->headings);
         Excel::download($export, $this->fileName)->send();
         exit;
     }
+
+    protected function processData()
+    {
+        return call_user_func($this->dataProcessor, $this->branchId);
+    }
 }
+
