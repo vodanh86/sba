@@ -2,7 +2,7 @@
 
 namespace App\Admin\Extensions;
 
-use App\Exports\ReportExport;
+use App\Exports\DataExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Encore\Admin\Grid\Exporters\AbstractExporter;
 
@@ -26,7 +26,7 @@ class ExcelExporter extends AbstractExporter
     {
         $data = $this->processData();
 
-        $export = new ReportExport($data, $this->headings);
+        $export = new DataExport($data, $this->headings);
         Excel::download($export, $this->fileName)->send();
         exit;
     }
