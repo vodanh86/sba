@@ -6,7 +6,6 @@ use App\Http\Models\ContractAcceptance;
 use App\Http\Models\ValuationDocument;
 use Encore\Admin\Controllers\AdminController;
 use App\Http\Models\AdminUser;
-use App\Admin\Extensions\ExcelExporter;
 use App\Admin\Actions\Document\AddValuationDocumentComment;
 use App\Http\Models\StatusTransition;
 use Encore\Admin\Facades\Admin;
@@ -81,7 +80,6 @@ class ValuationDocumentController extends AdminController
             $filter->disableIdFilter();
             $filter->like('contract.code', __('Mã hợp đồng'));
         });
-        //$grid->exporter(new ExcelExporter("reports.xlsx", ValuationDocument::all()->toArray()));
         return $grid;
     }
 
@@ -150,7 +148,7 @@ class ValuationDocumentController extends AdminController
                     ->where('status', 26)
                     ->get()
                     ->pluck('contract.code', 'contract_id')
-        );
+            );
         $form->multipleFile('document', __('Tài liệu'))->removable();
         $form->date('finished_date', __('Ngày hoàn thành'))->default(date('Y-m-d'));
         $form->select('performer', __('Người thực hiện'))->options(AdminUser::where("branch_id", Admin::user()->branch_id)->pluck('name', 'id'));
