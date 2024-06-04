@@ -207,7 +207,7 @@ class DataProcessors
     public static function processPreContractData($branch_id)
     {
         $processedData = array();
-        $contracts = Contract::where('branch_id', $branch_id)->where('contract_type', 1)->get();
+        $contracts = Contract::where('branch_id', $branch_id)->where('contract_type', 0)->get();
 
         foreach ($contracts as $index => $contract) {
             $contractType = Constant::CONTRACT_TYPE[$contract->contract_type];
