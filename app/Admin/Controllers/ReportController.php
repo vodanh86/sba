@@ -171,9 +171,10 @@ class ReportController extends AdminController
             $tab = new Tab();
 
             // store in excel
+            $fileName = 'sales_report_' . Carbon::now()->format('Y_m_d_H_i_s') . '.xlsx';
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'public/files/report.xlsx');
+            Excel::store($export, 'public/files/'. $fileName);
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
                 "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
@@ -310,7 +311,7 @@ class ReportController extends AdminController
             $fileName = 'ba_report_' . Carbon::now()->format('Y_m_d_H_i_s') . '.xlsx';
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'public/files/', $fileName);
+            Excel::store($export, 'public/files/'. $fileName);
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
                 "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
