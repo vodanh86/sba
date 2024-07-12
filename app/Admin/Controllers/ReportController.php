@@ -390,12 +390,13 @@ class ReportController extends AdminController
             $tab = new Tab();
 
             // store in excel
+            $fileName = 'ba_manager_report_' . Carbon::now()->format('Y_m_d_H_i_s') . '.xlsx';
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'public/files/report.xlsx');
+            Excel::store($export, 'public/files/' . $fileName);
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
+            "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/" . $fileName . "' target='_blank'>Link</a><br/><div class='report-result'>" . $table . "</div>");
             $content->row($tab);
         }
 
@@ -473,12 +474,13 @@ class ReportController extends AdminController
             $tab = new Tab();
 
             // store in excel
+            $fileName = 'supervisor_report_' . Carbon::now()->format('Y_m_d_H_i_s') . '.xlsx';
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'public/files/report.xlsx');
+            Excel::store($export, 'public/files/' . $fileName);
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
+            "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/" . $fileName . "' target='_blank'>Link</a><br/><div class='report-result'>" . $table . "</div>");
             $content->row($tab);
         }
 
@@ -564,12 +566,13 @@ class ReportController extends AdminController
             $tab = new Tab();
 
             // store in excel
+            $fileName = 'accountant_manager_report_' . Carbon::now()->format('Y_m_d_H_i_s') . '.xlsx';
             array_unshift($rows, $headers);
             $export = new ReportExport($rows);
-            Excel::store($export, 'public/files/report.xlsx');
+            Excel::store($export, 'public/files/' . $fileName);
 
             $tab->add('Kết quả', "<b>Từ ngày: </b>" . $data['from_date'] . " <b> Đến ngày: </b> " . $data["to_date"] .
-                "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/report.xlsx' target='_blank'>Link</a><br/><div class='report-result'>" . $table . '</div>');
+            "<br/>Link download: <a href='" . env('APP_URL') . "/storage/files/" . $fileName . "' target='_blank'>Link</a><br/><div class='report-result'>" . $table . "</div>");
             $content->row($tab);
         }
 
