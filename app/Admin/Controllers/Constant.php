@@ -23,7 +23,7 @@ abstract class Constant
     const PROPRERTY_PURPOSE = array(1 => "Đất ở", 2 => "Đất nông nghiệp", 3 => "Đất TMDV", 4 => "Đất SXKD", 5 => "PNN", 6 => "Đất hỗn hợp");
     const VEHICLE_TYPE = array(1 => "Ô tô con", 2 => "Xe tải", 3 => "Xe đầu kéo", 4 => "Sơ mi rơ móc", 5 => "Xe nâng", 6 => "Tàu nội địa", 7 => "Tàu biển");
     const APPROVE_TYPE = array(0 => "Không", 1 => "Từ chối", 2 => "Đồng ý");
-    const ASSESSMENT_TYPE = array(  "So sánh" => "So sánh", 
+    const ASSESSMENT_TYPE = array(  "So sánh" => "So sánh",
                                     "Chi phí thay thế" => "Chi phí thay thế",
                                     "Chi phí tái tạo" => "Chi phí tái tạo",
                                     "Vốn hoá trực tiếp" => "Vốn hoá trực tiếp",
@@ -68,11 +68,11 @@ abstract class Constant
     const DEFAULT_STATUS = array("Mới tạo" => "Mới tạo");
     const DIRECTOR_ROLE = 'bld';
 
-    const ROLE_RESET_CONTRACT = [17,18,34];
+    const ROLE_RESET_CONTRACT = [17,18,34, 97];
     const ROLES = array("administrator" => "administrator", "bld" => "bld", "nvkd" => "nvkd", "cvnv" => "cvnv", "tpnv" => "tpnv", "kscl" => "kscl", "hckt" => "hckt");
     const TABLES = array("invitation_letters" => "invitation_letters", "pre_contracts" => "pre_contracts",
         "contracts" => "contracts", "task_notes" => "task_notes", "pre_assessments" => "pre_assessments",
-        "official_assessments" => "official_assessments", "score_cards" => "score_cards", 
+        "official_assessments" => "official_assessments", "score_cards" => "score_cards",
         "contract_acceptances" => "contract_acceptances", "valuation_documents" => "valuation_documents"
     );
 
