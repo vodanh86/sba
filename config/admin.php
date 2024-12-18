@@ -406,7 +406,7 @@ return [
     */
     'extensions' => [
     ],
-    
+
     'model_button_styles' => [
         'view'    => 'btn btn-outline-primary',
         'edit'    => 'btn btn-outline-primary',
