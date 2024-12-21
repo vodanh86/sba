@@ -167,22 +167,6 @@ class ContractController extends AdminController
         $grid->model()
             ->where('branch_id', Admin::user()->branch_id)
             ->whereNotIn('id', ContractAcceptance::where('status', 35)->pluck('contract_id'))
-            ->where(function ($query) {
-                $query->whereExists(function ($subQuery) {
-                    $subQuery->select('contract_id')
-                        ->from('contract_acceptances')
-                        ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
-                        ->where('status', '!=', Constant::DONE_CONTRACT_STATUS);
-                })
-                    ->orWhere(function ($subQuery) {
-                        $subQuery->whereNotExists(function ($innerQuery) {
-                            $innerQuery->select('contract_id')
-                                ->from('contract_acceptances')
-                                ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
-                                ->where('status', '=', Constant::DONE_CONTRACT_STATUS);
-                        });
-                    });
-            })
             ->orderBy('updated_at', 'desc');
 
         if (Utils::getCreateRole(Constant::CONTRACT_TABLE) != Admin::user()->roles[0]->slug) {

@@ -161,20 +161,6 @@ class PreContractController extends AdminController
             ->where("contract_type", 0)
             ->where('branch_id', Admin::user()->branch_id)
             ->where(function ($query) {
-                $query->whereExists(function ($subQuery) {
-                    $subQuery->select('contract_id')
-                        ->from('contract_acceptances')
-                        ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
-                        ->where('status', '!=', Constant::DONE_CONTRACT_STATUS);
-                })
-                    ->orWhere(function ($subQuery) {
-                        $subQuery->whereNotExists(function ($innerQuery) {
-                            $innerQuery->select('contract_id')
-                                ->from('contract_acceptances')
-                                ->whereColumn('contract_acceptances.contract_id', '=', 'contracts.id')
-                                ->where('status', '=', Constant::DONE_CONTRACT_STATUS);
-                        });
-                    });
             })
             ->orderBy('updated_at', 'desc');
 
