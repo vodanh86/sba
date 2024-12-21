@@ -70,20 +70,23 @@ class ValuationDocumentController extends AdminController
         if (Utils::getCreateRole(Constant::VALUATION_DOCUMENT_TABLE) != Admin::user()->roles[0]->slug) {
             $grid->disableCreateButton();
         }
-
-        $grid->export(function ($export) {
-            $export->filename('valuation_documents.xlsx');
-
-            $export->only([
-                'id',
-                'contract.code',
-                'finished_date',
-                // 'document',
-                'performerDetail.name',
-                'status',
-                'created_at',
-            ]);
-        });
+        if (Utils::isSuperManager(Admin::user()->roles[0]->id)) {
+            $grid->export(function ($export) {
+                $export->filename('valuation_documents.xlsx');
+    
+                $export->only([
+                    'id',
+                    'contract.code',
+                    'finished_date',
+                    // 'document',
+                    'performerDetail.name',
+                    'status',
+                    'created_at',
+                ]);
+            });
+        } else {
+            $grid->disableExport();
+        }
         $grid->actions(function ($actions) use ($editStatus, $grid) {
             if (!in_array($actions->row->status, $editStatus)) {
                 $actions->disableDelete();

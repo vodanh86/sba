@@ -216,7 +216,11 @@ class DoneContractController extends AdminController
             'Ngày tạo',
             'Ngày cập nhật'
         ];
-        $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processDoneContractData'], Admin::user()->branch_id, $headings));
+        if (Utils::isSuperManager(Admin::user()->roles[0]->id)) {
+            $grid->exporter(new ExcelExporter("reports.xlsx", [DataProcessors::class, 'processDoneContractData'], Admin::user()->branch_id, $headings));
+        } else {
+            $grid->disableExport();
+        }
         return $grid;
     }
     /**
