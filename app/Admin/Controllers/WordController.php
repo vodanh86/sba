@@ -212,12 +212,12 @@ class WordController extends AdminController
                 'expiration_date' => now()->addDays(30),
             ]);
 
-            $qrImage = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImage = base_path('storage/app/public/qr_codes/qr_code_' . $contractCode . '.png');
             $qrCode = new QrCode(base64_encode($qrRecordId));
             $writer = new PngWriter();
             $writer->write($qrCode)->saveToFile($qrImage);
         } else {
-            $qrImage = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImage = base_path('storage/app/public/qr_codes/qr_code_' . $contractCode . '.png');
         }
         $document->setImageValue('qr_link', $qrImage);
 
