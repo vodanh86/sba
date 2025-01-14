@@ -45,11 +45,7 @@ class QrCodeController extends Controller
 
                 if ($inputPin == $qrCodeRecord->pin_code) {
                     $suffix = explode('.', $qrCodeRecord->contract_code)[1] ?? '';
-                    $count = DB::table('qr_codes')
-                        ->where('contract_code', 'like', '%' . $suffix)
-                        ->count();
                     $ordinal = DB::table('qr_codes')
-                        ->where('contract_code', 'like', '%' . $suffix)
                         ->pluck('contract_code')
                         ->search($qrCodeRecord->contract_code);
                     $original_number = str_pad($ordinal + 1, 4, '0', STR_PAD_LEFT);

@@ -199,33 +199,26 @@ class WordController extends AdminController
         $writer = new PngWriter();
 
         $contractCode = $officialAssessment->contract->code;
-        $qrLink = env('APP_URL') . '/qr/' . base64_encode($contractCode);
 
-        $qrRecord = DB::table('qr_codes')->where('contract_code', $contractCode)->first();
+        $existingQrRecord = DB::table('qr_codes')->where('contract_code', $contractCode)->first();
 
-        if ($qrRecord) {
-            DB::table('qr_codes')->where('contract_code', $contractCode)->update([
-                'pin_code' => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
-                'expiration_date' => now()->addDays(30),
-            ]);
+        if (!$existingQrRecord) {
+            $qrLink = env('APP_URL') . '/qr/' . base64_encode($contractCode);
 
-            $qrCode = new QrCode($qrRecord->qr_code);
-        } else {
-            $qrRecord = DB::table('qr_codes')->insertGetId([
+            $qrRecordId = DB::table('qr_codes')->insertGetId([
                 'contract_code' => $contractCode,
                 'qr_code' => $qrLink,
                 'pin_code' => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
                 'expiration_date' => now()->addDays(30),
             ]);
 
-            $qrCode = new QrCode($qrLink);
+            $qrImage = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrCode = new QrCode(base64_encode($qrRecordId));
+            $writer = new PngWriter();
+            $writer->write($qrCode)->saveToFile($qrImage);
+        } else {
+            $qrImage = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
         }
-
-        $qrImage = storage_path('app/public/qr_codes/qr_code_' . $officialAssessment->contract->code . '.png');
-
-        $writer = new PngWriter();
-        $writer->write($qrCode)->saveToFile($qrImage);
-
         $document->setImageValue('qr_link', $qrImage);
 
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();

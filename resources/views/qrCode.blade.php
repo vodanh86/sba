@@ -13,19 +13,16 @@
         <div class="banner-container">
             <img src="{{ asset('thumbnail_sba.png') }}" alt="Banner" class="banner-image">
         </div>
-        <div class="head-container">
+        {{-- <div class="head-container">
             <p>Số:
-                {{-- {{ $qrCodeRecord->certificate_code }} --}}
-                316/{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('Y') }}/{{ $qrCodeRecord->original_number ?? '0000' }}.{{ explode('.', $qrCodeRecord->contract_code)[1] ?? '' }}
             </p>
             <p class="date">
                 {{ 'Hà Nội, ngày ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d') . ' tháng ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('n') . ' năm ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('Y') }}
             </p>
-        </div>
+        </div> --}}
         <h1>CHỨNG THƯ THẨM ĐỊNH GIÁ</h1>
 
         @if ($qrCodeRecord)
-            <h3>Kính gửi: {{ $qrCodeRecord->customer_name ?: 'Quý khách hàng' }}</h3>
             <div class="info-container">
                 <div class="info-row">
                     <p><strong>Mã hợp đồng:</strong></p>
@@ -33,6 +30,14 @@
                 </div>
                 <div class="info-row">
                     <p><strong>Ngày hợp đồng:</strong></p>
+                    <p>{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d-m-Y') }}</p>
+                </div>
+                <div class="info-row">
+                    <p><strong>Mã chứng thư:</strong></p>
+                    <p> 316/{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('Y') }}/{{ $qrCodeRecord->original_number ?? '0000' }}.{{ explode('.', $qrCodeRecord->contract_code)[1] ?? '' }}</p>
+                </div>
+                <div class="info-row">
+                    <p><strong>Ngày chứng thư:</strong></p>
                     <p>{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d-m-Y') }}</p>
                 </div>
                 <div class="info-row">
