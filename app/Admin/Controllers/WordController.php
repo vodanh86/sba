@@ -2,6 +2,9 @@
 
 namespace App\Admin\Controllers;
 
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+
 use App\Http\Models\AdminUser;
 use App\Http\Models\DocsConfig;
 use Encore\Admin\Controllers\AdminController;
@@ -10,6 +13,7 @@ use App\Http\Models\Contract;
 use App\Http\Models\InvitationLetter;
 use App\Http\Models\OfficialAssessment;
 use App\Http\Models\ContractAcceptance;
+use Illuminate\Support\Facades\DB;
 
 class WordController extends AdminController
 {
@@ -192,6 +196,38 @@ class WordController extends AdminController
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
         $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
+        $writer = new PngWriter();
+
+        $contractCode = $officialAssessment->contract->code;
+        $qrLink = env('APP_URL') . '/qr/' . base64_encode($contractCode);
+
+        $qrRecord = DB::table('qr_codes')->where('contract_code', $contractCode)->first();
+
+        if ($qrRecord) {
+            DB::table('qr_codes')->where('contract_code', $contractCode)->update([
+                'pin_code' => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
+                'expiration_date' => now()->addDays(30),
+            ]);
+
+            $qrCode = new QrCode($qrRecord->qr_code);
+        } else {
+            $qrRecord = DB::table('qr_codes')->insertGetId([
+                'contract_code' => $contractCode,
+                'qr_code' => $qrLink,
+                'pin_code' => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
+                'expiration_date' => now()->addDays(30),
+            ]);
+
+            $qrCode = new QrCode($qrLink);
+        }
+
+        $qrImage = storage_path('app/public/qr_codes/qr_code_' . $officialAssessment->contract->code . '.png');
+
+        $writer = new PngWriter();
+        $writer->write($qrCode)->saveToFile($qrImage);
+
+        $document->setImageValue('qr_link', $qrImage);
+
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {
             $chuc_vu = "";
