@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\QrCodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,10 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 Route::fallback(function () {
     //return view('404');
     return redirect(url('/admin'));
 });
+
+Route::get('/qr/{encoded_id}', [QrCodeController::class, 'show']);
+Route::post('/qr/{encoded_id}', [QrCodeController::class, 'show']);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin\Controllers\QrCodeController;
 use Illuminate\Routing\Router;
 
 Admin::routes();
@@ -24,6 +25,7 @@ Route::group([
     $router->get('/ba-manager-reports', 'ReportController@baManagerReport');
     $router->get('/accountant-reports', 'ReportController@accountantManagerReport');
     $router->get('/price-upload', 'UploadController@index');
+    $router->resource('qr-codes', QrCodeController::class);
     $router->resource('branches', BranchController::class);
     $router->resource('individual-customers', IndividualCustomerController::class);
     $router->resource('business-customers', BusinessCustomerController::class);
