@@ -212,14 +212,21 @@ class WordController extends AdminController
                 'expiration_date' => now()->addDays(30),
             ]);
 
-            $qrImage = base_path('storage/app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImagePath = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
             $qrCode = new QrCode(base64_encode($qrRecordId));
             $writer = new PngWriter();
-            $writer->write($qrCode)->saveToFile($qrImage);
+            $writer->write($qrCode)->saveToFile($qrImagePath);
         } else {
-            $qrImage = base_path('storage/app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImagePath = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
         }
-        $document->setImageValue('qr_link', $qrImage);
+
+        if (!file_exists($qrImagePath)) {
+            throw new \Exception("QR code image not found: $qrImagePath");
+        }
+
+        $qrImageLink = asset('storage/qr_codes/qr_code_' . $contractCode . '.png');
+
+        $document->setImageValue('qr_link', $qrImageLink);
 
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {
