@@ -224,7 +224,7 @@ class WordController extends AdminController
             throw new \Exception("QR code image not found: $qrImagePath");
         }
 
-        $qrImageLink = asset('storage/qr_codes/qr_code_' . $contractCode . '.png');
+        $qrImageLink = $qrImagePath;
 
         $document->setImageValue('qr_link', $qrImageLink);
 
