@@ -195,7 +195,7 @@ class WordController extends AdminController
         $officialAssessment->save();
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT.docx");
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT-NEW.docx");
         $writer = new PngWriter();
 
         $contractCode = $officialAssessment->contract->code;
@@ -212,12 +212,15 @@ class WordController extends AdminController
                 'expiration_date' => now()->addDays(30),
             ]);
 
-            $qrImagePath = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImagePath = public_path("storage/qr_codes/qr_code_" . $contractCode . '.png');
             $qrCode = new QrCode(base64_encode($qrRecordId));
+
             $writer = new PngWriter();
             $writer->write($qrCode)->saveToFile($qrImagePath);
+            $qrPinCode = DB::table('qr_codes')->where('id', $qrRecordId)->value('pin_code');
         } else {
-            $qrImagePath = storage_path('app/public/qr_codes/qr_code_' . $contractCode . '.png');
+            $qrImagePath = public_path("storage/qr_codes/qr_code_" . $contractCode . '.png');
+            $qrPinCode = $existingQrRecord->pin_code;
         }
 
         if (!file_exists($qrImagePath)) {
@@ -225,8 +228,6 @@ class WordController extends AdminController
         }
 
         $qrImageLink = $qrImagePath;
-
-        $document->setImageValue('qr_link', $qrImageLink);
 
         $docsConfig = DocsConfig::where("type", "Chứng thư")->where("branch_id", $officialAssessment->contract->branch_id)->get();
         if ($docsConfig) {
@@ -258,26 +259,67 @@ class WordController extends AdminController
         } else if ($officialAssessment->contract->branch_id == 5) {
             $document->setValue('branch', "Bắc Ninh");
         }
+
+        $contractCodes = DB::table('qr_codes')->pluck('contract_code')->toArray();
+        $suffix = explode('.', $contractCode)[1] ?? '';
+        $ordinal = array_search($contractCode, $contractCodes);
+        $original_number = str_pad(($ordinal !== false ? $ordinal + 1 : 1), 4, '0', STR_PAD_LEFT);
+
+        $document->setImageValue('qr_link', $qrImageLink);
+        $document->setValue('branch_code', $suffix);
+        $document->setValue('pin_code', $qrPinCode);
+        $document->setValue(
+            'original_number',
+            '316/' . \Carbon\Carbon::parse($officialAssessment->contract->created_date)->format('Y') . '/' .
+            ($original_number ?? '0000') . '.' .
+            (explode('.', $contractCode)[1] ?? '')
+        );
+
         $document->setValue('code', $officialAssessment->contract->code);
         $document->setValue('today', $today);
         $document->setValue('created_date', $dateFormatter($officialAssessment->contract->created_date));
         $document->setValue('certificate_date', $dateFormatter($officialAssessment->certificate_date));
         if ($officialAssessment->contract->personal_name == "") {
-            $document->setValue('personal_name', $officialAssessment->contract->business_name);
+            $document->setValue('full_name', $officialAssessment->contract->business_name);
+            $document->setValue('business_name', $officialAssessment->contract->business_name);
+
+            $document->setValue('personal_name', '........................................');
+
         } else {
+            $document->setValue('full_name', $officialAssessment->contract->personal_name);
             $document->setValue('personal_name', $officialAssessment->contract->personal_name);
+
+            $document->setValue('business_name', '.........................................................................................................');
         }
         if ($officialAssessment->contract->personal_address == "") {
-            $document->setValue('address', $officialAssessment->contract->business_address);
+            $document->setValue('business_address', $officialAssessment->contract->business_address);
+            $document->setValue('personal_address', '..........');
         } else {
-            $document->setValue('address', $officialAssessment->contract->personal_address);
+            $document->setValue('personal_address', $officialAssessment->contract->personal_address);
+            $document->setValue('business_address', '.........................................................................................................');
         }
-        $document->setValue('id_number', $officialAssessment->contract->id_number);
-        $document->setValue('issue_place', $officialAssessment->contract->issue_place);
-        $document->setValue('issue_date', $officialAssessment->contract->issue_date);
+
+        if ($officialAssessment->contract->tax_number == "") {
+            $document->setValue('id_number', $officialAssessment->contract->id_number);
+            $document->setValue('issue_place', $officialAssessment->contract->issue_place);
+            $document->setValue('issue_date', $officialAssessment->contract->issue_date);
+            $document->setValue('tax_number', '.........................................................................................................');
+
+        } else {
+            $document->setValue('tax_number', $officialAssessment->contract->tax_number);
+            $document->setValue('id_number', '...');
+            $document->setValue('issue_place', '...');
+            $document->setValue('issue_date', '...');
+        }
+
+        $assessmentType = is_array($officialAssessment->assessment_type)
+            ? implode(', ', $officialAssessment->assessment_type)
+            : $officialAssessment->assessment_type;
+
         $document->setValue('property', $officialAssessment->contract->property);
         $document->setValue('appraisal_date', $officialAssessment->contract->appraisal_date);
         $document->setValue('purpose', $officialAssessment->contract->purpose);
+        $document->setValue('assessment_type', $assessmentType);
         $document->setValue('official_value', $moneyFormatter($officialAssessment->official_value));
         $document->setValue('official_value_words', Utils::numberToWords($officialAssessment->official_value));
         $document->setValue('supervisor', $convertIdToNameUser($officialAssessment->contract->tdv_migrate));  //Tham dinh vien
