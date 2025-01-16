@@ -199,6 +199,10 @@ class WordController extends AdminController
         $writer = new PngWriter();
 
         $contractCode = $officialAssessment->contract->code;
+        $qrCodesDir = public_path('storage/qr_codes');
+        if (!file_exists($qrCodesDir)) {
+            mkdir($qrCodesDir, 0777, true);
+        }
 
         $existingQrRecord = DB::table('qr_codes')->where('contract_code', $contractCode)->first();
 
