@@ -217,7 +217,7 @@ class WordController extends AdminController
             ]);
 
             $qrImagePath = public_path("storage/qr_codes/qr_code_" . $contractCode . '.png');
-            $qrCode = new QrCode(base64_encode($qrRecordId));
+            $qrCode = new QrCode($qrLink);
 
             $writer = new PngWriter();
             $writer->write($qrCode)->saveToFile($qrImagePath);
