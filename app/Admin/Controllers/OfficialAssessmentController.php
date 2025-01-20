@@ -262,7 +262,8 @@ class OfficialAssessmentController extends AdminController
                 ->updateRules(['required', "unique:official_assessments,contract_id,{{id}}"]);
         }
         $form->textarea('property', __('Tài sản thẩm định giá'))->disable();
-        $form->text('certificate_code', __('Mã chứng thư'));
+        // $form->text('certificate_code', __('Mã chứng thư'));
+        $form->hidden('certificate_code')->default('');
         $form->date('created_date', __('Ngày hợp đồng'))->format('DD-MM-YYYY');
         $form->date('certificate_date', __('Ngày chứng thư'))->format('DD-MM-YYYY');
         $form->date('finished_date', __('Ngày hoàn thành'))->format('DD-MM-YYYY');
