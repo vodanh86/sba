@@ -190,7 +190,47 @@ class WordController extends AdminController
         };
         $id = $request->input('id');
         $today = Utils::generateDate();
+
         $officialAssessment = OfficialAssessment::find($id);
+
+        if (empty($officialAssessment->certificate_code)) {
+            $lockingRecord = DB::table('f_locking')->where('key', 'chungthu')->first();
+
+            if ($lockingRecord) {
+                $currentYear = now()->year;
+
+                if ($lockingRecord->year != $currentYear) {
+                    DB::table('f_locking')->where('id', $lockingRecord->id)->update([
+                        'value' => 10000,
+                        'year' => $currentYear,
+                    ]);
+
+                    $lockingRecord->value = 10000;
+                    $lockingRecord->year = $currentYear;
+                }
+
+                $newValue = $lockingRecord->value + 1;
+
+                DB::table('f_locking')->where('id', $lockingRecord->id)->update([
+                    'value' => $newValue,
+                ]);
+
+                $formattedValue = sprintf('%04d', $newValue);
+
+                $fixedPrefix = '316';
+                $year = $lockingRecord->year;
+                $contractCodeParts = explode('.', $officialAssessment->contract->code);
+                $contractSuffix = end($contractCodeParts);
+
+                $generatedCertificateCode = "{$fixedPrefix}/{$year}/{$formattedValue}.{$contractSuffix}";
+
+                $officialAssessment->certificate_code = $generatedCertificateCode;
+                $officialAssessment->save();
+            } else {
+                throw new \Exception("Không tìm thấy bản ghi 'chungthu' trong bảng f_locking.");
+            }
+        }
+
         $officialAssessment->num_of_prints += 1;
         $officialAssessment->save();
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
