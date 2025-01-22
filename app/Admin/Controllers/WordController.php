@@ -235,7 +235,15 @@ class WordController extends AdminController
         $officialAssessment->save();
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
-        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . "/template/SBA-CT-NEW.docx");
+
+        $templatePath = "/template/SBA-CT-NEW.docx";
+        if ($officialAssessment->contract->branch_id == 3) {
+            $templatePath = "/template/SBA-CT-HN.docx";
+        } elseif ($officialAssessment->contract->branch_id == 4) {
+            $templatePath = "/template/SBA-CT-HCM.docx";
+        }
+
+        $document = new \PhpOffice\PhpWord\TemplateProcessor(public_path() . $templatePath);
         $writer = new PngWriter();
 
         $contractCode = $officialAssessment->contract->code;
@@ -325,35 +333,21 @@ class WordController extends AdminController
         $document->setValue('certificate_date', $dateFormatter($officialAssessment->certificate_date));
         if ($officialAssessment->contract->personal_name == "") {
             $document->setValue('full_name', $officialAssessment->contract->business_name);
-            $document->setValue('business_name', $officialAssessment->contract->business_name);
-
-            $document->setValue('personal_name', '........................................');
-
         } else {
             $document->setValue('full_name', $officialAssessment->contract->personal_name);
-            $document->setValue('personal_name', $officialAssessment->contract->personal_name);
-
-            $document->setValue('business_name', '.........................................................................................................');
         }
         if ($officialAssessment->contract->personal_address == "") {
-            $document->setValue('business_address', $officialAssessment->contract->business_address);
-            $document->setValue('personal_address', '..........');
+            $document->setValue('full_address', $officialAssessment->contract->business_address);
         } else {
-            $document->setValue('personal_address', $officialAssessment->contract->personal_address);
-            $document->setValue('business_address', '.........................................................................................................');
+            $document->setValue('full_address', $officialAssessment->contract->personal_address);
         }
 
         if ($officialAssessment->contract->tax_number == "") {
-            $document->setValue('id_number', $officialAssessment->contract->id_number);
-            $document->setValue('issue_place', $officialAssessment->contract->issue_place);
-            $document->setValue('issue_date', $officialAssessment->contract->issue_date);
-            $document->setValue('tax_number', '.........................................................................................................');
-
+            $document->setValue('full_identify', $officialAssessment->contract->id_number . ' do ' . $officialAssessment->contract->issue_place . ' cấp ngày ' . $officialAssessment->contract->issue_date);
+            $document->setValue('representative', '………………………………………');
         } else {
-            $document->setValue('tax_number', $officialAssessment->contract->tax_number);
-            $document->setValue('id_number', '...');
-            $document->setValue('issue_place', '...');
-            $document->setValue('issue_date', '...');
+            $document->setValue('full_identify', $officialAssessment->contract->tax_number);
+            $document->setValue('representative', $officialAssessment->contract->representative);
         }
 
         $assessmentType = is_array($officialAssessment->assessment_type)
