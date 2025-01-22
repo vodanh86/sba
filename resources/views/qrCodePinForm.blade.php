@@ -159,8 +159,9 @@
             <div class="bg-gray-50 p-4 rounded-md">
                 <p class="text-sm text-gray-600"><strong class="font-medium">Mã hợp đồng:</strong>
                     {{ $qrCodeRecord->contract_code }}</p>
-                <p class="text-sm text-gray-600"><strong class="font-medium">Ngày tạo:</strong>
-                    {{ $qrCodeRecord->created_date }}</p>
+                    <p class="text-sm text-gray-600"><strong class="font-medium">Ngày tạo:</strong>
+                        {{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d/m/Y') }}
+                    </p>
             </div>
 
             <div class="form-group">

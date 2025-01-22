@@ -11,15 +11,8 @@
 <body>
     <div class="container">
         <div class="banner-container">
-            <img src="{{ asset('thumbnail_sba.png') }}" alt="Banner" class="banner-image">
+            <img src="{{ asset('header_sba.png') }}" alt="Banner" class="banner-image">
         </div>
-        {{-- <div class="head-container">
-            <p>Số:
-            </p>
-            <p class="date">
-                {{ 'Hà Nội, ngày ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d') . ' tháng ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('n') . ' năm ' . \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('Y') }}
-            </p>
-        </div> --}}
         <h1>CHỨNG THƯ THẨM ĐỊNH GIÁ</h1>
 
         @if ($qrCodeRecord)
@@ -59,6 +52,7 @@
             font-family: 'Times New Roman', serif;
             margin: 0;
             padding: 0;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,7 +61,6 @@
 
         .container {
             max-width: 100%;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -76,9 +69,8 @@
 
         .banner-container {
             width: 100%;
-            height: 200px;
+            height: 150px;
             max-width: 100%;
-            margin-bottom: 20px;
             position: relative;
         }
 
@@ -91,6 +83,7 @@
 
         .head-container {
             width: 100%;
+            padding: 20px;
             max-width: 800px;
             display: flex;
             justify-content: space-between;
@@ -104,6 +97,7 @@
         h1 {
             font-size: 32px;
             color: #0c4a6e;
+            padding: 20px;
             text-align: center;
             margin-bottom: 0;
         }
@@ -119,7 +113,7 @@
         .info-container {
             width: 100%;
             max-width: 800px;
-            padding: 10px 0px;
+            padding: 10px 0px 10px 50px;
             box-sizing: border-box;
         }
 
@@ -150,27 +144,17 @@
         }
 
         @media (max-width: 600px) {
-            .container {
+            h1 {
+                font-size: 24px;
                 padding: 10px;
             }
 
-            h1 {
-                font-size: 24px;
-            }
-
             .info-container {
-                padding: 10px 0px;
+                padding: 20px 10px 10px 70px;
             }
 
             p {
                 font-size: 16px;
-            }
-
-            .banner-image {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: top;
             }
         }
     </style>
