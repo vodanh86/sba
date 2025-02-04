@@ -1,11 +1,16 @@
 <?php
 
 use App\Admin\Controllers\QrCodeController;
+use App\Admin\Controllers\WordController;
 use Illuminate\Routing\Router;
 
 Admin::routes();
 
 Route::resource('admin/auth/users', \App\Admin\Controllers\CustomUserController::class)->middleware(config('admin.route.middleware'));
+Route::get('/admin/print-contract', [WordController::class, 'createContract']);
+Route::get('/admin/print-invitation-letter', [WordController::class, 'createInvitationLetter']);
+Route::get('/admin/print-official-assessment', [WordController::class, 'createOfficialAssessment']);
+Route::get('/admin/print-contract-acceptance', [WordController::class, 'createContractAcceptance']);
 
 Route::group([
     'prefix'        => config('admin.route.prefix'),
@@ -13,11 +18,6 @@ Route::group([
     'middleware'    => config('admin.route.middleware'),
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
-
-    $router->get('/print-contract', 'WordController@createContract');
-    $router->get('/print-invitation-letter', 'WordController@createInvitationLetter');
-    $router->get('/print-official-assessment', 'WordController@createOfficialAssessment');
-    $router->get('/print-contract-acceptance', 'WordController@createContractAcceptance');
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/sale-reports', 'ReportController@saleReport');
     $router->get('/ba-reports', 'ReportController@baReport');
