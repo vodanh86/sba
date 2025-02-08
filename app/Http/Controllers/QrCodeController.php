@@ -33,8 +33,8 @@ class QrCodeController extends Controller
                 'contracts.tdv_migrate',
                 'contracts.created_date',
                 'contracts.property_address',
-                'contracts.total_fee',
-                'official_assessments.certificate_code'
+                'official_assessments.certificate_code',
+                'official_assessments.official_value'
             )
             ->where('qr_codes.contract_code', $decoded_contractCode)
             ->first();

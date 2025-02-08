@@ -39,7 +39,7 @@
                 </div>
                 <div class="info-row">
                     <p><strong>Giá trị thẩm định:</strong></p>
-                    <p>{{ number_format($qrCodeRecord->total_fee) }} đồng</p>
+                    <p>{{ number_format($qrCodeRecord->official_value) }} đồng</p>
                 </div>
             </div>
         @else
