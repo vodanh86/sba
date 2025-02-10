@@ -31,7 +31,7 @@
                 </div>
                 <div class="info-row">
                     <p><strong>Ngày chứng thư:</strong></p>
-                    <p>{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('d-m-Y') }}</p>
+                    <p>{{ \Carbon\Carbon::parse($qrCodeRecord->certificate_date)->format('d-m-Y') }}</p>
                 </div>
                 <div class="info-row">
                     <p><strong>Thẩm định viên:</strong></p>
