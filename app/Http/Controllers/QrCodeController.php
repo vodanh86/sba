@@ -33,6 +33,7 @@ class QrCodeController extends Controller
                 'contracts.tdv_migrate',
                 'contracts.created_date',
                 'contracts.property_address',
+                'official_assessments.certificate_date',
                 'official_assessments.certificate_code',
                 'official_assessments.official_value'
             )
