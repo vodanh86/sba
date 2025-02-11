@@ -312,20 +312,12 @@ class WordController extends AdminController
             $document->setValue('branch', "Bắc Ninh");
         }
 
-        $contractCodes = DB::table('qr_codes')->pluck('contract_code')->toArray();
         $suffix = explode('.', $contractCode)[1] ?? '';
-        $ordinal = array_search($contractCode, $contractCodes);
-        $original_number = str_pad(($ordinal !== false ? $ordinal + 1 : 1), 4, '0', STR_PAD_LEFT);
 
         $document->setImageValue('qr_link', $qrImageLink);
         $document->setValue('branch_code', $suffix);
         $document->setValue('pin_code', $qrPinCode);
-        $document->setValue(
-            'original_number',
-            '316/' . \Carbon\Carbon::parse($officialAssessment->contract->created_date)->format('Y') . '/' .
-            ($original_number ?? '0000') . '.' .
-            (explode('.', $contractCode)[1] ?? '')
-        );
+        $document->setValue('original_number', $officialAssessment->certificate_code);
 
         $document->setValue('code', $officialAssessment->contract->code);
         $document->setValue('today', $today);
