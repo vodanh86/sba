@@ -27,7 +27,7 @@
                 </div>
                 <div class="info-row">
                     <p><strong>Mã chứng thư:</strong></p>
-                    <p> 316/{{ \Carbon\Carbon::parse($qrCodeRecord->created_date)->format('Y') }}/{{ $qrCodeRecord->original_number ?? '0000' }}.{{ explode('.', $qrCodeRecord->contract_code)[1] ?? '' }}</p>
+                    <p>{{ $qrCodeRecord->certificate_code }}</p>
                 </div>
                 <div class="info-row">
                     <p><strong>Ngày chứng thư:</strong></p>
