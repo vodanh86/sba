@@ -193,45 +193,55 @@ class WordController extends AdminController
 
         $officialAssessment = OfficialAssessment::find($id);
 
-        if ($officialAssessment->certificate_code === null || $officialAssessment->certificate_code === '') {
-            $lockingRecord = DB::table('f_locking')->where('key', 'chungthu')->first();
+        // Kiểm tra nếu không tìm thấy đánh giá chính thức
+        if (!$officialAssessment) {
+            throw new \Exception("Không tìm thấy đánh giá chính thức với ID: $id");
+        }
 
-            if ($lockingRecord) {
-                $currentYear = now()->year;
+        // Chỉ tạo mới certificate_code nếu chưa có
+        if (empty($officialAssessment->certificate_code)) {
+            // Lock hàng trong DB để tránh race condition
+            $lockingRecord = DB::table('f_locking')->where('key', 'chungthu')->lockForUpdate()->first();
 
-                if ($lockingRecord->year != $currentYear) {
-                    DB::table('f_locking')->where('id', $lockingRecord->id)->update([
-                        'value' => 10000,
-                        'year' => $currentYear,
-                    ]);
+            if (!$lockingRecord) {
+                throw new \Exception("Không tìm thấy bản ghi 'chungthu' trong bảng f_locking.");
+            }
 
-                    $lockingRecord->value = 10000;
-                    $lockingRecord->year = $currentYear;
-                }
+            $currentYear = now()->year;
 
+            // Nếu năm đã thay đổi, reset giá trị về 10000
+            if ($lockingRecord->year != $currentYear) {
+                $newValue = 10000;
+                DB::table('f_locking')->where('id', $lockingRecord->id)->update([
+                    'value' => $newValue,
+                    'year' => $currentYear,
+                ]);
+            } else {
                 $newValue = $lockingRecord->value + 1;
-
                 DB::table('f_locking')->where('id', $lockingRecord->id)->update([
                     'value' => $newValue,
                 ]);
-
-                $formattedValue = sprintf('%05d', $newValue - 10000);
-
-                $fixedPrefix = '316';
-                $year = $lockingRecord->year;
-                $contractCodeParts = explode('.', $officialAssessment->contract->code);
-                $contractSuffix = end($contractCodeParts);
-
-                $generatedCertificateCode = "{$fixedPrefix}/{$year}/{$formattedValue}.{$contractSuffix}";
-
-                $officialAssessment->certificate_code = $generatedCertificateCode;
-                $officialAssessment->save();
-            } else {
-                throw new \Exception("Không tìm thấy bản ghi 'chungthu' trong bảng f_locking.");
             }
-            $officialAssessment->num_of_prints += 1;
-            $officialAssessment->save();
+
+            // Định dạng số thứ tự
+            $formattedValue = sprintf('%05d', $newValue - 10000);
+
+            // Xây dựng mã chứng chỉ
+            $fixedPrefix = '316';
+            $year = $currentYear; // Dùng giá trị mới nhất của `year`
+            $contractCodeParts = explode('.', $officialAssessment->contract->code);
+            $contractSuffix = end($contractCodeParts);
+
+            $generatedCertificateCode = "{$fixedPrefix}/{$year}/{$formattedValue}.{$contractSuffix}";
+
+            // Cập nhật certificate_code
+            $officialAssessment->certificate_code = $generatedCertificateCode;
         }
+
+        // Tăng số lần in
+        $officialAssessment->num_of_prints += 1;
+        $officialAssessment->save();
+
 
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
