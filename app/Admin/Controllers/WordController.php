@@ -193,7 +193,7 @@ class WordController extends AdminController
 
         $officialAssessment = OfficialAssessment::find($id);
 
-        if (empty($officialAssessment->certificate_code)) {
+        if ($officialAssessment->certificate_code === null || $officialAssessment->certificate_code === '') {
             $lockingRecord = DB::table('f_locking')->where('key', 'chungthu')->first();
 
             if ($lockingRecord) {
@@ -215,7 +215,7 @@ class WordController extends AdminController
                     'value' => $newValue,
                 ]);
 
-                $formattedValue = sprintf('%04d', $newValue);
+                $formattedValue = sprintf('%05d', $newValue - 10000);
 
                 $fixedPrefix = '316';
                 $year = $lockingRecord->year;
@@ -229,10 +229,10 @@ class WordController extends AdminController
             } else {
                 throw new \Exception("Không tìm thấy bản ghi 'chungthu' trong bảng f_locking.");
             }
+            $officialAssessment->num_of_prints += 1;
+            $officialAssessment->save();
         }
 
-        $officialAssessment->num_of_prints += 1;
-        $officialAssessment->save();
         $numPrintsFormatted = ($officialAssessment->num_of_prints < 10) ? sprintf('%02d', $officialAssessment->num_of_prints) : $officialAssessment->num_of_prints;
         $name = 'SBA' . '-' . 'CT' . '-' . $officialAssessment->contract->code . '-' . $numPrintsFormatted;
 
@@ -347,7 +347,7 @@ class WordController extends AdminController
             : $officialAssessment->assessment_type;
 
         $document->setValue('property', $officialAssessment->contract->property);
-        $document->setValue('appraisal_date', $officialAssessment->contract->appraisal_date);
+        $document->setValue('appraisal_date', $officialAssessment->created_date);
         $document->setValue('purpose', $officialAssessment->contract->purpose);
         $document->setValue('assessment_type', $assessmentType);
         $document->setValue('official_value', $moneyFormatter($officialAssessment->official_value));
