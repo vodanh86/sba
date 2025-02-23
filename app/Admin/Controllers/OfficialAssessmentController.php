@@ -83,7 +83,8 @@ class OfficialAssessmentController extends AdminController
             return $urlsHtml;
         });
         $grid->column('print', __('In chứng thư'))->display(function () {
-            if (Admin::user()->roles[0]->slug === 'qlct') {
+            $hasQlctRole = Admin::user()->roles->pluck('slug')->contains('qlct');
+            if ($hasQlctRole) {
                 return "<a class=\"fa fa-print\" href='print-official-assessment?id=" . $this->id . "' target='_blank'></a>";
             }
             return '';
